@@ -25,58 +25,68 @@
             "pages": ["en/introduction", "en/key-concepts", "en/glossary", "en/installation", "en/quickstart", "en/first-workspace", "en/first-agent", "en/watching-agents"]
           },
           {
-            "group": "Day to day",
-            "icon": "gauge",
-            "collapsed": true,
-            "pages": ["en/dashboard", "en/chat", "en/issues", "en/code-changes", "en/code-review", "en/inbox", "en/approvals", "en/costs", "en/activity"]
+            "group": "Learn",
+            "pages": [
+              {
+                "group": "Day to day",
+                "icon": "gauge",
+                "expanded": false,
+                "pages": ["en/dashboard", "en/chat", "en/issues", "en/code-changes", "en/code-review", "en/inbox", "en/approvals", "en/costs", "en/activity"]
+              },
+              {
+                "group": "Your org & agents",
+                "icon": "sitemap",
+                "expanded": false,
+                "pages": ["en/agents", "en/skills", "en/team-catalog", "en/org-structure", "en/delegation", "en/agent-adapters", "en/adapter-manager"]
+              },
+              {
+                "group": "Projects & workflow",
+                "icon": "folder-tree",
+                "expanded": false,
+                "pages": ["en/projects", "en/workspaces", "en/sources", "en/routines-goals"]
+              },
+              {
+                "group": "Power features",
+                "icon": "bolt",
+                "expanded": false,
+                "pages": ["en/forge", "en/fast-apply", "en/knowledge-base", "en/observability", "en/sentry", "en/integrations"]
+              },
+              {
+                "group": "How-to guides",
+                "icon": "wrench",
+                "expanded": false,
+                "pages": ["en/connect-a-repository", "en/hire-a-team", "en/run-your-first-task", "en/review-a-pull-request", "en/build-your-knowledge-base", "en/connect-an-mcp-server"]
+              },
+              {
+                "group": "Administration",
+                "icon": "shield",
+                "expanded": false,
+                "pages": ["en/settings", "en/accounts", "en/data-and-privacy", "en/updates"]
+              }
+            ]
           },
           {
-            "group": "Your org & agents",
-            "icon": "sitemap",
-            "collapsed": true,
-            "pages": ["en/agents", "en/skills", "en/team-catalog", "en/org-structure", "en/delegation", "en/agent-adapters", "en/adapter-manager"]
-          },
-          {
-            "group": "Projects & workflow",
-            "icon": "folder-tree",
-            "collapsed": true,
-            "pages": ["en/projects", "en/workspaces", "en/sources", "en/routines-goals"]
-          },
-          {
-            "group": "Power features",
-            "icon": "bolt",
-            "collapsed": true,
-            "pages": ["en/forge", "en/fast-apply", "en/knowledge-base", "en/observability", "en/sentry", "en/integrations"]
-          },
-          {
-            "group": "How-to guides",
-            "icon": "wrench",
-            "collapsed": true,
-            "pages": ["en/connect-a-repository", "en/hire-a-team", "en/run-your-first-task", "en/review-a-pull-request", "en/build-your-knowledge-base", "en/connect-an-mcp-server"]
-          },
-          {
-            "group": "Administration",
-            "icon": "shield",
-            "collapsed": true,
-            "pages": ["en/settings", "en/accounts", "en/data-and-privacy", "en/updates"]
-          },
-          {
-            "group": "Reference · Adapters",
-            "icon": "plug",
-            "collapsed": true,
-            "pages": ["en/adapter-claude-code", "en/adapter-codex", "en/adapter-gemini", "en/adapter-cursor"]
-          },
-          {
-            "group": "Reference · MCP",
-            "icon": "brain",
-            "collapsed": true,
-            "pages": ["en/mcp-server"]
-          },
-          {
-            "group": "Reference · Integrations",
-            "icon": "puzzle-piece",
-            "collapsed": true,
-            "pages": ["en/integration-github", "en/integration-azure-devops"]
+            "group": "Reference",
+            "pages": [
+              {
+                "group": "Adapters",
+                "icon": "plug",
+                "expanded": false,
+                "pages": ["en/adapter-claude-code", "en/adapter-codex", "en/adapter-gemini", "en/adapter-cursor"]
+              },
+              {
+                "group": "MCP server",
+                "icon": "brain",
+                "expanded": false,
+                "pages": ["en/mcp-server"]
+              },
+              {
+                "group": "Integrations",
+                "icon": "puzzle-piece",
+                "expanded": false,
+                "pages": ["en/integration-github", "en/integration-azure-devops"]
+              }
+            ]
           }
         ]
       },
@@ -89,58 +99,68 @@
             "pages": ["pt/introduction", "pt/key-concepts", "pt/glossary", "pt/installation", "pt/quickstart", "pt/first-workspace", "pt/first-agent", "pt/watching-agents"]
           },
           {
-            "group": "No dia a dia",
-            "icon": "gauge",
-            "collapsed": true,
-            "pages": ["pt/dashboard", "pt/chat", "pt/issues", "pt/code-changes", "pt/code-review", "pt/inbox", "pt/approvals", "pt/costs", "pt/activity"]
+            "group": "Aprender",
+            "pages": [
+              {
+                "group": "No dia a dia",
+                "icon": "gauge",
+                "expanded": false,
+                "pages": ["pt/dashboard", "pt/chat", "pt/issues", "pt/code-changes", "pt/code-review", "pt/inbox", "pt/approvals", "pt/costs", "pt/activity"]
+              },
+              {
+                "group": "Sua org & agentes",
+                "icon": "sitemap",
+                "expanded": false,
+                "pages": ["pt/agents", "pt/skills", "pt/team-catalog", "pt/org-structure", "pt/delegation", "pt/agent-adapters", "pt/adapter-manager"]
+              },
+              {
+                "group": "Projetos & fluxo",
+                "icon": "folder-tree",
+                "expanded": false,
+                "pages": ["pt/projects", "pt/workspaces", "pt/sources", "pt/routines-goals"]
+              },
+              {
+                "group": "Recursos avançados",
+                "icon": "bolt",
+                "expanded": false,
+                "pages": ["pt/forge", "pt/fast-apply", "pt/knowledge-base", "pt/observability", "pt/sentry", "pt/integrations"]
+              },
+              {
+                "group": "Guias práticos",
+                "icon": "wrench",
+                "expanded": false,
+                "pages": ["pt/connect-a-repository", "pt/hire-a-team", "pt/run-your-first-task", "pt/review-a-pull-request", "pt/build-your-knowledge-base", "pt/connect-an-mcp-server"]
+              },
+              {
+                "group": "Administração",
+                "icon": "shield",
+                "expanded": false,
+                "pages": ["pt/settings", "pt/accounts", "pt/data-and-privacy", "pt/updates"]
+              }
+            ]
           },
           {
-            "group": "Sua org & agentes",
-            "icon": "sitemap",
-            "collapsed": true,
-            "pages": ["pt/agents", "pt/skills", "pt/team-catalog", "pt/org-structure", "pt/delegation", "pt/agent-adapters", "pt/adapter-manager"]
-          },
-          {
-            "group": "Projetos & fluxo",
-            "icon": "folder-tree",
-            "collapsed": true,
-            "pages": ["pt/projects", "pt/workspaces", "pt/sources", "pt/routines-goals"]
-          },
-          {
-            "group": "Recursos avançados",
-            "icon": "bolt",
-            "collapsed": true,
-            "pages": ["pt/forge", "pt/fast-apply", "pt/knowledge-base", "pt/observability", "pt/sentry", "pt/integrations"]
-          },
-          {
-            "group": "Guias práticos",
-            "icon": "wrench",
-            "collapsed": true,
-            "pages": ["pt/connect-a-repository", "pt/hire-a-team", "pt/run-your-first-task", "pt/review-a-pull-request", "pt/build-your-knowledge-base", "pt/connect-an-mcp-server"]
-          },
-          {
-            "group": "Administração",
-            "icon": "shield",
-            "collapsed": true,
-            "pages": ["pt/settings", "pt/accounts", "pt/data-and-privacy", "pt/updates"]
-          },
-          {
-            "group": "Referência · Adapters",
-            "icon": "plug",
-            "collapsed": true,
-            "pages": ["pt/adapter-claude-code", "pt/adapter-codex", "pt/adapter-gemini", "pt/adapter-cursor"]
-          },
-          {
-            "group": "Referência · MCP",
-            "icon": "brain",
-            "collapsed": true,
-            "pages": ["pt/mcp-server"]
-          },
-          {
-            "group": "Referência · Integrações",
-            "icon": "puzzle-piece",
-            "collapsed": true,
-            "pages": ["pt/integration-github", "pt/integration-azure-devops"]
+            "group": "Referência",
+            "pages": [
+              {
+                "group": "Adapters",
+                "icon": "plug",
+                "expanded": false,
+                "pages": ["pt/adapter-claude-code", "pt/adapter-codex", "pt/adapter-gemini", "pt/adapter-cursor"]
+              },
+              {
+                "group": "Servidor MCP",
+                "icon": "brain",
+                "expanded": false,
+                "pages": ["pt/mcp-server"]
+              },
+              {
+                "group": "Integrações",
+                "icon": "puzzle-piece",
+                "expanded": false,
+                "pages": ["pt/integration-github", "pt/integration-azure-devops"]
+              }
+            ]
           }
         ]
       }
