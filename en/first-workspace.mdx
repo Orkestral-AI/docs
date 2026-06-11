@@ -1,0 +1,178 @@
+---
+title: "Create your first workspace"
+description: "Set up a workspace, your unit of context for agents, sources and work."
+---
+
+A workspace is the home for one project, product or codebase inside Orkestral. It groups everything your AI team needs to work: the **sources** (repos and folders) it reads, the **agents** you hire, the **issues** and epics you track, and the **knowledge** distilled from your code. When you open a workspace, the whole app (the CEO orchestrator, the chat, the boards) operates inside it.
+
+This page walks you through creating your first workspace end to end, picking its accent color, and switching between workspaces once you have more than one.
+
+<Note>
+Everything stays local. Workspaces and their data live in `~/.orkestral` on your machine. There is no account to create and no project to push to a server.
+</Note>
+
+## What a workspace contains
+
+Think of a workspace as a company. The orchestrator (your **CEO**) runs it, and each part of the company has a place.
+
+<CardGroup cols={2}>
+  <Card title="Sources" icon="folder-tree">
+    The repos and folders the team reads. Connect a GitHub repo, an Azure DevOps repo, or a local folder. One source is the **primary** source.
+  </Card>
+  <Card title="Agents" icon="users">
+    Your hired team: the CEO plus specialists (Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA, Designer). Each agent is scoped to this workspace.
+  </Card>
+  <Card title="Issues" icon="list-check">
+    The work, tracked as issues and epics. The CEO plans here and delegates tasks to the right specialist.
+  </Card>
+  <Card title="Knowledge" icon="brain">
+    A distilled understanding of your sources that agents draw on for context. Orkestral builds it automatically when you add a source.
+  </Card>
+</CardGroup>
+
+<Info>
+Workspaces are isolated. Agents, issues and sources in one workspace never leak into another. This lets you keep separate projects (a client app, a side project, an internal tool) cleanly apart.
+</Info>
+
+## Before you start
+
+You only need two things to finish the wizard:
+
+- A **name** for the workspace.
+- An **orchestrator** (the CEO): an AI adapter and a model that will plan and delegate.
+
+A source is optional in the wizard. You can add repos and folders later. That said, connecting a source up front lets Orkestral analyze your code and propose a starting team, so the workspace is useful immediately.
+
+<Tip>
+If you have not connected any adapter yet, set one up first so the orchestrator step has something to pick. Local adapters keep planning and execution at $0 API cost.
+</Tip>
+
+## Create a workspace step by step
+
+When you have no active workspace, Orkestral shows the entry screen listing your available workspaces. Click **New workspace** to open the three step wizard.
+
+{/* PRINT: Workspace entry screen with the list of workspaces and the New workspace button */}
+
+<Steps>
+  <Step title="Name it and pick a color">
+    Type a clear **Name** (for example, the product or repo name). The name is required, and the **Next** button stays disabled until you type one.
+
+    Pick an accent **color** from the palette. The default is purple. The color you choose tints the workspace avatar and becomes the app accent whenever this workspace is active. See [Accent color](#the-accent-color) below for the full list.
+  </Step>
+
+  <Step title="Set the orchestrator (CEO)">
+    The orchestrator is the agent that reads your repos, plans, and delegates to specialists.
+
+    - **Agent name**: defaults to `CEO`. Rename it if you like; leaving it blank falls back to `CEO`.
+    - **Adapter**: the provider that powers the orchestrator. Only adapters that can plan appear here (execution only adapters are filtered out).
+    - **Model**: the model for that adapter. Leave it on the default, or pick a specific model from the list.
+
+    <Note>
+    Changing the adapter resets the model back to the default, so confirm the model after switching providers.
+    </Note>
+  </Step>
+
+  <Step title="Add a source (optional)">
+    Connect the code the team will work on. Use the tabs to choose a source type, then pick one. You can skip this step entirely and add sources later.
+
+    <Tabs>
+      <Tab title="GitHub">
+        Search your repositories by full name (`owner/repo`) and click one to select it. Orkestral clones it for the workspace.
+      </Tab>
+      <Tab title="Azure DevOps">
+        If you are not connected yet, click **Connect** and complete the device login in your browser. Once connected, search and pick a repo by name.
+      </Tab>
+      <Tab title="Folder">
+        Click **Choose** to pick a local folder (or paste its path). Orkestral scans it automatically. If the folder is a git repo, it becomes one source. If it contains several git repos inside, you get the parent folder plus each repo as separate, checkable items, each with an editable label. Untick anything you do not want.
+      </Tab>
+    </Tabs>
+
+    On this step you also see **Generate the starting team**. When a source is selected, this is on by default: after the source is ready, the CEO produces a hiring plan and proposes specialists based on what it finds in the code. With no source selected, the option is disabled (there is nothing to analyze yet).
+  </Step>
+
+  <Step title="Finish">
+    Click **Create workspace**. Orkestral creates the workspace, switches to it immediately, creates the orchestrator, and (if you added sources) starts cloning or indexing them. The first source you added becomes the **primary** source.
+  </Step>
+</Steps>
+
+{/* PRINT: Create workspace wizard on step 1, name field and color palette */}
+
+<Warning>
+For GitHub and Azure sources, knowledge analysis and the hiring plan run after the repo finishes cloning, so the proposed team may take a moment to appear. For a local folder it happens right away.
+</Warning>
+
+## The accent color
+
+Each workspace carries its own accent color, stored as a hex value on the workspace. The palette in the wizard matches the app's six accent themes:
+
+<CardGroup cols={3}>
+  <Card title="Purple" icon="bullseye">
+    `#a78bfa`, the default accent.
+  </Card>
+  <Card title="Blue" icon="bullseye">
+    `#60a5fa`
+  </Card>
+  <Card title="Green" icon="bullseye">
+    `#34d399`
+  </Card>
+  <Card title="Yellow" icon="bullseye">
+    `#facc15`
+  </Card>
+  <Card title="Orange" icon="bullseye">
+    `#fb923c`
+  </Card>
+  <Card title="Red" icon="bullseye">
+    `#f87171`
+  </Card>
+</CardGroup>
+
+The color does two things:
+
+1. It tints the **workspace avatar** everywhere the workspace appears (the entry screen, the switcher, headers).
+2. It sets the **app accent** while that workspace is active. Switch workspaces and the whole UI's accent shifts to match the one you opened.
+
+<Tip>
+Give each workspace a distinct color. Because the app accent follows the active workspace, the color becomes an at a glance signal for which project you are in, which helps a lot once you juggle several.
+</Tip>
+
+## Switch between workspaces
+
+Once you have more than one workspace, you move between them in two ways.
+
+<AccordionGroup>
+  <Accordion title="From the entry screen" icon="inbox">
+    When no workspace is active, the entry screen lists every workspace with its avatar, a short code, its sources (the primary one is badged), and a source count. Click a row to open it. Orkestral switches to that workspace, applies its accent, and takes you to the home view.
+  </Accordion>
+  <Accordion title="From the in app switcher" icon="sitemap">
+    Inside the app, the workspace switcher shows the current workspace. Open it to see the full list and pick another. A check marks the active one. Selecting a different workspace swaps the active context and the accent color with it.
+  </Accordion>
+</AccordionGroup>
+
+Orkestral remembers your last active workspace and reopens it on the next launch, so you land back where you left off.
+
+{/* PRINT: In app workspace switcher popover showing the list with the active workspace checked */}
+
+## Delete a workspace
+
+On the entry screen, hover a workspace row and click the trash icon to delete it. A confirmation dialog explains the action before it runs.
+
+<Warning>
+Deleting a workspace removes its agents, issues and source links from Orkestral. Your actual code on disk and your remote repos are not touched, but the workspace's tracked work is gone. There is no undo.
+</Warning>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Connect more sources" icon="folder" href="/en/sources">
+    Add repos and folders so the team sees the whole project. Choose which one is primary.
+  </Card>
+  <Card title="Hire your team" icon="users" href="/en/agents">
+    Review the CEO's proposed specialists, or add agents yourself.
+  </Card>
+  <Card title="Chat with the CEO" icon="comments" href="/en/chat">
+    Describe what you want built. The orchestrator plans and delegates.
+  </Card>
+  <Card title="Track work as issues" icon="list-check" href="/en/issues">
+    Watch tasks flow across the board as agents pick them up.
+  </Card>
+</CardGroup>

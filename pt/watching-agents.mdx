@@ -1,0 +1,196 @@
+---
+title: "Acompanhando os agentes"
+description: "Acompanhe os agentes ao vivo: sessões, traces e atividade."
+---
+
+Quando uma equipe de agentes trabalha no seu código, você quer ver o que está acontecendo sem adivinhar. O Orkestral oferece três visões ao vivo que respondem a três perguntas diferentes: o que o agente está fazendo nesta conversa, quais passos o agente deu em uma única issue, e o que esse agente já fez ao longo de todas as sessões e execuções. Esta página percorre as três para que você sempre saiba onde olhar.
+
+<CardGroup cols={3}>
+  <Card title="Sessão ao vivo" icon="comments">
+    O chat onde você acompanha o agente responder, planejar e atualizar o progresso em tempo real.
+  </Card>
+  <Card title="Trace do agente" icon="list-check">
+    Uma linha do tempo passo a passo do que o agente fez ao executar uma issue.
+  </Card>
+  <Card title="Feed de atividade" icon="chart-line">
+    Cada execução que um agente conduziu: chats, heartbeats, revisões de código e execuções de issues.
+  </Card>
+</CardGroup>
+
+## As três visões em resumo
+
+<Note>
+As três visões se atualizam sozinhas. Você não precisa recarregar nada. As sessões transmitem tokens conforme chegam, os traces enviam cada passo por um canal de eventos, e o feed de atividade rebusca os dados em um intervalo curto.
+</Note>
+
+<Tabs>
+  <Tab title="Sessão ao vivo">
+    Abra a partir de uma conversa na barra lateral. Melhor para acompanhar a resposta de um único agente, ver um plano tomar forma e aprovar o trabalho sem sair do chat.
+  </Tab>
+  <Tab title="Trace do agente">
+    Abra a partir de uma issue, na aba **Activity**. Melhor para entender exatamente quais passos rodaram durante uma execução e onde algum falhou.
+  </Tab>
+  <Tab title="Feed de atividade">
+    Abra a partir do perfil de um agente, no dashboard. Melhor para uma visão geral das execuções recentes de um agente e da taxa de sucesso.
+  </Tab>
+</Tabs>
+
+## Acompanhe uma sessão ao vivo
+
+A visão de sessão é o chat entre você e um agente. Enquanto o agente está respondendo, a conversa fica em estado de streaming e o compositor mostra que está ocupado.
+
+{/* PRINT: uma sessão ao vivo com o agente transmitindo uma resposta e o painel de progresso aberto à direita */}
+
+<Steps>
+  <Step title="Abra uma sessão">
+    Clique em uma conversa na barra lateral. A barra de ferramentas superior mostra o título da sessão e um subtítulo com o agente ativo (nome, adaptador e modelo, quando não é o padrão).
+  </Step>
+  <Step title="Acompanhe a resposta em streaming">
+    A mensagem do agente vai sendo preenchida token a token. O botão de enviar se transforma em um controle de parar enquanto uma execução está ativa.
+  </Step>
+  <Step title="Envie acompanhamentos sem interromper">
+    Se você digitar enquanto o agente ainda está trabalhando, sua mensagem é enfileirada em vez de cortar a execução. O item enfileirado aparece como um chip no compositor e sobrevive a um reload, porque a fila vive no processo principal.
+  </Step>
+  <Step title="Aprove um plano inline">
+    Quando o orquestrador produz um plano para esta sessão, um banner de aprovação aparece acima do compositor. Abra-o para revisar o épico e suas sub-issues em um painel, depois aprove e execute sem sair do chat.
+  </Step>
+</Steps>
+
+### O painel de progresso
+
+Quando o agente abre issues, lê arquivos ou consulta uma base de conhecimento nesta sessão, um painel de progresso aparece à direita (em janelas largas). Ele abre por conta própria no momento em que há algo para mostrar, e você pode alterná-lo na barra de ferramentas.
+
+<AccordionGroup>
+  <Accordion title="Checklist de progresso" icon="list-check">
+    Um checklist das issues abertas nesta sessão, com uma barra de progresso. Cada linha mostra um status ao vivo: pendente, enfileirada, em execução, em revisão, concluída, bloqueada ou cancelada. Clique em uma linha para pular para a issue. O mesmo cartão também é renderizado na parte inferior do chat enquanto um plano executa, para que a conversa nunca pareça travada.
+  </Accordion>
+  <Accordion title="Conhecimento consultado" icon="book">
+    Páginas da base de conhecimento que o agente realmente abriu, resolvidas de identificadores brutos para títulos legíveis. As consultas de busca não são listadas aqui, apenas as páginas que foram recuperadas.
+  </Accordion>
+  <Accordion title="Arquivos tocados" icon="folder-tree">
+    Arquivos que o agente leu ou editou, derivados das chamadas de ferramenta do agente e dos arquivos anexados às issues da sessão. Arquivos editados levam uma tag **edited**. Caminhos longos são encurtados para seus dois últimos segmentos.
+  </Accordion>
+</AccordionGroup>
+
+### Mudanças de código e desfazer
+
+Quando uma execução escreve código, uma barra fina aparece acima do compositor resumindo quantos arquivos mudaram, com as contagens de linhas adicionadas e removidas. A partir dali você pode revisar (**Review**) o diff na fonte, ou desfazer (**Undo**) para descartar essas mudanças.
+
+<Warning>
+**Undo** descarta as mudanças da working tree para os arquivos afetados. Use **Review** primeiro se quiser ler o diff antes de decidir.
+</Warning>
+
+### Seja notificado quando uma execução terminar
+
+Se uma execução continuar em streaming por um tempo, o Orkestral se oferece para notificar você quando ela terminar. Aceite uma vez e o app arma uma notificação de conclusão para essa sessão, para que você possa trocar de tela e receber um aviso quando o agente terminar.
+
+<Tip>
+Você pode dispensar o aviso e ele não vai insistir novamente para aquela execução. A escolha é lembrada por sessão.
+</Tip>
+
+## Leia um trace de agente
+
+Um trace é o registro passo a passo do que um agente fez ao executar uma issue. Você o encontra na página da issue, na aba **Activity**, renderizado como uma linha do tempo.
+
+{/* PRINT: a aba Activity da issue mostrando a linha do tempo do trace do agente com timestamps e durações dos passos */}
+
+Cada passo na linha do tempo carrega um tipo, um status, um título, um resumo opcional de uma linha, e uma duração assim que termina. O ponto do cabeçalho pulsa em azul enquanto algum passo ainda está rodando e fica verde quando tudo se estabiliza.
+
+<AccordionGroup>
+  <Accordion title="Iniciado" icon="circle-dashed">
+    O passo está em andamento. Aparece em azul com um indicador pulsante.
+  </Accordion>
+  <Accordion title="Concluído" icon="circle-check">
+    O passo terminou com sucesso. Aparece em verde, com sua duração medida à direita.
+  </Accordion>
+  <Accordion title="Pulado" icon="circle-dashed">
+    O passo foi pulado intencionalmente. Aparece esmaecido.
+  </Accordion>
+  <Accordion title="Falhou" icon="shield">
+    O passo falhou. Aparece em vermelho para que você encontre exatamente onde a execução quebrou.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+O trace é persistido, então ele sobrevive a sair da issue e voltar. Conforme novos passos chegam, a página se atualiza ao vivo por um canal de eventos, em vez de esperar por uma rebusca. A linha do tempo mostra os passos mais recentes e mantém uma contagem corrente no cabeçalho.
+</Info>
+
+### Trace versus a linha do tempo ao vivo
+
+Enquanto uma execução está rodando ativamente, a aba **Chat** da issue também pode mostrar uma linha do tempo ao vivo mais leve das ações do agente (enfileirada, uso de ferramenta, iniciada, finalizada, erro). Essa visão ao vivo não é persistida e desaparece ao recarregar. O trace da aba **Activity** é o registro durável ao qual você volta depois.
+
+<Note>
+Se um passo tem um resumo curto, você o vê sob o título do passo. Para passos de ferramenta, esse resumo costuma ser a pista mais útil sobre o que o agente estava de fato fazendo naquele momento.
+</Note>
+
+## Examine o feed de atividade
+
+O feed de atividade fica no perfil de um agente. Ele responde "o que esse agente tem feito ultimamente" mesclando quatro fontes em uma única lista cronológica, do mais novo para o mais antigo.
+
+{/* PRINT: um dashboard de agente mostrando cartões de estatísticas e uma lista de atividade recente com tipos variados */}
+
+<CardGroup cols={2}>
+  <Card title="Chat" icon="comments">
+    Respostas que o agente deu em sessões de chat. A linha leva direto àquela sessão.
+  </Card>
+  <Card title="Heartbeat" icon="clock">
+    Execuções de heartbeat agendadas ou manuais. O subtítulo informa qual delas foi.
+  </Card>
+  <Card title="Revisão de código" icon="code-branch">
+    Revisões de pull request em que esse agente foi o revisor. A linha leva à revisão.
+  </Card>
+  <Card title="Execução de issue" icon="robot">
+    Execuções de issue em que os executores (a Forge ou um modelo premium) fizeram o trabalho. A linha leva à issue.
+  </Card>
+</CardGroup>
+
+### Lendo uma linha
+
+Cada linha mostra um ícone para seu tipo, um título, um subtítulo opcional, o status da execução, a duração, e há quanto tempo ela começou. Uma linha vermelha aparece sob o título quando a execução carregou uma mensagem de erro. Linhas que têm um destino são clicáveis e levam você à sessão, à revisão ou à issue.
+
+<AccordionGroup>
+  <Accordion title="Cores de status" icon="gauge">
+    Os status são normalizados entre as quatro fontes em um conjunto comum: **enfileirada**, **em execução** (azul pulsante), **concluída** (verde), **erro** (vermelho) e **cancelada** (esmaecida). Assim, uma execução de issue que falhou e uma execução de chat que falhou se leem da mesma forma à primeira vista.
+  </Accordion>
+  <Accordion title="As estatísticas do dashboard" icon="chart-line">
+    Acima da lista recente, cartões de estatística resumem aproximadamente as últimas duas semanas: total de execuções, taxa de sucesso, tempo médio de execução e o último heartbeat. O detalhamento conta cada tipo (issue, chat, revisão, heartbeat) para que você saiba o que o agente faz na maior parte do tempo.
+  </Accordion>
+  <Accordion title="Filtragem" icon="magnifying-glass">
+    A lista completa de atividade permite filtrar por tipo, para que você possa isolar apenas as execuções de issue ou apenas as revisões de código quando um agente tem um histórico movimentado.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+O feed busca cada fonte de forma independente e então mescla e ordena os resultados, para que um heartbeat, uma resposta de chat e uma execução de issue caiam todos na mesma linha do tempo na ordem certa.
+</Info>
+
+## Qual visão você deve usar?
+
+<CardGroup cols={3}>
+  <Card title="Quero conduzir o trabalho agora" icon="bolt">
+    Use a **sessão ao vivo**. Acompanhe a resposta, enfileire um acompanhamento e aprove o plano inline.
+  </Card>
+  <Card title="Quero depurar uma execução" icon="list-check">
+    Use o **trace do agente** na issue. Encontre o passo exato que falhou e leia seu resumo.
+  </Card>
+  <Card title="Quero a visão geral" icon="chart-line">
+    Use o **feed de atividade** no agente. Verifique a taxa de sucesso e examine as execuções recentes.
+  </Card>
+</CardGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Planeje e delegue" icon="sitemap" href="/pt/orchestration">
+    Aprenda como o orquestrador transforma um pedido em um épico com sub-issues para a equipe.
+  </Card>
+  <Card title="Execute localmente com a Forge" icon="robot" href="/pt/forge">
+    Veja como o modelo local embutido aplica mudanças de código a custo zero de API.
+  </Card>
+  <Card title="Trabalhe no quadro de issues" icon="inbox" href="/pt/issues">
+    Acompanhe épicos e sub-issues, e abra qualquer um para ler seu trace completo.
+  </Card>
+  <Card title="Conheça seus agentes" icon="users" href="/pt/agents">
+    Abra o perfil de um agente para ver seu dashboard, estatísticas e histórico completo de atividade.
+  </Card>
+</CardGroup>

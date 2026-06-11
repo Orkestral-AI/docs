@@ -1,0 +1,182 @@
+---
+title: "Key concepts"
+description: "The mental model behind Orkestral: workspaces, sources, agents, issues, the Forge and the knowledge base."
+---
+
+Orkestral is a local-first desktop app where a team of AI agents works on your codebase with full context. Before you start clicking around, it helps to hold the right mental model. This page is the conceptual map of the whole product: six ideas that fit together, plus a link to the dedicated page for each one.
+
+The big picture in one sentence: you give a **workspace** some **sources** (your repos), a team of **agents** plans the work and turns it into **issues**, the local **Forge** executes the code changes, and everything the team learns flows into the **knowledge base**.
+
+{/* PRINT: the Orkestral operational deck with the workspace switcher, sidebar and a chat open */}
+
+## The mental model at a glance
+
+<CardGroup cols={3}>
+  <Card title="Workspace" icon="folder-tree" href="/en/workspaces">
+    The unit of context. Everything (sources, agents, issues, knowledge) belongs to a workspace.
+  </Card>
+  <Card title="Sources" icon="folder" href="/en/sources">
+    The repositories and folders the agents are allowed to read and change.
+  </Card>
+  <Card title="Agent team" icon="users" href="/en/agents">
+    A CEO orchestrator plus specialists who plan and delegate the work.
+  </Card>
+  <Card title="Issues and epics" icon="list-check" href="/en/issues">
+    Trackable work. Requests become issues, auto-grouped under epics.
+  </Card>
+  <Card title="The Forge" icon="bolt" href="/en/forge">
+    The bundled local model that executes code changes at $0 API cost.
+  </Card>
+  <Card title="Knowledge base" icon="brain" href="/en/knowledge-base">
+    A living wiki for each workspace, built from your repos.
+  </Card>
+</CardGroup>
+
+## How the pieces relate
+
+Read this flow top to bottom. Each concept feeds the next.
+
+<Steps>
+  <Step title="You open a workspace">
+    A workspace is the container for one product or area. It holds your sources, your agents, your issues and your knowledge in one place.
+  </Step>
+  <Step title="You add sources">
+    You point the workspace at the repositories and folders you want the team to work on. This is the context the agents read from.
+  </Step>
+  <Step title="The CEO agent plans">
+    You write a request in plain language. The CEO reads the sources, identifies the stack, and decides what needs to happen. It can delegate to specialists.
+  </Step>
+  <Step title="Work becomes issues">
+    Meaningful requests turn into issues, grouped under epics, with status, priority and assignee. The product is trackable work, not throwaway chat.
+  </Step>
+  <Step title="The Forge executes">
+    When code changes are needed, a premium model plans the edits and the local Forge applies them deterministically on your machine.
+  </Step>
+  <Step title="Learnings flow to the knowledge base">
+    What the team discovers about your codebase is written back into the workspace knowledge base so future work starts smarter.
+  </Step>
+</Steps>
+
+<Note>
+  Everything runs on your machine. Your code, conversations, agents and data stay local under `~/.orkestral`. No server is required and there is no telemetry.
+</Note>
+
+## Workspace: the unit of context
+
+A workspace is the boundary for everything Orkestral does. When you switch workspaces, you switch the whole world: a different set of sources, a different agent team, different issues and a different knowledge base. Nothing leaks across workspaces.
+
+Use one workspace per product, client or major area. Each workspace also carries its own accent color so you can tell them apart at a glance.
+
+<Card title="Learn about workspaces" icon="folder-tree" href="/en/workspaces">
+  How to create, switch and organize workspaces, and what lives inside each one.
+</Card>
+
+## Sources: the repos and folders
+
+Sources are the repositories and local folders you connect to a workspace. They are the ground truth the agents read from: file contents, git status, diffs and history. Without sources, the team has no context to plan against.
+
+You decide which sources a workspace can see. The agents read across them when they plan, and the Forge writes changes back into them when it executes.
+
+<Card title="Learn about sources" icon="folder" href="/en/sources">
+  How to add repositories and folders, and how the agents use them as context.
+</Card>
+
+## The agent team: CEO plus specialists
+
+Orkestral does not give you one chatbot. It gives you a team with a reporting hierarchy.
+
+- The **CEO** (orchestrator) reports to you. It reads the repo, plans and delegates.
+- The **Tech Lead** and **Code Reviewer** report to the CEO.
+- **Specialists** (Frontend, Backend, DevOps, QA, Designer) report to the Tech Lead.
+
+You talk to the CEO in natural language. To route a request straight to a specialist, mention `@agent` in chat. The CEO can also propose and hire an initial team for a new workspace.
+
+<Tip>
+  Premium models do the planning, the local Forge does the executing, and you stay in control. That split is the heart of how Orkestral keeps cost low without losing quality.
+</Tip>
+
+<Card title="Learn about the agent team" icon="users" href="/en/agents">
+  The roles, the hierarchy, hiring a team, and routing work with `@agent`.
+</Card>
+
+## Issues and epics: trackable work
+
+Every meaningful request becomes an issue. Issues carry status, priority, assignee and parent/child links, and they are auto-grouped under epics. Server-side dedup keeps you from collecting duplicates.
+
+This is the part that makes Orkestral an operational deck rather than a chat window: work does not disappear into a scroll buffer. A conversation can spawn an issue, an issue can run an agent, and the result is tracked.
+
+<AccordionGroup>
+  <Accordion title="What is the difference between an issue and an epic?" icon="list-check">
+    An issue is a single unit of work. An epic groups related issues so a larger goal stays organized. Orkestral groups issues under epics automatically.
+  </Accordion>
+  <Accordion title="Where do issues come from?" icon="comments">
+    Mostly from chat. When you describe work to the CEO, it turns the request into one or more issues with the right metadata.
+  </Accordion>
+  <Accordion title="Can an issue trigger an agent?" icon="robot">
+    Yes. Issues and chat share the same workspace context, so an issue can run an agent to plan or execute the work.
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Learn about issues and epics" icon="list-check" href="/en/issues">
+  Statuses, priorities, assignees, epics and how requests become trackable work.
+</Card>
+
+## The Forge: local execution at $0 API cost
+
+The Forge is a bundled local code model (Qwen2.5-Coder, running fully offline) that executes code changes on your machine. The pipeline is built to keep API cost near zero without writing wrong code.
+
+<Steps>
+  <Step title="A premium model plans the change">
+    It decides what files to touch and what edits to make.
+  </Step>
+  <Step title="The Forge emits the edits">
+    Running locally, it produces SEARCH/REPLACE edit blocks for the change.
+  </Step>
+  <Step title="A deterministic applier writes them">
+    Edits are applied by exact match, then whitespace-normalized, then a safe single-match fuzzy pass. Anything ambiguous is rejected rather than applied wrong.
+  </Step>
+  <Step title="Escalate only if needed">
+    If the edits cannot be applied cleanly, Orkestral escalates to a premium model once as a fallback. Otherwise the run finishes at $0 API cost.
+  </Step>
+</Steps>
+
+<Warning>
+  The applier never guesses. If an edit is ambiguous, it refuses to write rather than risk corrupting your file. A cost dashboard shows how many runs were resolved locally versus escalated.
+</Warning>
+
+<Card title="Learn about the Forge" icon="bolt" href="/en/forge">
+  How local execution works, when it escalates, and how to read the cost dashboard.
+</Card>
+
+## Knowledge base: the workspace brain
+
+Each workspace has a wiki-style knowledge base: pages with wikilinks and a graph view. It is auto-generated from your repos and searched with a mix of lexical (BM25) ranking and local semantic search (on-device embeddings). No cloud is involved.
+
+The knowledge base closes the loop. Agents read from it when they plan, and learnings get written back to it, so each task makes the next one better informed.
+
+<Card title="Learn about the knowledge base" icon="brain" href="/en/knowledge-base">
+  Pages, wikilinks, the graph view, and how local search retrieves context.
+</Card>
+
+## How it all stays unified
+
+Chat, issues, git status and diffs, code reviews and the knowledge base all live in the same workspace and feed each other. The agents read across all of them. That is why a single conversation can plan work, file issues, run the Forge, review the result and write what it learned back to the brain, without you stitching tools together.
+
+{/* PRINT: a workspace dashboard showing issues, recent activity and the knowledge graph side by side */}
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Set up your first workspace" icon="folder-tree" href="/en/workspaces">
+    Create a workspace and make it the home for your project.
+  </Card>
+  <Card title="Connect your sources" icon="folder" href="/en/sources">
+    Add the repos and folders the agents will work on.
+  </Card>
+  <Card title="Meet the agent team" icon="users" href="/en/agents">
+    Hire a team and learn how to route work with `@agent`.
+  </Card>
+  <Card title="See the Forge in action" icon="bolt" href="/en/forge">
+    Watch local execution apply real code changes at $0 cost.
+  </Card>
+</CardGroup>

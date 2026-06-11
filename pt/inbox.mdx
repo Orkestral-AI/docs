@@ -1,0 +1,167 @@
+---
+title: "Inbox"
+description: "Tudo esperando por você: perguntas, bloqueios e decisões."
+---
+
+A **Inbox** é a sua central de decisões. Ela não é uma cópia dos seus chats nem do seu quadro de issues. Ela traz à tona apenas as coisas que precisam de uma ação sua agora: um plano para aprovar, um trabalho concluído para revisar, uma issue bloqueada, um code review que falhou ou uma proposta de um agente.
+
+Quando a Inbox está vazia, o time está avançando por conta própria. Quando algo cai ali, o seu time está esperando por uma decisão que só você pode tomar.
+
+<Note>
+A Inbox mostra itens do seu **workspace ativo**. Troque de workspace pela barra lateral e a Inbox se atualiza para as decisões pendentes daquele workspace.
+</Note>
+
+{/* PRINT: The Inbox page with sections for proposals, plans, in-review work and items needing attention */}
+
+## O que cai na sua Inbox
+
+A Inbox é deliberadamente enxuta. Chats do dia a dia e issues abertas comuns ficam nas suas próprias telas. Apenas estes cinco tipos de itens aparecem, cada um com a ação embutida direto na linha.
+
+<CardGroup cols={2}>
+  <Card title="Propostas" icon="robot">
+    Agentes propõem trabalho: um plano de contratação, um especialista de fonte ou a análise de um erro do Sentry ou de um sinal de observabilidade. Você aprova, abre ou descarta.
+  </Card>
+  <Card title="Planos aguardando aprovação" icon="list-check">
+    Um épico foi quebrado em sub-issues e está esperando o seu sinal verde antes de o time executar.
+  </Card>
+  <Card title="Trabalho em revisão" icon="circle-check">
+    Sub-issues concluídas aguardando revisão, agrupadas pela tarefa pai. Você aprova ou devolve para alterações.
+  </Card>
+  <Card title="Precisa de atenção" icon="shield">
+    Issues bloqueadas e code reviews que falharam. Estes não têm aprovar ou rejeitar, mas você pode abri-los ou descartá-los.
+  </Card>
+</CardGroup>
+
+<Info>
+A Inbox se atualiza sozinha a cada poucos segundos, então novos planos, revisões e bloqueios aparecem sem você recarregar. Um pequeno selo de contagem em cada seção informa quantos itens estão esperando.
+</Info>
+
+## Como funciona
+
+A Inbox lê suas issues, agentes e atividade recente do workspace ativo e, em seguida, filtra para apenas o que é acionável. Alguns destaques da lógica para você saber o que esperar:
+
+<AccordionGroup>
+  <Accordion title="Só decisões reais aparecem" icon="bullseye">
+    Um plano aparece apenas quando o épico ainda precisa da sua aprovação e tem sub-issues reais e não canceladas sob ele. Um épico que já está concluído ou cancelado nunca pede aprovação, então você não fica perseguindo itens pendentes fantasmas.
+  </Accordion>
+  <Accordion title="Revisões automáticas ficam ocultas" icon="robot">
+    Quando o sistema encaminha o trabalho para um agente revisor pela cadeia de reporte, essa revisão automática se resolve sozinha e **não** entulha a sua Inbox. Apenas o trabalho que precisa de um aprovador humano obrigatório aparece na seção **Em revisão**.
+  </Accordion>
+  <Accordion title="Revisões são agrupadas pela tarefa pai" icon="sitemap">
+    Sub-issues em revisão são agrupadas sob seu épico pai para que você possa examiná-las e aprová-las juntas. Sub-issues órfãs (sem pai) caem em um grupo **Outras revisões**.
+  </Accordion>
+  <Accordion title="Propostas são desduplicadas e se autorresolvem" icon="puzzle-piece">
+    Propostas são desduplicadas por sessão, mantendo a mais recente. Uma proposta de contratação desaparece assim que o seu time já existe (qualquer agente que não seja orquestrador), e uma proposta de especialista de fonte desaparece assim que aquela fonte não precisa mais de um novo agente.
+  </Accordion>
+</AccordionGroup>
+
+## Agindo em cada item
+
+Toda linha carrega a sua ação inline, então você raramente precisa sair da Inbox. Clique no corpo de qualquer linha para abrir a issue, sessão ou tela relacionada e ter o contexto completo primeiro.
+
+<Tabs>
+  <Tab title="Propostas">
+    Propostas vêm dos seus agentes e variam por tipo. Cada linha tem uma ação principal, um link secundário para contexto e um descartar (X).
+
+    - **Issue do Sentry**: Clique em **Analisar e corrigir** para iniciar uma sessão que investiga e corrige o erro, ou use **Abrir no Sentry** para vê-lo no seu navegador. O corpo abre a sua tela do Sentry.
+    - **Sinal de observabilidade** (New Relic ou Better Stack): Clique em **Analisar e corrigir** para abrir uma sessão sobre o sinal, ou **Abrir** para ver a fonte. Incidentes são sinalizados de forma distinta de erros e logs.
+    - **Especialista de fonte**: Clique em **Aprovar e criar** para criar um agente especialista para aquela fonte, ou **Ver conhecimento** para inspecionar a fonte primeiro. O motivo da proposta é mostrado na linha.
+    - **Outras propostas** (como um plano de contratação): Clique na linha para abrir a sessão de origem e decidir ali.
+  </Tab>
+  <Tab title="Planos">
+    A linha de um plano mostra o título do épico, sua referência (como `ABC-12`) e quantos passos ele contém.
+
+    - Clique em **Aprovar e executar** para liberar o plano. O time começa a executar imediatamente, e você recebe um toast confirmando quantos passos foram executados ou liberados.
+    - Clique em **Ver plano** (ou no corpo da linha) para abrir o épico e ler a divisão completa antes de decidir.
+  </Tab>
+  <Tab title="Em revisão">
+    Sub-issues concluídas são agrupadas sob sua tarefa pai. O cabeçalho de cada grupo mostra o nome da tarefa, sua referência e quantos itens estão em revisão.
+
+    - **Aprovar tudo**: Aprove todas as sub-issues do grupo de uma vez. Você recebe um toast com a contagem aprovada.
+    - Em cada sub-issue, clique no check verde para **aprovar** (marca como concluída) ou no X vermelho para **devolver para alterações** (retorna ao status em andamento).
+    - Clique em uma sub-issue (ou no cabeçalho do grupo) para abri-la e ver o detalhe completo antes de decidir.
+  </Tab>
+  <Tab title="Precisa de atenção">
+    Issues bloqueadas e code reviews que falharam são informativos. Eles não têm aprovar ou rejeitar.
+
+    - **Issues bloqueadas** mostram a referência e, quando atribuídas, o nome do agente. Clique para abrir a issue e desbloqueá-la.
+    - **Code reviews que falharam** abrem a sua tela de code reviews para você ver o que deu errado.
+    - Cada linha tem um descartar (X), e o cabeçalho da seção tem um botão **Limpar** para descartar todos de uma vez.
+  </Tab>
+</Tabs>
+
+### Aprovando um plano, passo a passo
+
+<Steps>
+  <Step title="Abra a Inbox">
+    Clique em **Inbox** na barra lateral. Encontre a seção **Planos** perto do topo.
+  </Step>
+  <Step title="Leia o plano">
+    Clique em **Ver plano** para abrir o épico e revisar as sub-issues que o seu time pretende executar. Confirme que a divisão corresponde à sua intenção.
+  </Step>
+  <Step title="Aprove e execute">
+    De volta à Inbox, clique em **Aprovar e executar**. A linha mostra um spinner enquanto trabalha, e então o time começa. Um toast confirma o resultado.
+  </Step>
+  <Step title="Acompanhe a transição para revisão">
+    Conforme as sub-issues terminam, elas reaparecem na seção **Em revisão** da Inbox, prontas para a sua aprovação.
+  </Step>
+</Steps>
+
+### Revisando o trabalho concluído, passo a passo
+
+<Steps>
+  <Step title="Encontre o grupo de revisão">
+    Na seção **Em revisão**, localize o grupo da tarefa pai que te interessa.
+  </Step>
+  <Step title="Inspecione uma sub-issue">
+    Clique em qualquer sub-issue para abri-la e confirmar que a mudança é o que você queria.
+  </Step>
+  <Step title="Aprove ou devolva">
+    Use o check verde para aprovar, ou o X vermelho para devolver para alterações. Aprove o grupo inteiro de uma vez com **Aprovar tudo** quando estiver confiante.
+  </Step>
+</Steps>
+
+## Descartar versus decidir
+
+Alguns itens são decisões que mudam a issue subjacente. Outros são apenas ruído que você quer fora da sua visão. A Inbox trata esses casos de forma diferente.
+
+<Warning>
+**Aprovar** e **Devolver para alterações** mudam o status real da issue (concluída ou em andamento). **Descartar** e **Limpar** apenas ocultam o item localmente nesta máquina. Eles não mudam a issue.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="O que descartar faz" icon="circle-check">
+    Descartar uma issue bloqueada ou uma revisão que falhou a oculta da seção **Precisa de atenção** sem tocar na issue. O descarte é armazenado localmente, então o item permanece oculto até que algo nele mude.
+  </Accordion>
+  <Accordion title="Por que um item descartado pode reaparecer" icon="clock">
+    Uma issue descartada reaparece se for atualizada (seu timestamp de atualização muda), então um bloqueio que você limpou volta a aparecer se a situação realmente mudar. Eventos de atividade descartados ficam ocultos pelo seu id de evento.
+  </Accordion>
+  <Accordion title="Limpando a seção de atenção" icon="inbox">
+    O botão **Limpar** no cabeçalho de **Precisa de atenção** descarta de uma vez todas as issues bloqueadas e revisões que falharam que estão visíveis. Você recebe um toast de confirmação. Esta é uma ação de limpeza, não uma resolução.
+  </Accordion>
+</AccordionGroup>
+
+## Quando a Inbox está vazia
+
+Se não há nada esperando, você vê um estado de tudo certo com um check verde. Isso significa que nenhum plano precisa de aprovação, nada está em revisão, nada está bloqueado e não há propostas abertas. O seu time está trabalhando sem precisar de você.
+
+<Tip>
+Trate uma Inbox vazia como o objetivo de cada sessão de trabalho. Se itens se acumulam, o seu time está bloqueado nas suas decisões. Limpe planos e revisões primeiro, já que eles desbloqueiam a execução, e depois faça a triagem da seção **Precisa de atenção**.
+</Tip>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Issues e épicos" icon="list-check" href="/pt/issues">
+    Veja o quadro completo por trás dos seus planos e revisões, e aprofunde-se em qualquer issue que a Inbox vincula.
+  </Card>
+  <Card title="Agentes" icon="users" href="/pt/agents">
+    Gerencie os especialistas que suas propostas criam e veja quem está atribuído a quê.
+  </Card>
+  <Card title="Chat" icon="comments" href="/pt/chat">
+    Fale com um agente diretamente quando uma decisão precisar de uma conversa, não apenas de uma aprovação.
+  </Card>
+  <Card title="Conhecimento" icon="brain" href="/pt/knowledge">
+    Revise as fontes por trás das propostas de especialista de fonte antes de aprová-las.
+  </Card>
+</CardGroup>

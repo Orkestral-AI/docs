@@ -1,0 +1,168 @@
+---
+title: "Team catalog"
+description: "Browse and add ready-made agent roles to your org."
+---
+
+Your Orkestral org is a team of AI agents. A CEO orchestrator sits at the top, reads your repos, plans the work, and delegates to specialists: a Tech Lead, a Code Reviewer, a QA Engineer, a Designer, plus per-source experts for the languages and frameworks in your code. The **Agents** page is the catalog of that team. You browse who you already have, see each member's role and engine, and add new roles when you need more hands.
+
+This page explains what the catalog shows, where the starting team comes from, and the two ways you add a new role to your org.
+
+<Note>
+Roles in Orkestral are real, persistent agents with a name, a job title, an engine (a model adapter), and a set of capabilities. Adding a role is hiring, not a throwaway prompt. The new teammate shows up on the Agents page and can pick up issues like everyone else.
+</Note>
+
+{/* PRINT: The Agents page showing the org roster as a grid of cards */}
+
+## How the catalog works
+
+The catalog is the grid on the **Agents** page. Each card is one teammate.
+
+<CardGroup cols={2}>
+  <Card title="Identity" icon="users">
+    An avatar, the agent **name**, and the job **title** (for example, Tech Lead or QA Engineer). The CEO orchestrator is marked with a star and always sorts first.
+  </Card>
+  <Card title="Engine" icon="brain">
+    A tag for the model adapter behind the agent (Claude Code, Codex, Gemini, the Forge, and so on) plus the specific model when it is not the default.
+  </Card>
+  <Card title="Capabilities" icon="bolt">
+    Green check tags for what the role is allowed to do: edit files, run commands, create agents, assign tasks. Capabilities define how much the role can act on its own.
+  </Card>
+  <Card title="Role badge" icon="bullseye">
+    The CEO carries an orchestrator badge. Everyone else is a specialist who reports up the chain and executes the slice of work assigned to them.
+  </Card>
+</CardGroup>
+
+Click any card to open that agent and edit it. Hover a non-CEO card to reveal a remove button. The CEO cannot be removed, because every org needs an orchestrator to plan and delegate.
+
+<Tip>
+The team color and accent follow the active workspace. Switching workspaces shows that workspace's roster, so each project keeps its own org.
+</Tip>
+
+## Where your starting team comes from
+
+You do not start with an empty catalog. Orkestral provisions a baseline org for you so work can begin immediately.
+
+<Steps>
+  <Step title="The CEO is created first">
+    Every workspace gets a CEO orchestrator. It reads your connected repos, builds context, plans, and delegates. It is the role you talk to most in chat.
+  </Step>
+  <Step title="A core squad is added">
+    Orkestral fills in the roles most teams always need: a **Tech Lead** to hold architecture and decisions together, a **Code Reviewer**, a **QA Engineer**, and a **Designer**. These appear automatically and only once per workspace (no duplicates).
+  </Step>
+  <Step title="Source specialists join as you add repos">
+    When you connect a source (a repo or folder), Orkestral infers the stack and lines up matching specialists, for example a Frontend or Backend expert, so the right role owns the right part of the codebase.
+  </Step>
+</Steps>
+
+<Info>
+You do not hand-pick these from a list. They are inferred from your actual repos and the gaps in your current team, which keeps the catalog grounded in what your project really is.
+</Info>
+
+## Add a role to your org
+
+When you want a teammate the baseline did not cover, click **New agent** on the **Agents** page. The dialog opens in two modes. Pick the one that matches how much control you want.
+
+<Tabs>
+  <Tab title="Ask the CEO (recommended)">
+    Describe the role you want in plain language and let the orchestrator hire it for you. This is the fastest path and produces a well briefed teammate.
+
+    <Steps>
+      <Step title="Open New agent">
+        On the **Agents** page, click **New agent**. The dialog opens on the **Ask the CEO** tab.
+      </Step>
+      <Step title="Name the role">
+        Give the agent a **name** (for example, `Mobile Engineer` or `Security Reviewer`). This is how the teammate shows up in the catalog and in chat.
+      </Step>
+      <Step title="Write the mission">
+        In the **mission** field, say what this role is responsible for and what good looks like. The more concrete the mission, the better the CEO sets up the agent's focus and instructions.
+      </Step>
+      <Step title="Let the CEO create it">
+        Confirm, and the orchestrator opens a short session to hire the role: it picks a sensible engine and capabilities, writes the agent's instructions, and adds it to your org. The new card appears in the catalog when it is done.
+      </Step>
+    </Steps>
+
+    <Warning>
+    Asking the CEO needs an orchestrator in the workspace. If the dialog warns that no CEO is present, use **Configure manually** instead, or make sure your workspace has its orchestrator.
+    </Warning>
+  </Tab>
+
+  <Tab title="Configure manually">
+    Set every detail yourself. Use this when you want a specific engine, exact capabilities, or a precise place in the reporting chain.
+
+    <AccordionGroup>
+      <Accordion title="Name and title" icon="users">
+        The **name** identifies the agent. The optional **title** is the job label shown under the name on the card (for example, `Staff Backend Engineer`).
+      </Accordion>
+      <Accordion title="Engine and model" icon="brain">
+        Choose the **adapter** (the model provider, such as Claude Code, Codex, or Gemini) and the **model**. The available models update when you switch adapters. Provider specific fields (such as reasoning or thinking effort) appear for the engines that support them.
+      </Accordion>
+      <Accordion title="Capabilities" icon="bolt">
+        Toggle what the role may do: **edit files**, **run commands**, and more. These map to the green check tags on the catalog card. Grant only what the role needs.
+      </Accordion>
+      <Accordion title="Reports to and autonomy" icon="sitemap">
+        Set who the agent **reports to** (the CEO by default) so it sits correctly in the chain of command, and tune its **autonomy** so you control how much it does before checking back with you.
+      </Accordion>
+      <Accordion title="Avatar" icon="robot">
+        Pick an avatar seed so the teammate is easy to recognize across the catalog, chat, and issues.
+      </Accordion>
+    </AccordionGroup>
+
+    Save, and the new specialist joins the catalog right away.
+  </Tab>
+</Tabs>
+
+## Give your team tools and skills
+
+Roles cover who is on the team. To extend what they can do, open the **Tools** area and use the marketplace to add **skills** and **MCP servers** to the workspace. These attach extra capabilities (connectors, integrations, and reusable instructions) that your agents can draw on.
+
+<Steps>
+  <Step title="Browse the marketplace">
+    Search by keyword and filter by category. Featured items surface at the top. MCP search reaches a live registry, so results refresh as you type.
+  </Step>
+  <Step title="Open an item for detail">
+    Click a card to see its description, repository link, README, tags, and any credentials it needs. The dialog marks anything already installed.
+  </Step>
+  <Step title="Install in one click or with credentials">
+    Items that need no secrets install straight from the card. Items that require an API key or token open the detail dialog first so you can paste credentials before installing.
+  </Step>
+  <Step title="Choose which models get the MCP">
+    For MCP servers, pick the model scope. The default, **all models**, keeps the tool active even when you change an agent's engine. Or enable it only for specific models your agents use.
+  </Step>
+</Steps>
+
+<Tip>
+On the **Installed** tab you manage what you added and update its credentials or scopes. Orkestral can also detect MCP servers already configured in your local CLIs (Claude Code, Codex, Gemini, Cursor) and offer to import them with one click, so you do not set them up twice.
+</Tip>
+
+{/* PRINT: The Tools marketplace browser with featured items and category chips */}
+
+## Tips for a balanced org
+
+<AccordionGroup>
+  <Accordion title="Start with the baseline, then fill gaps" icon="users">
+    The CEO, core squad, and source specialists cover most projects. Add a role only when a real gap shows up, such as mobile, data, or security work that no current teammate owns.
+  </Accordion>
+  <Accordion title="Match the engine to the job" icon="gauge">
+    Use premium models for planning and review heavy roles, and lean on the bundled Forge for local execution to keep code changes at zero API cost. See [Forge](/en/forge) for how the local engine applies edits.
+  </Accordion>
+  <Accordion title="Grant capabilities deliberately" icon="shield">
+    A reviewer rarely needs to run commands. A build or deploy role might. Narrow capabilities keep each role's blast radius small and predictable.
+  </Accordion>
+  <Accordion title="Keep the reporting chain clean" icon="sitemap">
+    Point specialists at the CEO or the Tech Lead so delegation flows the way you expect. A clear chain helps the orchestrator route work to the right person.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={3}>
+  <Card title="Manage agents" icon="robot" href="/en/agents">
+    Open a teammate to edit its role, engine, capabilities, and instructions.
+  </Card>
+  <Card title="Add tools and skills" icon="puzzle-piece" href="/en/integrations">
+    Extend what your team can do with MCP servers and skills.
+  </Card>
+  <Card title="Assign the work" icon="list-check" href="/en/issues">
+    Turn the conversation into issues and let the org execute them.
+  </Card>
+</CardGroup>

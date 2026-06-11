@@ -1,0 +1,212 @@
+---
+title: "Mudanças de código"
+description: "Revise os diffs e artefatos que seus agentes produziram."
+---
+
+Quando um agente edita sua base de código, o trabalho chega ao disco como mudanças reais de arquivo no seu repositório git local. A visão **Mudanças de código** é onde você lê essas mudanças linha por linha, agrupa em commits e as envia. É um cliente git embutido, modelado no layout do GitHub Desktop, conectado diretamente à CLI `git` na sua máquina. Nada é commitado ou enviado até você decidir.
+
+<Note>
+As mudanças de código operam na árvore de trabalho real de uma fonte (um repositório ou pasta que você adicionou ao workspace). Tudo que um agente escreve, tudo que você edita à mão no seu editor e tudo que já está pendente no git aparece aqui junto.
+</Note>
+
+{/* PRINT: Visão de mudanças de código com a lista de arquivos à esquerda e um diff à direita */}
+
+## Como funciona
+
+O Orkestral nunca inventa uma camada oculta de controle de versão. Ele lê o estado do seu repositório com `git status`, renderiza diffs com `git diff` e aplica suas ações com `git commit`, `git push`, `git pull` e afins. Isso significa que:
+
+<CardGroup cols={2}>
+  <Card title="Git real, repo real" icon="code-branch">
+    Cada arquivo, branch e commit que você vê é o estado git genuíno. Abra a mesma pasta no seu terminal e você verá o resultado idêntico.
+  </Card>
+  <Card title="A saída do agente chega aqui" icon="robot">
+    O Forge aplica as edições de código localmente no disco. Essas edições aparecem como mudanças pendentes nesta visão, prontas para você revisar.
+  </Card>
+  <Card title="Atualização automática" icon="clock">
+    A lista de arquivos relê o `git status` a cada poucos segundos, então as mudanças que um agente faz enquanto você observa aparecem sem recarregar manualmente.
+  </Card>
+  <Card title="Nada é automático" icon="shield">
+    Commits, pushes e pulls só rodam quando você clica. Os agentes propõem; você revisa e decide.
+  </Card>
+</CardGroup>
+
+## Onde encontrá-la
+
+Você chega à mesma visão por dois caminhos:
+
+<Steps>
+  <Step title="Pela página Mudanças de código">
+    Abra a página dedicada **Mudanças de código** para o workspace ativo. Use o seletor **Repositório atual** no canto superior esquerdo para alternar entre fontes quando o workspace tiver mais de uma. Com uma única fonte, esse seletor fica oculto para dar mais espaço à barra de ferramentas.
+  </Step>
+  <Step title="Pela página de detalhe de uma fonte">
+    Abra uma fonte e sua aba de mudanças incorpora exatamente o mesmo revisor, restrito àquele único repositório.
+  </Step>
+</Steps>
+
+<Info>
+Se você vir **Nenhum workspace ativo** ou **Nenhuma fonte local**, adicione uma fonte (uma pasta ou um clone do GitHub) na barra lateral primeiro. A visão precisa de um caminho real no disco para ler o estado git.
+</Info>
+
+## O layout
+
+A visão tem uma barra de ferramentas no topo, um painel lateral esquerdo com duas abas e um painel direito que mostra ou um diff ou os detalhes de um commit.
+
+<AccordionGroup>
+  <Accordion title="Barra de ferramentas no topo: repositório, branch, origin" icon="sitemap">
+    Da esquerda para a direita: o seletor **Repositório atual** (apenas quando há mais de uma fonte), o seletor **Branch atual** e o botão **Origin** para sincronizar com o remoto. Na extrema direita, **Abrir PR** aparece quando o branch tem commits para publicar.
+  </Accordion>
+  <Accordion title="Painel lateral esquerdo: abas Mudanças e Histórico" icon="list-check">
+    A aba **Mudanças** lista todos os arquivos modificados, adicionados, deletados e renomeados na árvore de trabalho, com um selo de contagem. A aba **Histórico** lista os commits recentes no branch atual.
+  </Accordion>
+  <Accordion title="Painel direito: diff ou detalhes do commit" icon="file-lines">
+    Na aba Mudanças, selecionar um arquivo mostra seu diff com números de linha e realce de sintaxe. Na aba Histórico, selecionar um commit mostra sua mensagem e metadados.
+  </Accordion>
+</AccordionGroup>
+
+## Revisando o que um agente mudou
+
+Este é o fluxo central do dia a dia: ler o diff, confirmar que ele faz o que você queria e commitar.
+
+<Steps>
+  <Step title="Abra a aba Mudanças">
+    A lista de arquivos mostra cada arquivo alterado com um ícone de status colorido: verde para adicionado ou não rastreado, vermelho para deletado, azul para renomeado e amarelo para modificado ou em conflito. O caminho é exibido com a pasta esmaecida e o nome do arquivo realçado, para que caminhos profundos continuem legíveis.
+  </Step>
+  <Step title="Selecione um arquivo para ver seu diff">
+    Clique em qualquer arquivo. O painel direito renderiza um diff unificado com os números de linha antigos e novos, seis linhas de contexto ao redor e marcadores `+`/`−`. As linhas adicionadas ficam tingidas de verde, as removidas de vermelho. O cabeçalho mostra o caminho do arquivo, a origem da renomeação (quando um arquivo foi movido) e uma contagem corrente de adições e remoções.
+  </Step>
+  <Step title="Filtre uma lista longa">
+    Digite na caixa **Filtrar arquivos** para restringir a lista aos caminhos que correspondem. Limpe-a com o **X** para ver tudo de novo.
+  </Step>
+  <Step title="Decida o que manter">
+    Use a caixa de seleção em cada linha para incluir ou excluir aquele arquivo do seu próximo commit. A caixa de seleção do cabeçalho alterna todos os arquivos de uma vez e mostra um estado indeterminado quando apenas alguns estão selecionados.
+  </Step>
+</Steps>
+
+<Tip>
+Arquivos não rastreados (arquivos novinhos que um agente criou) também recebem um diff completo. O Orkestral lista cada arquivo novo individualmente em vez de colapsar uma nova pasta em uma única entrada, e sintetiza um diff de "todas as adições" para que você possa ler arquivos novos exatamente como os editados.
+</Tip>
+
+### Lendo o diff
+
+<Tabs>
+  <Tab title="Cores e sinais">
+    Linhas verdes com um `+` foram adicionadas. Linhas vermelhas com um `−` foram removidas. Linhas esmaecidas são contexto inalterado. Os cabeçalhos de hunk (`@@ ... @@`) e as linhas de metadados do arquivo aparecem atenuados para que as mudanças reais se destaquem.
+  </Tab>
+  <Tab title="Números de linha">
+    Uma calha à esquerda mostra o número de linha de cada linha: o número da nova linha nas linhas adicionadas e de contexto, e o número da linha antiga nas linhas removidas. Isso facilita mapear uma mudança de volta ao arquivo no seu editor.
+  </Tab>
+  <Tab title="Binário ou sem mudanças">
+    Se um arquivo é binário ou não tem mudança textual, o painel mostra **Nenhum diff disponível** em vez de uma visão vazia.
+  </Tab>
+</Tabs>
+
+## Commitando as mudanças
+
+O rodapé de commit na parte inferior da aba Mudanças funciona como o GitHub Desktop.
+
+<Steps>
+  <Step title="Escreva um resumo">
+    Insira um **Resumo** de uma linha (obrigatório). Com exatamente um arquivo selecionado, o texto de exemplo sugere um resumo baseado no nome desse arquivo.
+  </Step>
+  <Step title="Adicione uma descrição (opcional)">
+    Use a caixa **Descrição** para um corpo mais longo. O resumo e a descrição são unidos na mensagem de commit, separados por uma linha em branco.
+  </Step>
+  <Step title="Gere com IA (opcional)">
+    Clique em **Gerar com IA** para que o Orkestral rascunhe um resumo e uma descrição a partir das mudanças selecionadas. Ele preenche os dois campos para você editar antes de commitar.
+  </Step>
+  <Step title="Commit">
+    Clique no botão **Commit**. Ele mostra o número de arquivos selecionados e o branch de destino. O botão permanece desabilitado até você ter um resumo, ao menos um arquivo marcado e um branch válido.
+  </Step>
+</Steps>
+
+<Warning>
+Um commit só inclui os arquivos que você marcou. Os arquivos desmarcados permanecem como mudanças pendentes na árvore de trabalho e continuam visíveis na lista.
+</Warning>
+
+## Branches e sincronização
+
+A barra de ferramentas cuida de tudo que você precisa para levar o trabalho ao remoto.
+
+<AccordionGroup>
+  <Accordion title="Trocar ou criar um branch" icon="code-branch">
+    Abra o seletor **Branch atual** para buscar branches, agrupados em branch padrão, outros branches locais e branches remotos. Escolha um para fazer o checkout. Clique em **Novo branch** para criar um a partir do branch atual. Um ícone de cadeado marca os branches protegidos (`main` ou `master`).
+  </Accordion>
+  <Accordion title="Fetch, pull, push, publicar" icon="arrows-rotate">
+    O botão **Origin** mostra a próxima ação mais inteligente com base nas suas contagens de à frente/atrás: **Pull** quando você está atrás, **Push** quando você está à frente, **Publicar branch** quando o branch ainda não tem remoto, ou **Sincronizado** caso contrário. O cursor ao lado dele abre um menu com as ações explícitas **Fetch origin**, **Pull origin** e **Push**.
+  </Accordion>
+  <Accordion title="Resolver conflitos de merge" icon="code-merge">
+    Se um pull produz conflitos, um diálogo lista os arquivos em conflito. Clique em um arquivo para abri-lo no painel de diff e resolvê-lo no seu editor, depois commite a resolução. Arquivos em conflito mostram um ícone amarelo de merge na lista.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+As ações de rede contra um remoto HTTPS privado usam autenticação efêmera que vive apenas pela duração do comando. Seu token nunca é gravado na configuração git do repositório.
+</Note>
+
+## Abrindo um pull request
+
+Quando o branch atual tem commits à frente do remoto (ou nunca foi publicado), e a fonte está vinculada a um repositório GitHub, o botão **Abrir PR** aparece na barra de ferramentas.
+
+<Steps>
+  <Step title="Clique em Abrir PR">
+    Um diálogo abre mostrando o repositório, seu branch head e um branch base editável.
+  </Step>
+  <Step title="Revise o título e o corpo pré-preenchidos">
+    O Orkestral sugere um título e uma descrição a partir do diff do seu branch contra o base, e preenche o branch base padrão do repositório. Ele só pré-preenche campos que você ainda não tocou. Clique em **Gerar com IA** para atualizar a sugestão.
+  </Step>
+  <Step title="Marque como rascunho se necessário">
+    Ative **Marcar como rascunho** para abrir o PR em estado de rascunho.
+  </Step>
+  <Step title="Abra o PR">
+    Clicar em **Abrir PR** publica o branch, resolve o base e cria o pull request em um único passo. Em caso de sucesso, o diálogo mostra o número do PR e um link para abri-lo no GitHub.
+  </Step>
+</Steps>
+
+<Warning>
+Você não pode abrir um PR diretamente de um branch protegido (`main` ou `master`). Crie um branch primeiro; a dica do botão lembra você quando esse for o caso.
+</Warning>
+
+## Ações de arquivo e histórico
+
+<Tabs>
+  <Tab title="Ações por arquivo">
+    Clique com o botão direito em uma linha de arquivo (ou use o botão de descartar que aparece ao passar o mouse) para um menu de contexto: **Descartar mudanças**, **Copiar caminho**, **Copiar caminho relativo**, **Revelar no Finder**, **Abrir no editor padrão**, **Ignorar arquivo** e **Ignorar todos** os arquivos daquela extensão. Clicar com o botão direito no cabeçalho dá **Descartar todas as mudanças**.
+  </Tab>
+  <Tab title="Descartando com segurança">
+    Descartar pede confirmação e avisa que a mudança não pode ser desfeita. Ele reverte arquivos rastreados e remove os não rastreados, então use-o apenas quando tiver certeza de que não quer aquele trabalho.
+  </Tab>
+  <Tab title="Histórico">
+    A aba **Histórico** lista os commits recentes com assunto, SHA curto, autor e data relativa. Selecionar um commit mostra o corpo completo da sua mensagem e os detalhes do autor no painel direito.
+  </Tab>
+</Tabs>
+
+## Como se conecta a issues e agentes
+
+Mudanças de código é a superfície de revisão para o trabalho que sua equipe produz.
+
+<CardGroup cols={2}>
+  <Card title="A partir de um chat ou issue" icon="comments">
+    Quando um agente trabalha em uma issue, o CEO planeja e o Forge executa as edições localmente. Essas edições aparecem aqui como mudanças pendentes, prontas para você ler antes de virarem commits.
+  </Card>
+  <Card title="Você continua sendo o portão" icon="bullseye">
+    Os agentes não commitam nem fazem push em seu nome nesta visão. Você revisa o diff, escolhe os arquivos, escreve a mensagem e commita. Isso mantém um humano no controle do que entra no histórico.
+  </Card>
+</CardGroup>
+
+<Info>
+O estado vazio diz tudo: quando a árvore de trabalho está limpa, você vê **Tudo limpo por aqui** com um lembrete para modificar um arquivo ou pedir a um agente para fazer mudanças, e o resultado aparecerá nesta lista.
+</Info>
+
+## O que fazer em seguida
+
+<CardGroup cols={3}>
+  <Card title="Acompanhe o trabalho" icon="list-check" href="/pt/issues">
+    Veja como issues e épicos guiam as mudanças que chegam aqui.
+  </Card>
+  <Card title="Entenda o Forge" icon="robot" href="/pt/forge">
+    Aprenda como a execução local transforma planos em edições de arquivo a custo zero de API.
+  </Card>
+  <Card title="Converse com agentes" icon="comments" href="/pt/chat">
+    Peça a um especialista para fazer uma mudança, depois volte aqui para revisar o diff.
+  </Card>
+</CardGroup>

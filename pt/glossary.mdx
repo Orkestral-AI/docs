@@ -1,0 +1,167 @@
+---
+title: "Glossário"
+description: "Definições dos principais termos do Orkestral, de A a Z."
+---
+
+Esta página define o vocabulário que você verá por todo o Orkestral: no chat, no quadro de issues, nas configurações e na base de conhecimento. Cada termo recebe uma ou duas frases mais uma indicação de onde ele aparece no app, para que você possa lê-lo rapidamente e voltar quando uma palavra parecer desconhecida.
+
+O Orkestral é um app desktop local-first onde um time de agentes de IA planeja, acompanha, executa e revisa o seu código na sua própria máquina. Os termos abaixo descrevem as partes que compõem esse sistema.
+
+<Note>
+Tudo no Orkestral fica na sua máquina em `~/.orkestral` (um banco de dados SQLite local mais os modelos empacotados). Nenhum servidor é necessário e nenhuma telemetria é enviada.
+</Note>
+
+## Como os termos se encaixam
+
+Antes da lista alfabética, aqui está o formato do sistema para que as definições façam sentido no contexto.
+
+<CardGroup cols={3}>
+  <Card title="Pessoas (agentes)" icon="users">
+    O **CEO** coordena **especialistas** como o **Tech Lead** e o **Code Reviewer**. Você conversa com eles no chat.
+  </Card>
+  <Card title="Trabalho (issues)" icon="list-check">
+    Solicitações viram **issues**, agrupadas em **epics**, com status, prioridade e responsável.
+  </Card>
+  <Card title="Motor (Forge)" icon="bolt">
+    **Providers** premium planejam; o modelo local **Forge** executa as edições por meio do **Fast Apply**.
+  </Card>
+</CardGroup>
+
+## De A a Z
+
+Use a tabela para uma consulta rápida e depois leia as entradas detalhadas abaixo para os termos que têm mais peso.
+
+| Termo | Definição em uma linha |
+|---|---|
+| **Adapter** | O conector que permite ao Orkestral conversar com um backend de modelo específico (Claude, Codex, Forge e outros). |
+| **Agent** | Uma persona de IA com um papel, instruções e um lugar na hierarquia do time. |
+| **CEO** | O agente orquestrador no topo, que lê seus repositórios, planeja e delega ao restante do time. |
+| **Code Reviewer** | Um agente especialista que faz revisões de nível sênior nos seus pull requests. |
+| **Epic** | Uma unidade maior de trabalho que agrupa issues relacionadas. |
+| **Fast Apply** | O motor determinístico de SEARCH/REPLACE que aplica edições de código sem reescrever arquivos inteiros. |
+| **Forge** | O modelo de código local empacotado que executa edições na sua máquina com custo de API de $0. |
+| **Issue** | Uma unidade de trabalho rastreável criada a partir de uma solicitação, com status, prioridade e responsável. |
+| **Knowledge base** | Um cérebro em estilo wiki por workspace, construído automaticamente a partir dos seus repositórios com busca local. |
+| **MCP** | Model Context Protocol, o padrão que o Orkestral usa para conectar ferramentas e servidores externos. |
+| **Provider** | Um fornecedor ou backend de modelo (premium ou local) ao qual um adapter se conecta. |
+| **Skill** | Uma capacidade reutilizável ou conjunto de instruções focado que um agente pode aplicar a uma tarefa. |
+| **Source** | Um repositório ou pasta que você adiciona a um workspace para que os agentes possam lê-lo. |
+| **Specialist** | Um agente focado em um papel (Frontend, Backend, DevOps, QA, Designer) que faz o trabalho prático. |
+| **Tech Lead** | O especialista que coordena os outros especialistas sob o CEO. |
+| **Workspace** | O contêiner que reúne seus sources, issues, agentes, chat e base de conhecimento. |
+
+## Entradas detalhadas
+
+<AccordionGroup>
+
+  <Accordion title="Adapter" icon="plug">
+    Um adapter é a camada de conexão que permite ao Orkestral controlar um backend de modelo específico. Cada provider (Claude, Codex, Forge e outros) tem o seu próprio adapter, que sabe como enviar prompts e receber respostas. Adapters premium como o **Claude Code** e o **Codex** dependem de suas CLIs estarem instaladas e autenticadas, enquanto o adapter do **Forge** não precisa de nada a mais porque o seu modelo já vem empacotado.
+
+    {/* PRINT: Settings showing the available agent providers and their adapters */}
+  </Accordion>
+
+  <Accordion title="Agent" icon="robot">
+    Um agente é uma persona de IA com um papel definido, instruções e uma posição no time. Os agentes se reportam uns aos outros por meio de uma hierarquia real: o **CEO** se reporta a você, o **Tech Lead** e o **Code Reviewer** se reportam ao CEO, e os especialistas se reportam ao Tech Lead. Você menciona um agente com `@agent` no chat para direcionar um turno a ele.
+  </Accordion>
+
+  <Accordion title="CEO" icon="sitemap">
+    O CEO é o orquestrador no topo do time. Ele lê seus repositórios, identifica a stack, planeja o trabalho e delega aos especialistas. O CEO se reporta a você e transforma suas solicitações em linguagem natural em trabalho rastreável, em vez de texto descartável.
+  </Accordion>
+
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    O Code Reviewer é um agente especialista focado em qualidade. Ele faz revisões de nível sênior nos seus pull requests do GitHub, produzindo achados estruturados e comentários inline. Ele se reporta ao CEO junto com o Tech Lead.
+  </Accordion>
+
+  <Accordion title="Epic" icon="folder-tree">
+    Um epic é um contêiner maior que agrupa issues relacionadas. Quando várias issues pertencem ao mesmo esforço, o Orkestral as agrupa automaticamente sob um epic para que você possa acompanhar uma feature ou iniciativa como um todo, em vez de tarefas espalhadas.
+
+    {/* PRINT: Issues board with issues grouped under an epic */}
+  </Accordion>
+
+  <Accordion title="Fast Apply" icon="bolt">
+    O Fast Apply é o motor determinístico de edições do Orkestral. Ele recebe blocos de edição SEARCH/REPLACE e os aplica primeiro por correspondência exata, depois por correspondência com espaços em branco normalizados e, por fim, por uma passada fuzzy segura de correspondência única. Se uma edição for ambígua, ele **rejeita** a alteração em vez de escrever o conteúdo errado, então nunca corrompe um arquivo. É isso que permite ao modelo local mesclar edições sem reescrever arquivos inteiros.
+  </Accordion>
+
+  <Accordion title="Forge" icon="gauge">
+    O Forge é o modelo de código local empacotado (Qwen2.5-Coder, executado via `node-llama-cpp`) que aplica alterações de código inteiramente na sua máquina com custo de API de $0. O fluxo é: um modelo premium planeja a alteração, o Forge emite as edições e o **Fast Apply** as aplica de forma determinística. O Forge só escala para um modelo premium quando não consegue aplicar uma edição, e uma visão de custo mostra quantas execuções foram resolvidas localmente versus escaladas.
+  </Accordion>
+
+  <Accordion title="Issue" icon="list-check">
+    Uma issue é uma unidade de trabalho rastreável criada a partir de uma solicitação. Cada issue tem um status, prioridade, responsável e links de pai/filho, e pode ser agrupada sob um epic. Uma etapa de aprovação fica na frente de qualquer alteração de código, então nada toca no seu repositório até você dar o sinal. A deduplicação no lado do servidor evita que você receba issues duplicadas.
+  </Accordion>
+
+  <Accordion title="Knowledge base" icon="brain">
+    A base de conhecimento é um cérebro em estilo wiki para cada workspace, com páginas, wikilinks e uma visão em grafo. Ela é construída automaticamente a partir dos seus repositórios usando busca lexical BM25 mais busca semântica local (embeddings e RAG), tudo rodando no dispositivo e sem nuvem. Aprendizados do chat e das issues podem ser gravados de volta nela.
+
+    {/* PRINT: Knowledge base graph view with linked pages */}
+  </Accordion>
+
+  <Accordion title="MCP" icon="puzzle-piece">
+    MCP significa Model Context Protocol. O Orkestral o usa para conectar ferramentas e servidores externos, como a integração com o GitHub ou as ferramentas de navegador do Playwright, para que os agentes possam agir além do seu código. Você configura os servidores MCP nas configurações.
+  </Accordion>
+
+  <Accordion title="Provider" icon="key">
+    Um provider é o fornecedor ou backend de modelo ao qual um adapter se conecta. Os providers se dividem entre os premium, que planejam (por exemplo Claude e Codex), e o **Forge** local, que executa. Você pode conectar vários providers e direcionar o trabalho entre eles.
+  </Accordion>
+
+  <Accordion title="Skill" icon="bullseye">
+    Uma skill é uma capacidade reutilizável ou conjunto de instruções focado que um agente aplica a uma tarefa. As skills permitem que um agente especialize o seu comportamento para um tipo específico de trabalho sem mudar o seu papel central.
+  </Accordion>
+
+  <Accordion title="Source" icon="folder">
+    Um source é um repositório ou pasta que você adiciona a um workspace. Os sources dão aos agentes o código e o contexto de que precisam para planejar, executar e revisar. Um workspace pode conter vários sources.
+
+    {/* PRINT: Adding a source (repo or folder) to a workspace */}
+  </Accordion>
+
+  <Accordion title="Specialist" icon="users">
+    Um especialista é um agente focado em um papel que faz o trabalho prático: Frontend, Backend, DevOps, QA ou Designer. Os especialistas se reportam ao Tech Lead, dividem o trabalho, executam e revisam uns aos outros antes de reportar de volta no chat.
+  </Accordion>
+
+  <Accordion title="Tech Lead" icon="code-branch">
+    O Tech Lead é o especialista que coordena os outros especialistas. Ele fica sob o CEO e direciona os agentes de Frontend, Backend, DevOps, QA e Designer para transformar um plano em trabalho implementado e revisado.
+  </Accordion>
+
+  <Accordion title="Workspace" icon="folder-tree">
+    Um workspace é o contêiner que reúne tudo de um projeto: seus sources, issues e epics, agentes, histórico de chat e base de conhecimento. Cada workspace tem a sua própria cor de destaque, e trocar de workspace troca todo o contexto em que os agentes trabalham.
+  </Accordion>
+
+</AccordionGroup>
+
+## Como os papéis premium e local se dividem
+
+Uma distinção recorrente que vale fixar: os modelos premium planejam e o modelo local executa.
+
+<Tabs>
+  <Tab title="Premium (planejar)">
+    **Providers** premium como Claude e Codex leem o repositório e decidem quais arquivos tocar e quais edições fazer. Eles são acessados por meio de seus **adapters** e CLIs. Custam tokens de API, então o Orkestral os usa para planejamento e apenas como fallback quando a execução local não consegue aplicar uma edição.
+  </Tab>
+  <Tab title="Local (executar)">
+    O **Forge** aplica as edições na sua máquina e o **Fast Apply** as escreve de forma determinística. Isso é gratuito e offline. O Forge escala para um modelo premium apenas uma vez, como fallback, quando realmente não consegue aplicar uma alteração.
+  </Tab>
+</Tabs>
+
+<Tip>
+Quando você lê a atividade do chat ou de uma issue e vê uma transferência do planejamento para a execução, esse é o limite premium-para-Forge descrito acima. A visão de custo informa com que frequência o trabalho ficou local.
+</Tip>
+
+## O que fazer a seguir
+
+<Steps>
+  <Step title="Crie um workspace e adicione um source">
+    Configure um **workspace** e adicione ao menos um **source** para que os agentes tenham uma base de código para ler.
+  </Step>
+  <Step title="Converse com o CEO">
+    Abra o chat e descreva o que você quer. O **CEO** planeja e transforma isso em **issues** e **epics**.
+  </Step>
+  <Step title="Deixe o Forge executar">
+    Aprove o trabalho e deixe o **Forge** mais o **Fast Apply** fazerem as alterações localmente, escalando apenas quando necessário.
+  </Step>
+  <Step title="Explore a base de conhecimento">
+    Navegue pela **knowledge base** construída automaticamente para ver como seus repositórios são mapeados e ligados.
+  </Step>
+</Steps>
+
+<Info>
+Se um termo no app não estiver listado aqui, ele geralmente corresponde a uma das entradas acima (por exemplo, um papel específico de especialista é um tipo de **especialista**, e um servidor de ferramenta específico é acessado via **MCP**).
+</Info>

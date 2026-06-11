@@ -1,0 +1,252 @@
+---
+title: "Skills"
+description: "Reusable capabilities and knowledge you give your agents."
+---
+
+A skill is a short, reusable playbook your agents can read on demand. Think of it as a focused how-to: a debugging method, a testing discipline, a deploy procedure, or any repeatable technique you want your team to apply instead of rediscovering it every time. Skills live per workspace, they are written in Markdown, and the agents find them by name and pull in the full content only when a task calls for it.
+
+This page explains what a skill is, the skills Orkestral ships with, how to add more from GitHub, and exactly how your agents use them while they work.
+
+<CardGroup cols={2}>
+  <Card title="Bundled playbooks" icon="brain">
+    Every workspace starts with proven engineering playbooks: systematic debugging, TDD, safe refactoring, security review, and more.
+  </Card>
+  <Card title="Add from GitHub" icon="store">
+    Browse the marketplace to install community skills pulled live from canonical GitHub repositories.
+  </Card>
+  <Card title="Write your own" icon="pencil">
+    Create instruction skills in a full document editor. The content is injected into the prompt when the skill is used.
+  </Card>
+  <Card title="Agents self-curate" icon="robot">
+    Agents discover skills via `skill_list`, read them via `skill_view`, and can save new ones they learn.
+  </Card>
+</CardGroup>
+
+## What a skill is
+
+A skill has a small, clear shape:
+
+- **Name**: a short imperative title, like "Systematic Debugging" or "Add a z-api WhatsApp webhook". The name is also the document title.
+- **Description**: one line that says when to use the skill. This is what an agent reads first to decide if the skill is relevant.
+- **Content**: the Markdown body, the actual step-by-step playbook with steps, pitfalls, and how to verify. This is the part that gets injected into the agent prompt when the skill is applied.
+- **Kind**: skills come in three kinds (see below). The Skills page focuses on `instruction` skills.
+
+<Info>
+Skills are stored per workspace. Switching workspaces shows a different set of skills, so each project keeps its own playbooks and conventions.
+</Info>
+
+### The three kinds
+
+<CardGroup cols={3}>
+  <Card title="Instruction" icon="file-lines">
+    A Markdown playbook injected into the agent prompt. This is the skill you write and edit on the Skills page.
+  </Card>
+  <Card title="Tool" icon="wrench">
+    A capability the agent can call. Created on the Skills page alongside instruction skills.
+  </Card>
+  <Card title="MCP" icon="server">
+    A connection to an external Model Context Protocol server. MCP skills are managed on the MCPs page, not here.
+  </Card>
+</CardGroup>
+
+<Note>
+On the Skills page you can create **Instruction** and **Tool** skills. MCP skills exist as a kind, but they come from the MCPs page because they wrap a server connection, not a written playbook.
+</Note>
+
+## How skills reach your agents
+
+The design goal is to keep the prompt small. Agents never get every skill body dumped into context. Instead they see a lightweight index and pull the full text only when needed.
+
+<Steps>
+  <Step title="Index in the prompt">
+    The agent is told that skills exist and is nudged to check them before non-trivial work. It sees names and one-line descriptions, not full bodies.
+  </Step>
+  <Step title="List on demand">
+    When a task looks non-trivial, the agent calls `skill_list` to see the reusable skills available in the workspace (name plus description).
+  </Step>
+  <Step title="Read the playbook">
+    If a skill looks relevant, the agent calls `skill_view` with the name or slug and receives the full step-by-step content. Usage is tracked so popular skills surface.
+  </Step>
+  <Step title="Apply it">
+    The agent follows the playbook for the task at hand instead of improvising. The orchestrator expects evidence that `skill_list`/`skill_view` were consulted when applicable.
+  </Step>
+</Steps>
+
+{/* PRINT: An agent run log showing skill_list then skill_view calls before starting work */}
+
+<Tip>
+Because the body loads only when read, you can write long, detailed playbooks without bloating every run. Depth is free until the skill is actually used.
+</Tip>
+
+## Bundled skills
+
+Every workspace is seeded with a library of proven engineering playbooks, adapted from established agent-skill collections. They arrive as `instruction` skills and are protected, so an agent cannot overwrite them by accident. They show up the moment a workspace exists, so your team has real content from day one.
+
+<AccordionGroup>
+  <Accordion title="Systematic Debugging" icon="magnifying-glass">
+    Four-phase root cause method: investigate, find the pattern, form and test a single hypothesis, then implement one fix. The iron law is no fixes without root cause investigation first.
+  </Accordion>
+  <Accordion title="Test-Driven Development" icon="circle-check">
+    The RED-GREEN-REFACTOR cycle: write a failing test, watch it fail, write minimal code to pass, then refactor. No production code without a failing test first.
+  </Accordion>
+  <Accordion title="Writing Implementation Plans" icon="list-check">
+    Bite-sized tasks of two to five minutes each, with exact file paths, complete copy-pasteable code, commands, and verification steps. Make implementation obvious.
+  </Accordion>
+  <Accordion title="Spike / Experiment" icon="bolt">
+    Throwaway experiments to validate an idea before committing to a real build: decompose into feasibility questions, build something observable, then record a verdict.
+  </Accordion>
+  <Accordion title="Feature Investigation & Research" icon="folder-tree">
+    Understand existing architecture and patterns before building, so you reuse what exists and avoid mid-implementation surprises.
+  </Accordion>
+  <Accordion title="Subagent-Driven Execution" icon="sitemap">
+    Run a plan with a fresh subagent per task plus a two-stage review: spec compliance first, then code quality.
+  </Accordion>
+  <Accordion title="Code Review Checklist" icon="shield">
+    Systematic review across correctness, architecture, quality, security, testing, and performance, with clear must-fix versus nice-to-have criteria.
+  </Accordion>
+  <Accordion title="Safe Refactoring Strategy" icon="code-branch">
+    Tests first, one change at a time, verify after each step. If behavior changes, it is not refactoring.
+  </Accordion>
+  <Accordion title="Git & PR Workflow" icon="code-branch">
+    Atomic commits, clear branch names, and useful PR descriptions so history reads like a narrative and reviews go smoothly.
+  </Accordion>
+  <Accordion title="API Testing & Debugging" icon="plug">
+    Layered testing for REST and GraphQL: happy path, auth, error cases, contracts, then edge cases.
+  </Accordion>
+  <Accordion title="Dependency & Version Upgrade Strategy" icon="gear">
+    Read the changelog, understand breaking changes, upgrade in a branch, run the full suite, and keep a rollback plan ready.
+  </Accordion>
+  <Accordion title="Performance Profiling & Optimization" icon="gauge">
+    Profile before optimizing, measure a baseline, fix one bottleneck at a time, then verify the improvement and that behavior is unchanged.
+  </Accordion>
+  <Accordion title="Security Code Review" icon="shield">
+    Spot common vulnerabilities: injection, XSS, auth and authorization flaws, hardcoded secrets, and unsafe dependencies.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+Seeding is idempotent and matches by name (case-insensitive). If a bundled skill with the same name already exists in the workspace, it is not duplicated.
+</Info>
+
+## Open the Skills page
+
+Click **Skills** in your workspace. The page has two tabs at the top right:
+
+<Tabs>
+  <Tab title="Mine">
+    Your workspace skills as a grid of cards. Each card shows the skill name, a two-line description, its kind badge, and its slug. Use the search box to filter by name, slug, or description. Click a card to open and edit it. MCP skills are hidden here because they live on the MCPs page.
+  </Tab>
+  <Tab title="Marketplace">
+    The marketplace browser for skills. This is where you install skills pulled live from GitHub. Installing a skill copies its content into your workspace as an instruction skill.
+  </Tab>
+</Tabs>
+
+{/* PRINT: The Skills page, Mine tab, showing the grid of skill cards */}
+
+## Create a skill
+
+<Steps>
+  <Step title="Start a new skill">
+    On the **Mine** tab, click **New skill**.
+  </Step>
+  <Step title="Name it and pick a type">
+    Enter a name (at least two characters) and choose the type: **Instruction** or **Tool**. The name is the document title, so write it as a short imperative phrase.
+  </Step>
+  <Step title="Create and open the editor">
+    Click **Create skill**. The skill opens in a full-width document editor, the same style as the Knowledge Base.
+  </Step>
+  <Step title="Write the playbook">
+    Fill in the description (one line on when to use it) and the body. A divider labels the body as the content that is injected into the prompt. Write concise steps, pitfalls, and how to verify.
+  </Step>
+  <Step title="Save">
+    When you have unsaved changes, an indicator appears in the action bar. Click **Save** to persist them.
+  </Step>
+</Steps>
+
+<Warning>
+Do not put one-off facts in a skill. Skills are repeatable procedures. For project facts and reference material, use the Knowledge Base instead. Never put secrets in a skill body.
+</Warning>
+
+### Edit or delete
+
+Open any skill card to edit its name, description, and content in place. The action bar shows the kind badge and slug, a save button that activates only when there are unsaved changes, and a delete button. Deleting asks for confirmation first.
+
+## Add skills from GitHub
+
+The marketplace pulls skills live from canonical GitHub repositories that follow the Agent Skills pattern (folders containing a `SKILL.md` file with `name` and `description` in the frontmatter). There is no separate public registry, so Orkestral reads the source repositories directly.
+
+<Steps>
+  <Step title="Open the marketplace">
+    On the Skills page, switch to the **Marketplace** tab.
+  </Step>
+  <Step title="Browse the catalog">
+    Skills appear with their name, description, category, and author. They are fetched from the source repositories and cached for about 30 minutes, so the list reflects what is published upstream.
+  </Step>
+  <Step title="Install">
+    Install a skill to copy it into your workspace. It lands as an `instruction` skill, using the body of the `SKILL.md` as its content.
+  </Step>
+  <Step title="Customize">
+    Once installed, open it on the **Mine** tab and edit it like any other skill to fit your project.
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="Where do marketplace skills come from?" icon="store">
+    They are pulled from canonical Agent Skills repositories on GitHub, including the official `anthropics/skills` examples. Each `SKILL.md` is parsed for its `name` and `description` frontmatter, and the Markdown body becomes the installable content.
+  </Accordion>
+  <Accordion title="What if GitHub is unreachable?" icon="plug">
+    The fetch is best-effort with a short timeout and a 30-minute cache. If it fails, the marketplace falls back to the last cached list or an empty list. Your existing workspace skills are never affected.
+  </Accordion>
+  <Accordion title="Are installed skills protected?" icon="shield">
+    Skills installed from the user or marketplace are protected from agent edits. Agents can read and apply them, but cannot rewrite them. Only skills an agent created itself can be improved by an agent.
+  </Accordion>
+</AccordionGroup>
+
+## How agents create and improve skills
+
+Skills are not just a one-way library you fill in. Agents curate their own. When an agent discovers a non-obvious technique, fix, or repeatable procedure, it can save a new skill so future tasks benefit.
+
+<CardGroup cols={2}>
+  <Card title="Agent creates a skill" icon="robot">
+    After learning something reusable, an agent saves a concise playbook (steps, pitfalls, verification). The new skill auto-attaches to the whole team so everyone benefits.
+  </Card>
+  <Card title="Agent improves a skill" icon="pencil">
+    An agent can append to or replace an agent-created skill when it learns something better. Skills you or the marketplace installed are protected and cannot be changed this way.
+  </Card>
+</CardGroup>
+
+<Note>
+Agent-saved skills are kept concise on purpose (capped at roughly 8000 characters). The intent is a tight playbook, not a file dump. One-off facts belong in the Knowledge Base, not in a skill.
+</Note>
+
+## Skills versus the Knowledge Base
+
+Both give your agents context, but they answer different questions.
+
+| | Skills | Knowledge Base |
+|---|---|---|
+| Shape | Procedure: how to do something | Fact: what is true about the project |
+| Example | "Systematic Debugging" steps | "Our auth tokens expire after 24h" |
+| When used | Agent applies it during a task | Agent looks it up for context |
+| Best for | Repeatable techniques and playbooks | Project facts, decisions, references |
+
+<Tip>
+If you find yourself writing "always do X this way" for a recurring task, that is a skill. If you are recording "X is the case in this project", that is a Knowledge Base page.
+</Tip>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Hire and shape your team" icon="users" href="/en/agents">
+    See how the orchestrator and specialists pick up skills during a run.
+  </Card>
+  <Card title="Capture project facts" icon="brain" href="/en/knowledge-base">
+    Use the Knowledge Base for the facts that complement your skills.
+  </Card>
+  <Card title="Connect external tools" icon="plug" href="/en/mcp">
+    Manage MCP connections, the third kind of skill, on the MCPs page.
+  </Card>
+  <Card title="Track the work" icon="list-check" href="/en/issues">
+    Watch skills get applied as agents work through issues and epics.
+  </Card>
+</CardGroup>

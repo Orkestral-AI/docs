@@ -1,0 +1,168 @@
+---
+title: "Catálogo de times"
+description: "Explore e adicione papéis de agente prontos à sua org."
+---
+
+Sua org no Orkestral é um time de agentes de IA. Um orquestrador CEO fica no topo, lê seus repos, planeja o trabalho e delega a especialistas: um Tech Lead, um Code Reviewer, um QA Engineer, um Designer, além de especialistas por fonte para as linguagens e frameworks do seu código. A página **Agents** é o catálogo desse time. Você explora quem já tem, vê o papel e a engine de cada membro e adiciona novos papéis quando precisa de mais mãos.
+
+Esta página explica o que o catálogo mostra, de onde vem o time inicial e as duas formas de adicionar um novo papel à sua org.
+
+<Note>
+Papéis no Orkestral são agentes reais e persistentes, com um nome, um cargo, uma engine (um adaptador de modelo) e um conjunto de capacidades. Adicionar um papel é contratar, não um prompt descartável. O novo colega de time aparece na página Agents e pode pegar issues como todo mundo.
+</Note>
+
+{/* PRINT: A página Agents mostrando o quadro da org como uma grade de cards */}
+
+## Como o catálogo funciona
+
+O catálogo é a grade na página **Agents**. Cada card é um colega de time.
+
+<CardGroup cols={2}>
+  <Card title="Identidade" icon="users">
+    Um avatar, o **nome** do agente e o **cargo** (por exemplo, Tech Lead ou QA Engineer). O orquestrador CEO é marcado com uma estrela e sempre aparece primeiro.
+  </Card>
+  <Card title="Engine" icon="brain">
+    Uma tag para o adaptador de modelo por trás do agente (Claude Code, Codex, Gemini, o Forge e assim por diante), além do modelo específico quando não é o padrão.
+  </Card>
+  <Card title="Capacidades" icon="bolt">
+    Tags com check verde para o que o papel pode fazer: editar arquivos, rodar comandos, criar agentes, atribuir tarefas. As capacidades definem o quanto o papel pode agir por conta própria.
+  </Card>
+  <Card title="Badge de papel" icon="bullseye">
+    O CEO carrega um badge de orquestrador. Todo o resto é um especialista que reporta para cima na cadeia e executa a fatia de trabalho atribuída a ele.
+  </Card>
+</CardGroup>
+
+Clique em qualquer card para abrir aquele agente e editá-lo. Passe o mouse sobre um card que não seja o CEO para revelar um botão de remover. O CEO não pode ser removido, porque toda org precisa de um orquestrador para planejar e delegar.
+
+<Tip>
+A cor e o destaque do time seguem o workspace ativo. Trocar de workspace mostra o quadro daquele workspace, então cada projeto mantém sua própria org.
+</Tip>
+
+## De onde vem seu time inicial
+
+Você não começa com um catálogo vazio. O Orkestral provisiona uma org base para você, para que o trabalho possa começar imediatamente.
+
+<Steps>
+  <Step title="O CEO é criado primeiro">
+    Todo workspace ganha um orquestrador CEO. Ele lê seus repos conectados, constrói contexto, planeja e delega. É o papel com quem você mais conversa no chat.
+  </Step>
+  <Step title="Um esquadrão central é adicionado">
+    O Orkestral preenche os papéis que quase todo time sempre precisa: um **Tech Lead** para manter arquitetura e decisões coesas, um **Code Reviewer**, um **QA Engineer** e um **Designer**. Eles aparecem automaticamente e apenas uma vez por workspace (sem duplicatas).
+  </Step>
+  <Step title="Especialistas por fonte entram conforme você adiciona repos">
+    Quando você conecta uma fonte (um repo ou pasta), o Orkestral infere a stack e alinha especialistas correspondentes, por exemplo um expert de Frontend ou Backend, para que o papel certo seja dono da parte certa do código.
+  </Step>
+</Steps>
+
+<Info>
+Você não escolhe esses a dedo de uma lista. Eles são inferidos a partir dos seus repos reais e das lacunas do seu time atual, o que mantém o catálogo aterrado no que seu projeto realmente é.
+</Info>
+
+## Adicione um papel à sua org
+
+Quando você quiser um colega de time que a base não cobriu, clique em **New agent** na página **Agents**. O diálogo abre em dois modos. Escolha o que combina com o quanto de controle você quer.
+
+<Tabs>
+  <Tab title="Pedir ao CEO (recomendado)">
+    Descreva o papel que você quer em linguagem simples e deixe o orquestrador contratá-lo para você. Este é o caminho mais rápido e produz um colega de time bem instruído.
+
+    <Steps>
+      <Step title="Abra New agent">
+        Na página **Agents**, clique em **New agent**. O diálogo abre na aba **Pedir ao CEO**.
+      </Step>
+      <Step title="Nomeie o papel">
+        Dê um **nome** ao agente (por exemplo, `Mobile Engineer` ou `Security Reviewer`). É assim que o colega de time aparece no catálogo e no chat.
+      </Step>
+      <Step title="Escreva a missão">
+        No campo **missão**, diga pelo que esse papel é responsável e como é um bom resultado. Quanto mais concreta a missão, melhor o CEO configura o foco e as instruções do agente.
+      </Step>
+      <Step title="Deixe o CEO criá-lo">
+        Confirme, e o orquestrador abre uma sessão curta para contratar o papel: ele escolhe uma engine e capacidades sensatas, escreve as instruções do agente e o adiciona à sua org. O novo card aparece no catálogo quando termina.
+      </Step>
+    </Steps>
+
+    <Warning>
+    Pedir ao CEO exige um orquestrador no workspace. Se o diálogo avisar que não há CEO presente, use **Configurar manualmente** em vez disso, ou garanta que seu workspace tenha o orquestrador.
+    </Warning>
+  </Tab>
+
+  <Tab title="Configurar manualmente">
+    Defina cada detalhe você mesmo. Use isto quando quiser uma engine específica, capacidades exatas ou um lugar preciso na cadeia de reporte.
+
+    <AccordionGroup>
+      <Accordion title="Nome e cargo" icon="users">
+        O **nome** identifica o agente. O **cargo** opcional é o rótulo de função mostrado abaixo do nome no card (por exemplo, `Staff Backend Engineer`).
+      </Accordion>
+      <Accordion title="Engine e modelo" icon="brain">
+        Escolha o **adaptador** (o provedor de modelo, como Claude Code, Codex ou Gemini) e o **modelo**. Os modelos disponíveis atualizam quando você troca de adaptador. Campos específicos do provedor (como reasoning ou esforço de thinking) aparecem para as engines que os suportam.
+      </Accordion>
+      <Accordion title="Capacidades" icon="bolt">
+        Alterne o que o papel pode fazer: **editar arquivos**, **rodar comandos** e mais. Eles mapeiam para as tags com check verde no card do catálogo. Conceda apenas o que o papel precisa.
+      </Accordion>
+      <Accordion title="Reporta para e autonomia" icon="sitemap">
+        Defina para quem o agente **reporta** (o CEO por padrão), para que ele fique corretamente na cadeia de comando, e ajuste sua **autonomia** para controlar o quanto ele faz antes de voltar para você.
+      </Accordion>
+      <Accordion title="Avatar" icon="robot">
+        Escolha uma seed de avatar para que o colega de time seja fácil de reconhecer no catálogo, no chat e nas issues.
+      </Accordion>
+    </AccordionGroup>
+
+    Salve, e o novo especialista entra no catálogo imediatamente.
+  </Tab>
+</Tabs>
+
+## Dê ferramentas e skills ao seu time
+
+Papéis cobrem quem está no time. Para estender o que eles podem fazer, abra a área **Tools** e use o marketplace para adicionar **skills** e **servidores MCP** ao workspace. Eles anexam capacidades extras (conectores, integrações e instruções reutilizáveis) das quais seus agentes podem se valer.
+
+<Steps>
+  <Step title="Explore o marketplace">
+    Pesquise por palavra-chave e filtre por categoria. Itens em destaque aparecem no topo. A busca de MCP alcança um registro ao vivo, então os resultados se atualizam conforme você digita.
+  </Step>
+  <Step title="Abra um item para ver detalhes">
+    Clique em um card para ver sua descrição, link do repositório, README, tags e quaisquer credenciais de que ele precise. O diálogo marca tudo que já está instalado.
+  </Step>
+  <Step title="Instale com um clique ou com credenciais">
+    Itens que não precisam de segredos instalam direto do card. Itens que exigem uma API key ou token abrem primeiro o diálogo de detalhes, para que você cole as credenciais antes de instalar.
+  </Step>
+  <Step title="Escolha quais modelos recebem o MCP">
+    Para servidores MCP, escolha o escopo de modelos. O padrão, **all models**, mantém a ferramenta ativa mesmo quando você muda a engine de um agente. Ou habilite-a apenas para modelos específicos que seus agentes usam.
+  </Step>
+</Steps>
+
+<Tip>
+Na aba **Installed** você gerencia o que adicionou e atualiza suas credenciais ou escopos. O Orkestral também consegue detectar servidores MCP já configurados nas suas CLIs locais (Claude Code, Codex, Gemini, Cursor) e oferecer para importá-los com um clique, para que você não os configure duas vezes.
+</Tip>
+
+{/* PRINT: O navegador do marketplace de Tools com itens em destaque e chips de categoria */}
+
+## Dicas para uma org equilibrada
+
+<AccordionGroup>
+  <Accordion title="Comece pela base, depois preencha lacunas" icon="users">
+    O CEO, o esquadrão central e os especialistas por fonte cobrem a maioria dos projetos. Adicione um papel apenas quando uma lacuna real aparecer, como trabalho de mobile, dados ou segurança que nenhum colega atual cobre.
+  </Accordion>
+  <Accordion title="Combine a engine com o trabalho" icon="gauge">
+    Use modelos premium para papéis intensivos em planejamento e revisão, e apoie-se no Forge incluído para execução local, mantendo as mudanças de código com custo zero de API. Veja [Forge](/pt/forge) para saber como a engine local aplica edições.
+  </Accordion>
+  <Accordion title="Conceda capacidades deliberadamente" icon="shield">
+    Um revisor raramente precisa rodar comandos. Um papel de build ou deploy pode precisar. Capacidades restritas mantêm o raio de impacto de cada papel pequeno e previsível.
+  </Accordion>
+  <Accordion title="Mantenha a cadeia de reporte limpa" icon="sitemap">
+    Aponte os especialistas para o CEO ou o Tech Lead, para que a delegação flua como você espera. Uma cadeia clara ajuda o orquestrador a rotear o trabalho para a pessoa certa.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={3}>
+  <Card title="Gerenciar agentes" icon="robot" href="/pt/agents">
+    Abra um colega de time para editar seu papel, engine, capacidades e instruções.
+  </Card>
+  <Card title="Adicionar ferramentas e skills" icon="puzzle-piece" href="/pt/integrations">
+    Estenda o que seu time pode fazer com servidores MCP e skills.
+  </Card>
+  <Card title="Atribuir o trabalho" icon="list-check" href="/pt/issues">
+    Transforme a conversa em issues e deixe a org executá-las.
+  </Card>
+</CardGroup>

@@ -1,0 +1,145 @@
+---
+title: "Costs and Forge savings"
+description: "See how much ran locally for free vs escalated to a premium model."
+---
+
+The **Costs** view answers one question: how much of your work ran locally for free, and how much had to escalate to a paid premium model. Orkestral is local-first, so most code changes are executed by the bundled **Forge** (Qwen2.5-Coder) at `$0` API cost. Premium models only run when planning needs them, or when a local edit cannot be applied safely. This page shows you the real money that stayed in your pocket because of that split.
+
+<Note>
+Every dollar figure here is **real**, not estimated. Premium spend comes from the actual `cost_usd` reported by the model stream for each run. Nothing on this page is hardcoded.
+</Note>
+
+## What you see at the top
+
+{/* PRINT: Costs page header with the four summary stat cards */}
+
+The page opens with four summary cards for the active workspace.
+
+<CardGroup cols={2}>
+  <Card title="Agents" icon="robot">
+    How many agents exist in this workspace (CEO orchestrator plus every specialist you hired).
+  </Card>
+  <Card title="Conversations" icon="comments">
+    How many chat sessions have run against this workspace.
+  </Card>
+  <Card title="Open issues" icon="list-check">
+    Issues that are not yet `done` or `cancelled`. A quick read on outstanding work.
+  </Card>
+  <Card title="Heartbeats" icon="clock">
+    How many agents have a recurring heartbeat enabled (agents that wake up on a schedule).
+  </Card>
+</CardGroup>
+
+These are activity counters, not money. They give you context for the savings numbers below: more agents and conversations usually means more runs, which means more chances for the Forge to save you money.
+
+<Info>
+If no workspace is active, the page tells you to pick one first. All numbers are scoped to the **active workspace**, so switching workspaces changes what you see.
+</Info>
+
+## Per agent
+
+Below the cards, a table lists each agent in the workspace with:
+
+- The agent **name** and avatar.
+- Its **adapter type** (the model backend it talks to).
+- Its **heartbeat** interval, or "no heartbeat" if it only runs on demand.
+- When it **last ran** a heartbeat, shown as a relative time (`5min`, `3h`, `2d`).
+
+This is a roster view. It does not show per-agent dollars yet, but it helps you understand which agents are active and on what cadence.
+
+## How the savings number works
+
+The headline of this page is the **savings** section. It only appears once there has been at least one orchestrated run in the workspace.
+
+<Steps>
+  <Step title="Orkestral plans with a premium model">
+    The CEO orchestrator and specialists read your repo and decide what to change. Planning is where premium models earn their keep.
+  </Step>
+  <Step title="The Forge executes the change locally">
+    Instead of paying a premium model to write the edit, the local Forge emits the diff and a deterministic engine applies it to your files. This run costs `$0` in API fees and is counted as a local execution.
+  </Step>
+  <Step title="Premium runs only when it must">
+    If a local edit cannot be applied safely (the anchors do not match), the run escalates to a premium model. That run's real `cost_usd` is recorded as premium spend.
+  </Step>
+  <Step title="Orkestral computes what you saved">
+    It takes the number of runs the Forge handled, multiplies by the average cost a premium model would have charged for the same work, and shows that as money saved. It also shows what you actually spent on the runs that did escalate.
+  </Step>
+</Steps>
+
+### Reading the numbers
+
+<AccordionGroup>
+  <Accordion title="Saved (the big green-ish number)" icon="bullseye">
+    The estimated dollars you did **not** spend because the Forge handled the work locally. It is the count of local runs multiplied by the average per-run premium cost observed in this workspace. If Orkestral has not yet seen a premium run to anchor that average, it cannot price the savings and shows a simpler message instead (see below).
+  </Accordion>
+  <Accordion title="Local runs" icon="bolt">
+    The total number of runs the Forge resolved without a paid model. This combines fully **local executions** and **locally assisted** runs (cases where the local engine still carried the edit). Each of these is a run you would otherwise have paid for.
+  </Accordion>
+  <Accordion title="Average premium cost" icon="chart-line">
+    The average real cost of a premium run in this workspace, derived from actual `cost_usd` values. This is the per-run price used to value your local runs. Because it is measured, it reflects the models you actually use, not a generic list price.
+  </Accordion>
+  <Accordion title="Premium spent" icon="circle-dollar">
+    The real total you have spent on runs that escalated to a premium model. This is money that did leave your account, summed from each run's reported cost.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+A healthy ratio is many **local runs** against a small **premium spent**. That means the Forge is absorbing most of the execution work and premium models are reserved for planning and the few edits that genuinely need them.
+</Tip>
+
+### When there is not enough data yet
+
+If runs have happened but Orkestral has not yet observed a priced premium run to build an average from, it cannot put a dollar value on your savings. In that case the section still appears and tells you how many runs ran locally, just without a dollar amount. The savings figure fills in once a premium run gives it a real per-run cost to anchor against.
+
+## Local phases avoided
+
+{/* PRINT: Local phases section showing tokens avoided */}
+
+A second savings block appears once the Forge has run **local phases**. Some multi-step work can be carried entirely by the local model instead of streaming through a premium model. When that happens, Orkestral tracks the tokens those phases would have sent to a paid model and reports them as **tokens avoided**, shown in thousands (for example `~42k tokens`), along with the number of local phase runs.
+
+<Info>
+Tokens avoided is a volume metric, not a dollar metric. It tells you how much premium model traffic the Forge displaced. The more local phases run, the more token volume never reaches a paid API.
+</Info>
+
+## Why the Forge can run for free
+
+Premium models can write code, but paying one to apply a routine edit is wasteful. Orkestral's **Fast Apply** engine lets a small local model do the same job deterministically.
+
+<Tabs>
+  <Tab title="The split">
+    Premium models **plan**: they read context and decide what should change. The Forge **executes**: it emits the actual diff. Because the Forge runs on your machine, execution costs nothing in API fees. The Costs page is the scoreboard for exactly that split.
+  </Tab>
+  <Tab title="Deterministic apply">
+    The Forge emits a "lazy" edit: only the lines that change, with a few real surrounding lines kept as **anchors** and the rest marked as unchanged. A deterministic merge engine finds those anchors in your file and replaces only the span between them. The app applies the edit, never the model, so the same input always produces the same file.
+  </Tab>
+  <Tab title="Safe by design">
+    The merge matches anchors in tiers: exact, then whitespace-normalized, then a tightly bounded fuzzy match that only applies when there is exactly one confident candidate. If nothing matches cleanly, it refuses to guess and the run escalates to premium. That is why escalations are rare but always correct: the engine would rather pay than write the wrong code.
+  </Tab>
+</Tabs>
+
+<Warning>
+There is an optional hosted fast-apply fallback (Morph) that some setups enable via an environment variable before escalating to premium. It is off by default and is never toggled from the UI, because Orkestral is local-first. You do not need it for the savings on this page to work.
+</Warning>
+
+## How to lower your costs further
+
+<CardGroup cols={2}>
+  <Card title="Hire specialists, plan once" icon="users">
+    Let the orchestrator plan a batch of work, then let the Forge execute each step. One round of premium planning can drive many free local edits.
+  </Card>
+  <Card title="Keep edits anchorable" icon="code-branch">
+    Clean, well-structured files give the Forge stable anchors, so more edits apply locally and fewer escalate. Sprawling or duplicated code makes anchors ambiguous and forces premium runs.
+  </Card>
+  <Card title="Use heartbeats deliberately" icon="clock">
+    Scheduled agents do real runs. Set intervals that match how fast your repo actually moves so you are not paying for premium escalations on idle cycles.
+  </Card>
+  <Card title="Watch the ratio over time" icon="gauge">
+    Check this page after a busy session. A rising local count against flat premium spend is the signal that the Forge is doing its job.
+  </Card>
+</CardGroup>
+
+## What is next
+
+More cost breakdowns are on the way (the page reserves a space for them). For now, the savings and local-phases blocks are the source of truth for how much the Forge has kept off your bill.
+
+To put more work through the Forge, head to your [agents](/en/agents) and [issues](/en/issues), plan with the orchestrator, and come back here to watch the local count climb.

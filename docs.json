@@ -22,25 +22,27 @@
           {
             "group": "Get started",
             "icon": "rocket",
-            "pages": ["en/introduction", "en/installation", "en/quickstart"]
+            "pages": ["en/introduction", "en/key-concepts", "en/glossary", "en/installation", "en/quickstart", "en/first-workspace", "en/first-agent", "en/watching-agents"]
           },
           {
-            "group": "Concepts",
-            "icon": "lightbulb",
-            "pages": ["en/agents", "en/forge", "en/workspaces"]
+            "group": "Day to day",
+            "icon": "gauge",
+            "pages": ["en/dashboard", "en/chat", "en/issues", "en/code-changes", "en/code-review", "en/inbox", "en/approvals", "en/costs", "en/activity"]
           },
           {
-            "group": "Features",
-            "icon": "stars",
-            "pages": [
-              "en/sources",
-              "en/chat",
-              "en/issues",
-              "en/code-review",
-              "en/knowledge-base",
-              "en/routines-goals",
-              "en/integrations"
-            ]
+            "group": "Your org & agents",
+            "icon": "sitemap",
+            "pages": ["en/agents", "en/skills", "en/team-catalog", "en/org-structure", "en/delegation", "en/agent-adapters", "en/adapter-manager"]
+          },
+          {
+            "group": "Projects & workflow",
+            "icon": "folder-tree",
+            "pages": ["en/workspaces", "en/sources", "en/routines-goals"]
+          },
+          {
+            "group": "Power features",
+            "icon": "bolt",
+            "pages": ["en/forge", "en/knowledge-base", "en/integrations"]
           }
         ]
       },
@@ -50,25 +52,27 @@
           {
             "group": "Começar",
             "icon": "rocket",
-            "pages": ["pt/introduction", "pt/installation", "pt/quickstart"]
+            "pages": ["pt/introduction", "pt/key-concepts", "pt/glossary", "pt/installation", "pt/quickstart", "pt/first-workspace", "pt/first-agent", "pt/watching-agents"]
           },
           {
-            "group": "Conceitos",
-            "icon": "lightbulb",
-            "pages": ["pt/agents", "pt/forge", "pt/workspaces"]
+            "group": "No dia a dia",
+            "icon": "gauge",
+            "pages": ["pt/dashboard", "pt/chat", "pt/issues", "pt/code-changes", "pt/code-review", "pt/inbox", "pt/approvals", "pt/costs", "pt/activity"]
           },
           {
-            "group": "Funcionalidades",
-            "icon": "stars",
-            "pages": [
-              "pt/sources",
-              "pt/chat",
-              "pt/issues",
-              "pt/code-review",
-              "pt/knowledge-base",
-              "pt/routines-goals",
-              "pt/integrations"
-            ]
+            "group": "Sua org & agentes",
+            "icon": "sitemap",
+            "pages": ["pt/agents", "pt/skills", "pt/team-catalog", "pt/org-structure", "pt/delegation", "pt/agent-adapters", "pt/adapter-manager"]
+          },
+          {
+            "group": "Projetos & fluxo",
+            "icon": "folder-tree",
+            "pages": ["pt/workspaces", "pt/sources", "pt/routines-goals"]
+          },
+          {
+            "group": "Recursos avançados",
+            "icon": "bolt",
+            "pages": ["pt/forge", "pt/knowledge-base", "pt/integrations"]
           }
         ]
       }

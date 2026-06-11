@@ -1,0 +1,203 @@
+---
+title: "O dashboard"
+description: "Seu workspace num relance: status, atividade e o que precisa de você."
+---
+
+O dashboard é a tela inicial do workspace que você tem aberto. Ele reúne as quatro coisas que importam a qualquer momento: quanto trabalho está em aberto, como seus agentes estão indo, no que você mexeu recentemente, e quanto dinheiro o Forge local está economizando para você. Tudo na página é um atalho, então você consegue ler o estado do workspace e depois pular direto para o lugar que precisa de você.
+
+<Note>
+O dashboard está restrito ao **workspace ativo**. Troque de workspace e cada número, lista e card se atualiza para o novo. Se nenhum workspace estiver ativo, a página mostra apenas uma dica e nada mais.
+</Note>
+
+{/* PRINT: dashboard completo com stat cards, linha de status, listas recentes e a grade de agentes */}
+
+## Como funciona
+
+O dashboard lê dados ao vivo direto do seu banco de dados local. Ele roda quatro consultas no workspace ativo: a lista de issues, a contagem de issues agrupada por status, a lista de agentes e a lista de sessões de chat. Um quinto card (economia de execução) carrega as estatísticas de execução por conta própria.
+
+Como os dados são locais, a página é rápida e funciona offline. Enquanto a primeira leitura está em andamento, você vê um spinner. Se uma leitura falhar, você vê uma linha curta de erro em vez de uma página renderizada pela metade.
+
+<CardGroup cols={2}>
+  <Card title="Stat cards" icon="gauge">
+    Quatro números de destaque no topo: issues abertas, bloqueadas, agentes ativos, sessões.
+  </Card>
+  <Card title="Issues por status" icon="list-check">
+    Uma linha de sete colunas contando cada issue pelo seu status atual.
+  </Card>
+  <Card title="Atividade recente" icon="clock">
+    Duas listas lado a lado: suas issues mais recentes e suas conversas mais recentes.
+  </Card>
+  <Card title="Agentes e economia" icon="robot">
+    O elenco completo de agentes com pontos de status ao vivo, além do card de economia do Forge.
+  </Card>
+</CardGroup>
+
+## Os stat cards
+
+A linha do topo tem quatro cards. Cada um é clicável e leva você à página correspondente.
+
+<AccordionGroup>
+  <Accordion title="Issues abertas" icon="circle-dot">
+    Conta cada issue que **não** está `done` e **não** está `cancelled`. Esse é o seu backlog real de trabalho ativo. Clique no card para abrir **Issues**.
+  </Accordion>
+  <Accordion title="Bloqueadas" icon="circle-exclamation">
+    Conta as issues cujo status é `blocked`. Quando esse número está acima de zero, o card e seu valor ficam **vermelhos** para se destacar. Uma contagem de bloqueadas diferente de zero é o sinal mais claro de que algo precisa de você. Clique para abrir **Issues** e limpar o bloqueio.
+  </Accordion>
+  <Accordion title="Agentes ativos" icon="robot">
+    Mostrado como uma fração tipo `3/5`: agentes que estão trabalhando (não pausados) sobre o tamanho total do elenco. Se algum agente estiver pausado, uma dica embaixo informa quantos. Clique para abrir **Agentes**.
+  </Accordion>
+  <Accordion title="Sessões" icon="comments">
+    O número total de conversas de chat neste workspace. Clique para abrir a tela inicial do chat e iniciar ou retomar uma conversa.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Leia a linha do topo da esquerda para a direita como um check-up de saúde: quanto está aberto, quanto está travado, quantos agentes estão puxando, quanto você tem conversado. Se **Bloqueadas** estiver vermelho, cuide disso primeiro.
+</Tip>
+
+## Issues por status
+
+Abaixo dos stat cards há uma linha de pequenos tiles, um por status, na ordem do fluxo de trabalho:
+
+<Steps>
+  <Step title="Backlog">
+    Capturada, mas ainda não agendada. O ponto cinza.
+  </Step>
+  <Step title="A fazer">
+    Na fila e pronta para ser pega.
+  </Step>
+  <Step title="Em progresso">
+    Sendo trabalhada ativamente. Marcada com o ponto azul.
+  </Step>
+  <Step title="Em revisão">
+    Aguardando sua revisão ou a de um agente revisor. O ponto roxo.
+  </Step>
+  <Step title="Bloqueada">
+    Travada por uma dependência ou decisão. O ponto vermelho.
+  </Step>
+  <Step title="Concluída">
+    Finalizada. O ponto verde.
+  </Step>
+  <Step title="Cancelada">
+    Descartada e não mais contada como aberta. O ponto apagado.
+  </Step>
+</Steps>
+
+Cada tile mostra o nome do status, um ponto colorido e a contagem. Cada tile é um botão: clique em qualquer um para pular para o board de **Issues**, onde você pode filtrar e reordenar.
+
+<Info>
+Os pontos coloridos aqui usam a mesma paleta em todo o app, então o azul que você vê em **Em progresso** no dashboard é o mesmo azul no board de Issues e dentro de uma issue. Aprenda as cores uma vez e você lê o status num relance em todo lugar.
+</Info>
+
+## Issues recentes e conversas recentes
+
+O meio da página se divide em duas colunas.
+
+<Tabs>
+  <Tab title="Issues recentes">
+    As seis issues mais recentes do workspace. Cada linha mostra a chave da issue (formatada como `ORK-<key>`), um ponto de status e o título (truncado se for longo). Clique numa linha para abrir o board de **Issues**. Use o link **Ver todas** no cabeçalho da seção para ir direto até lá também.
+
+    Se o workspace ainda não tem issues, você vê uma dica de vazio tracejada em vez de uma lista vazia.
+  </Tab>
+  <Tab title="Conversas recentes">
+    As cinco sessões de chat atualizadas mais recentemente. Cada linha mostra um ícone de atividade, o título da conversa e um carimbo de tempo relativo (`agora`, `5 min`, `2 h`, `3 d`). Clique numa linha para reabrir aquela conversa exata. Use o link **Nova** no cabeçalho para iniciar um chat novo.
+
+    Nenhuma conversa ainda significa uma dica de vazio tracejada aqui também.
+  </Tab>
+</Tabs>
+
+<Note>
+"Recente" significa mais novo primeiro e limitado: seis issues e cinco conversas. O dashboard é uma plataforma de lançamento, não uma lista completa. Para o conjunto completo, siga os links da seção para **Issues** ou para a tela inicial do chat.
+</Note>
+
+## A grade de agentes
+
+Abaixo das listas recentes, o dashboard lista todos os agentes contratados neste workspace. Cada agente aparece como um card com um avatar, um nome, um título de função opcional e um ponto de status à direita.
+
+O ponto de status indica o que o agente está fazendo:
+
+| Ponto | Status | Significado |
+| --- | --- | --- |
+| Verde pulsante | `live` | O agente está trabalhando ativamente agora mesmo. |
+| Amarelo | `paused` | O agente está contratado mas pausado, então não vai pegar trabalho. |
+| Vermelho | `error` | O agente teve um problema e precisa da sua atenção. |
+| Cinza | `idle` | O agente está disponível mas não está ocupado no momento. |
+
+Clique em qualquer card de agente para abrir o perfil daquele agente, onde você pode ler as instruções dele, pausá-lo ou retomá-lo, e revisar o trabalho dele. O link **Ver agentes** no cabeçalho abre a página completa de **Agentes**.
+
+<Warning>
+Um ponto **vermelho** (error) na grade de agentes significa que uma execução do agente falhou. Abra aquele agente para ver o que aconteceu antes de delegar mais trabalho a ele.
+</Warning>
+
+{/* PRINT: grade de agentes mostrando pontos de status live, paused e idle */}
+
+## Economia de execução: o que o Forge economiza para você
+
+O último card da página é a **economia de execução**. É aqui que o Orkestral mostra o retorno do modelo local-first: modelos premium PLANEJAM, e o Forge local empacotado (Qwen2.5-Coder) EXECUTA mudanças de código a $0 de custo de API.
+
+O card lê estatísticas reais de execução das suas próprias rodadas (sem estimativas, sem números de marketing) e mostra três métricas:
+
+<CardGroup cols={3}>
+  <Card title="Execuções locais" icon="bolt">
+    Quantas mudanças de código o Forge aplicou localmente sem chamar uma API premium.
+  </Card>
+  <Card title="Escalonamentos" icon="chart-line">
+    Quantas vezes o trabalho teve que escalar para um modelo premium em vez de continuar local.
+  </Card>
+  <Card title="Taxa de sucesso local" icon="bullseye">
+    A fatia das rodadas orquestradas que o Forge tratou localmente, mostrada como porcentagem.
+  </Card>
+</CardGroup>
+
+Abaixo das métricas, quando há dados suficientes, o card mostra o valor em dólares que você **economizou** até agora. A economia é calculada a partir das suas execuções locais e localmente assistidas, multiplicadas pelo custo médio que uma rodada premium teria cobrado, usando valores reais de `cost_usd` capturados das rodadas. O valor é formatado em USD.
+
+<AccordionGroup>
+  <Accordion title="Diz que ainda não há rodadas" icon="circle-info">
+    Se o workspace não teve rodadas orquestradas, o card mostra uma dica de "sem rodadas". Delegue algum trabalho e os números se preenchem conforme o Forge executa.
+  </Accordion>
+  <Accordion title="Mostra métricas mas nenhum valor em dólar" icon="key">
+    O valor de economia precisa de dados de custo de rodadas premium anteriores para comparar. Até que custo suficiente tenha sido registrado, você vê as três métricas mas uma nota de "sem dados de custo" em vez de um valor em dólares.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+Uma **taxa de sucesso local** alta com uma contagem baixa de **escalonamentos** é exatamente o que você quer: significa que o Forge local barato está carregando a maior parte da execução e seu orçamento premium fica reservado para o planejamento.
+</Info>
+
+## Estados que você pode ver
+
+A página inteira se adapta ao que está disponível:
+
+<AccordionGroup>
+  <Accordion title="Nenhum workspace ativo" icon="folder">
+    Antes de abrir ou criar um workspace, o dashboard mostra apenas uma dica pedindo para você escolher um. Abra um workspace e a página se preenche.
+  </Accordion>
+  <Accordion title="Carregando" icon="clock">
+    Na primeira leitura você vê um spinner centralizado enquanto os dados de issues, agentes e sessões carregam.
+  </Accordion>
+  <Accordion title="Erro" icon="shield">
+    Se uma leitura falhar, a página mostra uma mensagem curta de erro em vez de um layout quebrado. Tente trocar de workspace e voltar, ou reabra o app.
+  </Accordion>
+  <Accordion title="Seções vazias" icon="inbox">
+    Um workspace novinho em folha mostra dicas de vazio tracejadas nas seções de issues recentes, conversas recentes e agentes até você criar trabalho e contratar agentes.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer a seguir
+
+Use o dashboard como seu ponto de partida diário, depois siga o link que corresponde ao que você precisa:
+
+<CardGroup cols={2}>
+  <Card title="Limpar bloqueios" icon="circle-exclamation" href="/pt/issues">
+    Número de **Bloqueadas** vermelho? Abra o board de Issues e desbloqueie.
+  </Card>
+  <Card title="Verificar seu time" icon="robot" href="/pt/agents">
+    Revise o status dos agentes, pause, retome ou abra um perfil.
+  </Card>
+  <Card title="Iniciar uma conversa" icon="comments" href="/pt/chat">
+    Converse com o orquestrador CEO e delegue trabalho novo.
+  </Card>
+  <Card title="Planejar o trabalho" icon="sitemap" href="/pt/issues">
+    Transforme ideias em issues e epics no board.
+  </Card>
+</CardGroup>

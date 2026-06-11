@@ -1,0 +1,192 @@
+---
+title: "Adapter manager"
+description: "Check availability and configure your providers."
+---
+
+An adapter is the bridge between Orkestral and a model or coding agent. When an agent picks up a chat or executes an issue, it routes the work through an adapter: Claude, Codex, the bundled Forge, or one of the local providers. The adapter manager is where you see which adapters are ready to run and which are still on the way.
+
+This page explains how availability works, why some adapters appear but cannot execute yet, and how you configure the providers and integrations that feed your team.
+
+<Note>
+Orkestral is local-first. Adapters that wrap a local CLI (such as the Claude or Codex command line tools) run on your machine. The Forge runs fully offline on a bundled local model. Nothing about your code leaves your machine unless an adapter you chose makes a network call.
+</Note>
+
+## Why adapters can be available or not
+
+Not every adapter that shows up in onboarding or the registry can actually run code today. Some are listed so you can see the roadmap, but they are not wired to a real execution path yet. Orkestral treats this honestly: instead of silently falling back to a different binary and pretending it worked, an unavailable adapter fails with a clear message.
+
+The adapters that are visible but cannot execute yet are tracked in one place in the main process (`src/main/services/adapter-availability.ts`):
+
+<CardGroup cols={2}>
+  <Card title="Gemini" icon="robot">
+    Listed as `gemini_local`. Not available for execution yet.
+  </Card>
+  <Card title="OpenCode" icon="robot">
+    Listed as `opencode_local`. Not available for execution yet.
+  </Card>
+  <Card title="Pi" icon="robot">
+    Listed as `pi_local`. Not available for execution yet.
+  </Card>
+  <Card title="Grok" icon="robot">
+    Listed as `grok_local`. Not available for execution yet.
+  </Card>
+</CardGroup>
+
+When you try to use one of these in a chat or to execute an issue, you get a message telling you it is not ready and pointing you to what works today:
+
+<Info>
+The provider is not available for execution yet (coming soon). Use Claude, Codex, or the Forge for now.
+</Info>
+
+<Tip>
+If you see that message, you have not done anything wrong. Reassign the work to **Claude**, **Codex**, or **Forge** and it will run.
+</Tip>
+
+## What is available today
+
+<CardGroup cols={3}>
+  <Card title="Claude" icon="brain">
+    Premium model used for planning and reasoning. Routed through the Claude command line tool when installed.
+  </Card>
+  <Card title="Codex" icon="brain">
+    Premium model for planning and reasoning. Routed through the Codex command line tool when installed.
+  </Card>
+  <Card title="Forge" icon="bolt">
+    The bundled local executor (Qwen2.5-Coder). Applies code changes locally at zero API cost.
+  </Card>
+</CardGroup>
+
+The usual division of labor is simple: premium adapters (Claude, Codex) PLAN, and the Forge EXECUTES the code changes locally through the deterministic Fast Apply engine. You can read more in [Forge and Fast Apply](/en/forge-fast-apply) and [Choosing models](/en/choosing-models).
+
+## How availability is checked
+
+Availability has two layers. The first is whether an adapter is wired for execution at all (the roadmap layer above). The second is whether the underlying CLI is actually installed on your machine.
+
+<Steps>
+  <Step title="Adapter is registered">
+    The adapter appears in onboarding and the registry so you can select it. Registration alone does not mean it can run.
+  </Step>
+  <Step title="Execution support is confirmed">
+    Orkestral checks whether the adapter has a real execution path. Adapters in the unavailable set (Gemini, OpenCode, Pi, Grok) stop here and return the coming soon message.
+  </Step>
+  <Step title="The CLI is detected">
+    For CLI-backed adapters like Claude and Codex, Orkestral looks for the matching command line tool on your machine. If the binary is missing, install it so the adapter can launch it.
+  </Step>
+  <Step title="The adapter runs">
+    With execution support and a detected binary (or the bundled Forge model), the agent runs the work through the adapter.
+  </Step>
+</Steps>
+
+<Warning>
+Installing a provider CLI is not the same as configuring an API key. The CLI handles its own authentication. Make sure the command line tool is installed and signed in before you assign work to that adapter.
+</Warning>
+
+{/* PRINT: Adapter selection in the agent panel showing Claude, Codex and Forge as ready */}
+
+## Configuring providers and integrations
+
+Adapters cover the models and coding agents. Integrations cover the outside services your team reads from and writes to (source control, observability, notifications). You manage these on the **Integrations** page.
+
+The Integrations page (`src/renderer/src/pages/IntegrationsPage.tsx`) gives you a searchable, filterable grid of every provider Orkestral knows about. Each card shows a name, a short description, and a category, and either a configure action or a coming soon tag.
+
+<Steps>
+  <Step title="Open Integrations">
+    Go to the **Integrations** page from the sidebar.
+  </Step>
+  <Step title="Search or filter">
+    Type in the search box to match by name or description, or click a category **Chip** (for example **Observability**) to narrow the list. Pick **All** to clear the filter.
+  </Step>
+  <Step title="Open a card">
+    Click an active card to configure it. Cards marked coming soon are visible but not yet configurable.
+  </Step>
+  <Step title="Connect the provider">
+    Follow the card flow to authenticate or paste the credentials the provider needs.
+  </Step>
+</Steps>
+
+### What you can configure today
+
+<AccordionGroup>
+  <Accordion title="GitHub" icon="code-branch">
+    Connect a repository host so agents can read code, branches, and pull requests. Configured through its own card on the Integrations page.
+  </Accordion>
+  <Accordion title="Voice" icon="comments">
+    Voice input integration, available now and configured from its dedicated card.
+  </Accordion>
+  <Accordion title="Sentry" icon="shield">
+    Error tracking so agents can pull issues and stack traces into their context. Available now.
+  </Accordion>
+  <Accordion title="New Relic" icon="chart-line">
+    Errors, logs, and metrics through NerdGraph and NRQL, grouped under the Observability category. Available now.
+  </Accordion>
+  <Accordion title="Better Stack" icon="chart-line">
+    Incidents, uptime, and logs for investigation, also under Observability. Available now.
+  </Accordion>
+</AccordionGroup>
+
+### What is coming soon
+
+These appear on the grid with a coming soon tag and are not yet configurable:
+
+<CardGroup cols={3}>
+  <Card title="Slack" icon="comments" />
+  <Card title="Jira" icon="list-check" />
+  <Card title="ClickUp" icon="list-check" />
+  <Card title="Google Calendar" icon="clock" />
+  <Card title="Gmail" icon="inbox" />
+  <Card title="Notion" icon="book" />
+</CardGroup>
+
+<Note>
+The Integrations grid is bilingual. Names, descriptions, and categories follow your interface language, so the same provider reads in English or Brazilian Portuguese depending on your setting.
+</Note>
+
+## Reading the cards
+
+Each card on the Integrations page tells you its state at a glance:
+
+<Tabs>
+  <Tab title="Ready">
+    The card shows a configure action. Click it to open the connection flow and authenticate.
+  </Tab>
+  <Tab title="Coming soon">
+    The card is muted and shows a coming soon tag instead of an action. It is on the roadmap but not wired up yet.
+  </Tab>
+  <Tab title="Filtered out">
+    If your search or category filter hides everything, you see a nothing found message. Clear the search or pick **All** to bring the grid back.
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="An agent says a provider is not available for execution" icon="robot">
+    You assigned work to Gemini, OpenCode, Pi, or Grok. These are visible on the roadmap but cannot execute yet. Reassign to Claude, Codex, or the Forge.
+  </Accordion>
+  <Accordion title="Claude or Codex does not run" icon="gear">
+    The matching command line tool is probably missing or not signed in. Install the provider CLI, authenticate it, then retry. Remember the CLI handles its own login, separate from any API key.
+  </Accordion>
+  <Accordion title="A provider is missing from Integrations" icon="magnifying-glass">
+    Clear the search box and select the **All** category. If it still does not appear, it is not on the grid yet.
+  </Accordion>
+  <Accordion title="I want zero API cost" icon="bolt">
+    Route execution through the Forge. It runs locally on the bundled model and applies changes through Fast Apply without API charges.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Forge and Fast Apply" icon="bolt" href="/en/forge-fast-apply">
+    Learn how the local executor applies code changes at zero cost.
+  </Card>
+  <Card title="Choosing models" icon="brain" href="/en/choosing-models">
+    Decide which adapter plans and which one executes.
+  </Card>
+  <Card title="Hiring your team" icon="users" href="/en/hiring-team">
+    Assign specialists and the adapters they run on.
+  </Card>
+  <Card title="Connecting sources" icon="folder-tree" href="/en/connecting-sources">
+    Point your agents at the repos and folders they work in.
+  </Card>
+</CardGroup>

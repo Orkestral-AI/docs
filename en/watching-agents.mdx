@@ -1,0 +1,196 @@
+---
+title: "Watching agents work"
+description: "Follow agents live: sessions, traces and activity."
+---
+
+When a team of agents works on your codebase, you want to see what is happening without guessing. Orkestral gives you three live views that answer three different questions: what is the agent doing in this conversation, what steps did the agent take on a single issue, and what has this agent done across every session and run. This page walks through all three so you always know where to look.
+
+<CardGroup cols={3}>
+  <Card title="Live session" icon="comments">
+    The chat where you watch the agent reply, plan, and update progress in real time.
+  </Card>
+  <Card title="Agent trace" icon="list-check">
+    A step by step timeline of what the agent did while executing one issue.
+  </Card>
+  <Card title="Activity feed" icon="chart-line">
+    Every run an agent has handled: chats, heartbeats, code reviews, and issue executions.
+  </Card>
+</CardGroup>
+
+## The three views at a glance
+
+<Note>
+All three views update on their own. You do not refresh anything. Sessions stream tokens as they arrive, traces push each step over an event channel, and the activity feed refetches on a short interval.
+</Note>
+
+<Tabs>
+  <Tab title="Live session">
+    Open from a conversation in the sidebar. Best for following a single agent reply, watching a plan form, and approving work without leaving the chat.
+  </Tab>
+  <Tab title="Agent trace">
+    Open from an issue, under the **Activity** tab. Best for understanding exactly which steps ran during an execution and where one failed.
+  </Tab>
+  <Tab title="Activity feed">
+    Open from an agent profile, on the dashboard. Best for a bird's eye view of an agent's recent runs and success rate.
+  </Tab>
+</Tabs>
+
+## Follow a live session
+
+The session view is the chat between you and an agent. While the agent is responding, the conversation is in a streaming state and the composer shows it is busy.
+
+{/* PRINT: a live session with the agent streaming a reply and the progress drawer open on the right */}
+
+<Steps>
+  <Step title="Open a session">
+    Click a conversation in the sidebar. The top toolbar shows the session title and a subtitle with the active agent (name, adapter, and model when it is not the default).
+  </Step>
+  <Step title="Watch the reply stream">
+    The agent's message fills in token by token. The send button turns into a stop control while a run is active.
+  </Step>
+  <Step title="Send follow ups without interrupting">
+    If you type while the agent is still working, your message is queued instead of cutting the run off. The queued item appears as a chip in the composer and survives a reload because the queue lives in the main process.
+  </Step>
+  <Step title="Approve a plan inline">
+    When the orchestrator produces a plan for this session, an approval banner appears above the composer. Open it to review the epic and its sub issues in a drawer, then approve and execute without leaving the chat.
+  </Step>
+</Steps>
+
+### The progress drawer
+
+When the agent opens issues, reads files, or consults a knowledge base in this session, a progress drawer appears on the right (on wide windows). It opens on its own the moment there is something to show, and you can toggle it from the toolbar.
+
+<AccordionGroup>
+  <Accordion title="Progress checklist" icon="list-check">
+    A checklist of the issues opened in this session, with a progress bar. Each row shows a live status: pending, queued, running, in review, done, blocked, or cancelled. Click a row to jump to the issue. The same card also renders at the bottom of the chat while a plan executes, so the conversation never looks stalled.
+  </Accordion>
+  <Accordion title="Knowledge consulted" icon="book">
+    Knowledge base pages the agent actually opened, resolved from raw identifiers into readable titles. Search queries are not listed here, only the pages that were retrieved.
+  </Accordion>
+  <Accordion title="Files touched" icon="folder-tree">
+    Files the agent read or edited, derived from the agent's tool calls and from the files attached to the session's issues. Edited files carry an **edited** tag. Long paths are shortened to their last two segments.
+  </Accordion>
+</AccordionGroup>
+
+### Code changes and undo
+
+When a run writes code, a slim bar appears above the composer summarizing how many files changed, with the added and removed line counts. From there you can **Review** the diff in the source, or **Undo** to discard those changes.
+
+<Warning>
+**Undo** discards the working tree changes for the affected files. Use **Review** first if you want to read the diff before deciding.
+</Warning>
+
+### Get notified when a run finishes
+
+If a run keeps streaming for a while, Orkestral offers to notify you when it is done. Accept it once and the app arms a completion notification for that session, so you can switch away and get pinged when the agent finishes.
+
+<Tip>
+You can dismiss the prompt and it will not nag you again for that run. The choice is remembered per session.
+</Tip>
+
+## Read an agent trace
+
+A trace is the step by step record of what an agent did while executing one issue. You find it on the issue page, under the **Activity** tab, rendered as a timeline.
+
+{/* PRINT: the issue Activity tab showing the agent trace timeline with timestamps and step durations */}
+
+Each step in the timeline carries a kind, a status, a title, an optional one line summary, and a duration once it finishes. The header dot pulses blue while any step is still running and turns green once everything has settled.
+
+<AccordionGroup>
+  <Accordion title="Started" icon="circle-dashed">
+    The step is in progress. It shows in blue with a pulsing indicator.
+  </Accordion>
+  <Accordion title="Completed" icon="circle-check">
+    The step finished successfully. It shows in green, with its measured duration on the right.
+  </Accordion>
+  <Accordion title="Skipped" icon="circle-dashed">
+    The step was intentionally skipped. It shows muted.
+  </Accordion>
+  <Accordion title="Failed" icon="shield">
+    The step failed. It shows in red so you can find exactly where the execution broke.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+The trace is persisted, so it survives leaving the issue and coming back. As new steps arrive, the page updates live over an event channel rather than waiting for a refetch. The timeline shows the most recent steps and keeps a running count in its header.
+</Info>
+
+### Trace versus the live timeline
+
+While a run is actively executing, the issue's **Chat** tab can also show a lighter live timeline of the agent's actions (queued, tool use, started, finished, error). That live view is not persisted and disappears on reload. The **Activity** tab trace is the durable record you return to later.
+
+<Note>
+If a step has a short summary, you see it under the step title. For tool steps, that summary is often the most useful clue about what the agent was actually doing at that moment.
+</Note>
+
+## Scan the activity feed
+
+The activity feed lives on an agent's profile. It answers "what has this agent been doing lately" by merging four sources into one chronological list, newest first.
+
+{/* PRINT: an agent dashboard showing stat cards and a recent activity list with mixed kinds */}
+
+<CardGroup cols={2}>
+  <Card title="Chat" icon="comments">
+    Replies the agent gave in chat sessions. The row links straight to that session.
+  </Card>
+  <Card title="Heartbeat" icon="clock">
+    Scheduled or manual heartbeat runs. The subtitle tells you which one it was.
+  </Card>
+  <Card title="Code review" icon="code-branch">
+    Pull request reviews where this agent was the reviewer. The row links to the review.
+  </Card>
+  <Card title="Issue execution" icon="robot">
+    Issue runs where executors (the Forge or a premium model) did the work. The row links to the issue.
+  </Card>
+</CardGroup>
+
+### Reading a row
+
+Each row shows an icon for its kind, a title, an optional subtitle, the run status, the duration, and how long ago it started. A red line appears under the title when the run carried an error message. Rows that have a destination are clickable and take you to the session, the review, or the issue.
+
+<AccordionGroup>
+  <Accordion title="Status colors" icon="gauge">
+    Statuses are normalized across all four sources into a common set: **queued**, **running** (pulsing blue), **done** (green), **error** (red), and **cancelled** (muted). So an issue run that failed and a chat run that failed read the same way at a glance.
+  </Accordion>
+  <Accordion title="The dashboard stats" icon="chart-line">
+    Above the recent list, stat cards summarize roughly the last two weeks: total runs, success rate, average run time, and the last heartbeat. The breakdown counts each kind (issue, chat, review, heartbeat) so you can tell what the agent mostly does.
+  </Accordion>
+  <Accordion title="Filtering" icon="magnifying-glass">
+    The full activity list lets you filter by kind, so you can isolate just the issue executions or just the code reviews when an agent has a busy history.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+The feed fetches each source independently and then merges and sorts the results, so a heartbeat, a chat reply, and an issue run all land on the same timeline in the right order.
+</Info>
+
+## Which view should you use?
+
+<CardGroup cols={3}>
+  <Card title="I want to steer the work now" icon="bolt">
+    Use the **live session**. Watch the reply, queue a follow up, and approve the plan inline.
+  </Card>
+  <Card title="I want to debug one execution" icon="list-check">
+    Use the **agent trace** on the issue. Find the exact step that failed and read its summary.
+  </Card>
+  <Card title="I want the big picture" icon="chart-line">
+    Use the **activity feed** on the agent. Check the success rate and scan recent runs.
+  </Card>
+</CardGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Plan and delegate" icon="sitemap" href="/en/orchestration">
+    Learn how the orchestrator turns a request into an epic with sub issues for the team.
+  </Card>
+  <Card title="Execute locally with the Forge" icon="robot" href="/en/forge">
+    See how the bundled local model applies code changes at zero API cost.
+  </Card>
+  <Card title="Work the issue board" icon="inbox" href="/en/issues">
+    Track epics and sub issues, and open any one to read its full trace.
+  </Card>
+  <Card title="Meet your agents" icon="users" href="/en/agents">
+    Open an agent profile to see its dashboard, stats, and full activity history.
+  </Card>
+</CardGroup>

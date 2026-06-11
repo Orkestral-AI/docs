@@ -1,0 +1,167 @@
+---
+title: "Inbox"
+description: "Everything waiting on you: questions, blockers and decisions."
+---
+
+The **Inbox** is your decision center. It is not a copy of your chats or your issue board. It surfaces only the things that need an action from you right now: a plan to approve, finished work to review, a blocked issue, a failed code review, or a proposal from an agent.
+
+When the Inbox is empty, the team is moving on its own. When something lands there, your team is waiting on a decision only you can make.
+
+<Note>
+The Inbox shows items for your **active workspace**. Switch workspaces from the sidebar and the Inbox refreshes to that workspace's pending decisions.
+</Note>
+
+{/* PRINT: The Inbox page with sections for proposals, plans, in-review work and items needing attention */}
+
+## What lands in your Inbox
+
+The Inbox is deliberately narrow. Everyday chats and ordinary open issues stay on their own screens. Only these five kinds of items appear, each with the action built right into the row.
+
+<CardGroup cols={2}>
+  <Card title="Proposals" icon="robot">
+    Agents propose work: a hiring plan, a source specialist, or analysis of a Sentry error or an observability signal. You approve, open, or dismiss.
+  </Card>
+  <Card title="Plans awaiting approval" icon="list-check">
+    An epic was broken into sub-issues and is waiting for your go-ahead before the team executes.
+  </Card>
+  <Card title="Work in review" icon="circle-check">
+    Finished sub-issues sitting in review, grouped by their parent task. You approve or send back for changes.
+  </Card>
+  <Card title="Needs attention" icon="shield">
+    Blocked issues and code reviews that failed. These do not have approve or reject, but you can open or dismiss them.
+  </Card>
+</CardGroup>
+
+<Info>
+The Inbox refreshes on its own every few seconds, so new plans, reviews and blockers appear without you reloading. A small count badge on each section tells you how many items are waiting.
+</Info>
+
+## How it works
+
+The Inbox reads your issues, agents and recent activity for the active workspace, then filters down to only what is actionable. Some highlights of the logic so you know what to expect:
+
+<AccordionGroup>
+  <Accordion title="Only real decisions show up" icon="bullseye">
+    A plan appears only when the epic still needs your approval and has real, non-cancelled sub-issues under it. An epic that is already done or cancelled never asks for approval, so you do not chase phantom pending items.
+  </Accordion>
+  <Accordion title="Automatic reviews are hidden" icon="robot">
+    When the system routes work to a reviewer agent through the reporting chain, that automatic review resolves on its own and does **not** clutter your Inbox. Only work that needs a required human approver shows up in the **In review** section.
+  </Accordion>
+  <Accordion title="Reviews are grouped by parent task" icon="sitemap">
+    Sub-issues in review are grouped under their parent epic so you can scan and approve them together. Orphan sub-issues (no parent) fall into an **Other reviews** group.
+  </Accordion>
+  <Accordion title="Proposals are de-duplicated and self-resolving" icon="puzzle-piece">
+    Proposals are de-duplicated per session, keeping the most recent. A hiring proposal disappears once your team already exists (any non-orchestrator agent), and a source specialist proposal disappears once that source no longer needs a new agent.
+  </Accordion>
+</AccordionGroup>
+
+## Acting on each item
+
+Every row carries its action inline, so you rarely need to leave the Inbox. Click the body of any row to open the related issue, session or screen for full context first.
+
+<Tabs>
+  <Tab title="Proposals">
+    Proposals come from your agents and vary by type. Each row has a primary action, a secondary link for context, and a dismiss (X).
+
+    - **Sentry issue**: Click **Analyze and fix** to start a session that investigates and fixes the error, or use **Open in Sentry** to view it in your browser. The body opens your Sentry screen.
+    - **Observability signal** (New Relic or Better Stack): Click **Analyze and fix** to open a session on the signal, or **Open** to view the source. Incidents are flagged distinctly from errors and logs.
+    - **Source specialist**: Click **Approve and create** to create a specialist agent for that source, or **View knowledge** to inspect the source first. The reason for the proposal is shown in the row.
+    - **Other proposals** (such as a hiring plan): Click the row to open the originating session and decide there.
+  </Tab>
+  <Tab title="Plans">
+    A plan row shows the epic title, its reference (like `ABC-12`) and how many steps it contains.
+
+    - Click **Approve and execute** to release the plan. The team starts executing immediately, and you get a toast confirming how many steps were executed or released.
+    - Click **View plan** (or the row body) to open the epic and read the full breakdown before deciding.
+  </Tab>
+  <Tab title="In review">
+    Finished sub-issues are grouped under their parent task. Each group header shows the task name, its reference, and how many items are in review.
+
+    - **Approve all**: Approve every sub-issue in the group at once. You get a toast with the count approved.
+    - On each sub-issue, click the green check to **approve** (marks it done) or the red X to **send back for changes** (returns it to in progress).
+    - Click a sub-issue (or the group header) to open it for full detail before deciding.
+  </Tab>
+  <Tab title="Needs attention">
+    Blocked issues and failed code reviews are informational. They do not have approve or reject.
+
+    - **Blocked issues** show the reference and, when assigned, the agent name. Click to open the issue and unblock it.
+    - **Failed code reviews** open your code reviews screen so you can see what went wrong.
+    - Each row has a dismiss (X), and the section header has a **Clear** button to dismiss them all at once.
+  </Tab>
+</Tabs>
+
+### Approving a plan, step by step
+
+<Steps>
+  <Step title="Open the Inbox">
+    Click **Inbox** in the sidebar. Find the **Plans** section near the top.
+  </Step>
+  <Step title="Read the plan">
+    Click **View plan** to open the epic and review the sub-issues your team intends to execute. Make sure the breakdown matches your intent.
+  </Step>
+  <Step title="Approve and execute">
+    Back in the Inbox, click **Approve and execute**. The row shows a spinner while it works, then the team begins. A toast confirms the result.
+  </Step>
+  <Step title="Watch it move to review">
+    As sub-issues finish, they reappear in the **In review** section of the Inbox, ready for your approval.
+  </Step>
+</Steps>
+
+### Reviewing finished work, step by step
+
+<Steps>
+  <Step title="Find the review group">
+    In the **In review** section, locate the group for the parent task you care about.
+  </Step>
+  <Step title="Inspect a sub-issue">
+    Click any sub-issue to open it and confirm the change is what you wanted.
+  </Step>
+  <Step title="Approve or send back">
+    Use the green check to approve, or the red X to send it back for changes. Approve the whole group at once with **Approve all** when you are confident.
+  </Step>
+</Steps>
+
+## Dismissing versus deciding
+
+Some items are decisions that change the underlying issue. Others are just noise you want out of your view. The Inbox treats these differently.
+
+<Warning>
+**Approve** and **Send back for changes** change the issue's real status (done or in progress). **Dismiss** and **Clear** only hide the item locally on this machine. They do not change the issue.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="What dismiss does" icon="circle-check">
+    Dismissing a blocked issue or a failed review hides it from the **Needs attention** section without touching the issue. The dismissal is stored locally, so the item stays hidden until something about it changes.
+  </Accordion>
+  <Accordion title="Why a dismissed item can reappear" icon="clock">
+    A dismissed issue reappears if it is updated (its update timestamp changes), so a blocker you cleared will resurface if the situation actually changes. Dismissed activity events stay hidden by their event id.
+  </Accordion>
+  <Accordion title="Clearing the attention section" icon="inbox">
+    The **Clear** button in the **Needs attention** header dismisses all visible blocked issues and failed reviews at once. You get a confirmation toast. This is a clean-up action, not a resolution.
+  </Accordion>
+</AccordionGroup>
+
+## When the Inbox is empty
+
+If there is nothing waiting, you see an all-clear state with a green check. That means no plans need approval, nothing is in review, nothing is blocked, and there are no open proposals. Your team is working without needing you.
+
+<Tip>
+Treat an empty Inbox as the goal of each working session. If items pile up, your team is blocked on your decisions. Clear plans and reviews first, since they unblock execution, then triage the **Needs attention** section.
+</Tip>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Issues and epics" icon="list-check" href="/en/issues">
+    See the full board behind your plans and reviews, and dig into any issue the Inbox links to.
+  </Card>
+  <Card title="Agents" icon="users" href="/en/agents">
+    Manage the specialists your proposals create and see who is assigned to what.
+  </Card>
+  <Card title="Chat" icon="comments" href="/en/chat">
+    Talk to an agent directly when a decision needs a conversation, not just an approval.
+  </Card>
+  <Card title="Knowledge" icon="brain" href="/en/knowledge">
+    Review the sources behind source specialist proposals before approving them.
+  </Card>
+</CardGroup>

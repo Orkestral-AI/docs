@@ -1,0 +1,203 @@
+---
+title: "The dashboard"
+description: "Your workspace at a glance: status, activity and what needs you."
+---
+
+The dashboard is the home view for the workspace you have open. It pulls together the four things you care about at any moment: how much work is open, how your agents are doing, what you touched recently, and how much money the local Forge is saving you. Everything on the page is a shortcut, so you can read the state of the workspace and then jump straight to the place that needs you.
+
+<Note>
+The dashboard is scoped to the **active workspace**. Switch workspace and every number, list and card refreshes for the new one. If no workspace is active, the page shows a single hint and nothing else.
+</Note>
+
+{/* PRINT: full dashboard with stat cards, status row, recent lists and the agents grid */}
+
+## How it works
+
+The dashboard reads live data straight from your local database. It runs four queries against the active workspace: the issue list, issue counts grouped by status, the agent list, and the chat session list. A fifth card (run economics) loads execution stats on its own.
+
+Because the data is local, the page is fast and works offline. While the first read is in flight you see a spinner. If a read fails you see a short error line instead of a half-rendered page.
+
+<CardGroup cols={2}>
+  <Card title="Stat cards" icon="gauge">
+    Four headline numbers across the top: open issues, blocked, active agents, sessions.
+  </Card>
+  <Card title="Issues by status" icon="list-check">
+    A seven-column row counting every issue by its current status.
+  </Card>
+  <Card title="Recent activity" icon="clock">
+    Two side-by-side lists: your latest issues and your latest conversations.
+  </Card>
+  <Card title="Agents and economics" icon="robot">
+    The full agent roster with live status dots, plus the Forge savings card.
+  </Card>
+</CardGroup>
+
+## The stat cards
+
+The top row is four cards. Each one is clickable and takes you to the matching page.
+
+<AccordionGroup>
+  <Accordion title="Open issues" icon="circle-dot">
+    Counts every issue that is **not** `done` and **not** `cancelled`. This is your real backlog of live work. Click the card to open **Issues**.
+  </Accordion>
+  <Accordion title="Blocked" icon="circle-exclamation">
+    Counts issues whose status is `blocked`. When this number is above zero, the card and its value turn **red** so it stands out. A non-zero blocked count is the clearest signal that something needs you. Click to open **Issues** and clear the blocker.
+  </Accordion>
+  <Accordion title="Active agents" icon="robot">
+    Shown as a fraction like `3/5`: agents that are working (not paused) over the total roster size. If any agents are paused, a hint underneath tells you how many. Click to open **Agents**.
+  </Accordion>
+  <Accordion title="Sessions" icon="comments">
+    The total number of chat conversations in this workspace. Click to open the chat home so you can start or resume a conversation.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Read the top row left to right as a health check: how much is open, how much is stuck, how many agents are pulling, how much you have been talking. If **Blocked** is red, deal with that first.
+</Tip>
+
+## Issues by status
+
+Below the stat cards is a row of small tiles, one per status, in workflow order:
+
+<Steps>
+  <Step title="Backlog">
+    Captured but not yet scheduled. The grey dot.
+  </Step>
+  <Step title="To do">
+    Queued and ready to be picked up.
+  </Step>
+  <Step title="In progress">
+    Actively being worked. Marked with the blue dot.
+  </Step>
+  <Step title="In review">
+    Awaiting your review or a reviewer agent. The purple dot.
+  </Step>
+  <Step title="Blocked">
+    Stuck on a dependency or decision. The red dot.
+  </Step>
+  <Step title="Done">
+    Completed. The green dot.
+  </Step>
+  <Step title="Cancelled">
+    Dropped and no longer counted as open. The faint dot.
+  </Step>
+</Steps>
+
+Each tile shows the status name, a coloured dot, and the count. Every tile is a button: click any one to jump into the **Issues** board, where you can filter and reorder.
+
+<Info>
+The colour dots here use the same palette across the whole app, so the blue you see for **In progress** on the dashboard is the same blue on the Issues board and inside an issue. Learn the colours once and you can read status at a glance everywhere.
+</Info>
+
+## Recent issues and recent conversations
+
+The middle of the page splits into two columns.
+
+<Tabs>
+  <Tab title="Recent issues">
+    The six most recent issues in the workspace. Each row shows the issue key (formatted as `ORK-<key>`), a status dot, and the title (truncated if long). Click a row to open the **Issues** board. Use the **View all** link in the section header to go straight there too.
+
+    If the workspace has no issues yet, you see a dashed empty hint instead of an empty list.
+  </Tab>
+  <Tab title="Recent conversations">
+    The five most recently updated chat sessions. Each row shows an activity icon, the conversation title, and a relative timestamp (`now`, `5 min`, `2 h`, `3 d`). Click a row to reopen that exact conversation. Use the **New** link in the header to start a fresh chat.
+
+    No conversations yet means a dashed empty hint here as well.
+  </Tab>
+</Tabs>
+
+<Note>
+"Recent" means newest first and capped: six issues and five conversations. The dashboard is a launch pad, not a full list. For the complete set, follow the section links to **Issues** or the chat home.
+</Note>
+
+## The agents grid
+
+Under the recent lists, the dashboard lists every agent hired into this workspace. Each agent appears as a card with an avatar, a name, an optional role title, and a status dot on the right.
+
+The status dot tells you what the agent is doing:
+
+| Dot | Status | Meaning |
+| --- | --- | --- |
+| Pulsing green | `live` | The agent is actively working right now. |
+| Yellow | `paused` | The agent is hired but paused, so it will not pick up work. |
+| Red | `error` | The agent hit a problem and needs your attention. |
+| Grey | `idle` | The agent is available but not currently busy. |
+
+Click any agent card to open that agent's profile, where you can read its instructions, pause or resume it, and review its work. The **View agents** link in the header opens the full **Agents** page.
+
+<Warning>
+A **red** (error) dot in the agents grid means an agent run failed. Open that agent to see what happened before you delegate more work to it.
+</Warning>
+
+{/* PRINT: agents grid showing live, paused and idle status dots */}
+
+## Run economics: what the Forge saves you
+
+The last card on the page is **run economics**. This is where Orkestral shows the payoff of the local-first model: premium models PLAN, and the bundled local Forge (Qwen2.5-Coder) EXECUTES code changes at $0 in API cost.
+
+The card reads real execution stats from your own runs (no estimates, no marketing numbers) and shows three metrics:
+
+<CardGroup cols={3}>
+  <Card title="Local executions" icon="bolt">
+    How many code changes the Forge applied locally without calling a premium API.
+  </Card>
+  <Card title="Escalations" icon="chart-line">
+    How many times work had to escalate to a premium model instead of staying local.
+  </Card>
+  <Card title="Local success rate" icon="bullseye">
+    The share of orchestrated runs the Forge handled locally, shown as a percentage.
+  </Card>
+</CardGroup>
+
+Below the metrics, when there is enough data, the card shows the dollar amount you have **saved** so far. The saving is computed from your local and locally assisted executions multiplied by the average cost a premium run would have charged, using real `cost_usd` values captured from runs. The amount is formatted in USD.
+
+<AccordionGroup>
+  <Accordion title="It says there are no runs yet" icon="circle-info">
+    If the workspace has had no orchestrated runs, the card shows a "no runs" hint. Delegate some work and the numbers fill in as the Forge executes.
+  </Accordion>
+  <Accordion title="It shows metrics but no dollar figure" icon="key">
+    The savings figure needs cost data from past premium runs to compare against. Until enough cost has been recorded, you see the three metrics but a "no cost data" note instead of a dollar amount.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+A high **local success rate** with a low **escalations** count is exactly what you want: it means the cheap local Forge is carrying most of the execution and your premium budget is reserved for planning.
+</Info>
+
+## States you might see
+
+The whole page adapts to what is available:
+
+<AccordionGroup>
+  <Accordion title="No active workspace" icon="folder">
+    Before you open or create a workspace, the dashboard shows a single hint telling you to pick one. Open a workspace and the page populates.
+  </Accordion>
+  <Accordion title="Loading" icon="clock">
+    On first read you see a centred spinner while the issue, agent and session data loads.
+  </Accordion>
+  <Accordion title="Error" icon="shield">
+    If a read fails, the page shows a short error message rather than a broken layout. Try switching workspace and back, or reopen the app.
+  </Accordion>
+  <Accordion title="Empty sections" icon="inbox">
+    A brand new workspace shows dashed empty hints in the recent issues, recent conversations and agents sections until you create work and hire agents.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+Use the dashboard as your daily starting point, then follow the link that matches what you need:
+
+<CardGroup cols={2}>
+  <Card title="Clear blockers" icon="circle-exclamation" href="/en/issues">
+    Red **Blocked** number? Open the Issues board and unblock it.
+  </Card>
+  <Card title="Check your team" icon="robot" href="/en/agents">
+    Review agent status, pause, resume or open a profile.
+  </Card>
+  <Card title="Start a conversation" icon="comments" href="/en/chat">
+    Talk to the CEO orchestrator and delegate new work.
+  </Card>
+  <Card title="Plan the work" icon="sitemap" href="/en/issues">
+    Turn ideas into issues and epics on the board.
+  </Card>
+</CardGroup>

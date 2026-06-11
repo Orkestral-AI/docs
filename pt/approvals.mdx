@@ -1,0 +1,184 @@
+---
+title: "Aprovações"
+description: "O portão antes dos agentes mexerem no seu código."
+---
+
+Aprovações são os pontos de verificação humanos entre um agente terminar o trabalho e esse trabalho ser considerado concluído. O Orkestral roda um time de agentes no seu código, e você decide o quanto eles finalizam por conta própria versus o quanto espera por uma pessoa olhar primeiro. Esta página explica cada portão pelo qual uma issue passa, o que você realmente aprova, e como os níveis de autonomia mudam o cenário.
+
+<Note>
+O Orkestral nunca pede que você aprove cada tecla digitada. O agente faz o trabalho, captura um diff, e o passa pelos portões de revisão e aprovação. Você aprova resultados, não edições.
+</Note>
+
+## O panorama geral
+
+Quando um agente roda uma issue, o trabalho flui por uma cadeia de portões antes que a issue possa chegar a `done`. Alguns portões são automáticos (agentes revisando agentes), e alguns exigem uma decisão humana.
+
+<CardGroup cols={2}>
+  <Card title="Cadeia de validação" icon="sitemap">
+    O executor nunca fecha a própria issue. O trabalho sobe para o gerente a quem ele se reporta, e pode subir até o Code Reviewer e o CEO.
+  </Card>
+  <Card title="Portão de aprovadores" icon="circle-check">
+    Os **aprovadores** obrigatórios que você anexa a uma issue precisam dizer sim antes de ela poder ser marcada como `done`. Uma única rejeição a bloqueia.
+  </Card>
+  <Card title="Nível de autonomia" icon="gauge">
+    Uma configuração do workspace (baixa, média, alta) que decide até onde o time finaliza por conta própria antes de envolver um gerente.
+  </Card>
+  <Card title="Aprovação de roteamento local" icon="robot">
+    Uma configuração opcional que segura o modelo local Forge para que agentes premium cuidem da execução em vez dele.
+  </Card>
+</CardGroup>
+
+{/* PRINT: um card de issue mostrando o status "aguardando aprovadores" com um controle de aprovar / rejeitar */}
+
+## Como uma issue chega a done
+
+<Steps>
+  <Step title="Um agente executa a issue">
+    O especialista atribuído roda a issue, edita arquivos, e o Orkestral captura um snapshot de diff do que mudou (para você poder desfazer depois).
+  </Step>
+  <Step title="O trabalho sobe para validação">
+    Um executor mais fraco ou local não finaliza o próprio trabalho. Em caso de sucesso, a issue é reatribuída ao gerente a quem o agente **se reporta**, passa para `in_review`, e esse gerente roda novamente em modo de revisão.
+  </Step>
+  <Step title="Revisão de código quando há mudança de código">
+    Se a execução tocou em código e existe um **Code Reviewer** no workspace, o trabalho sempre passa por esse revisor, mesmo em autonomia alta. Esse é exatamente o propósito de ter um.
+  </Step>
+  <Step title="O portão de aprovadores">
+    Antes de a issue poder virar `done`, o Orkestral verifica os aprovadores obrigatórios anexados à issue. Todos precisam aprovar. Qualquer rejeição a manda de volta.
+  </Step>
+  <Step title="Done, e o ciclo se fecha">
+    Assim que todos os portões passam, a issue vira `done`. Se ela veio de um chat, o CEO reporta o resultado de volta naquela conversa.
+  </Step>
+</Steps>
+
+<Tip>
+A cadeia de revisão (quem se reporta a quem) e o portão de aprovadores são independentes. Uma issue pode ser aprovada por um gerente na cadeia de revisão e ainda assim esperar, porque um aprovador obrigatório ainda não decidiu.
+</Tip>
+
+## O que você realmente aprova
+
+Você não está assinando embaixo de edições individuais. Você aprova no nível da issue, depois que o agente fez o trabalho e o diff está pronto para inspeção.
+
+<AccordionGroup>
+  <Accordion title="O diff capturado" icon="code-branch">
+    Toda execução que muda arquivos produz um resumo de mudanças: os arquivos tocados, adições e remoções. Um snapshot transacional é salvo, então aprovar é seguro e reversível. Rejeite e você pode desfazer todo o conjunto de mudanças.
+  </Accordion>
+  <Accordion title="O veredito do revisor" icon="magnifying-glass">
+    Quando um gerente ou Code Reviewer valida, ele aprova ou solicita mudanças. A solicitação de mudanças é reportada de volta em linguagem clara para você sempre saber por que algo retornou ao executor.
+  </Accordion>
+  <Accordion title="A decisão do aprovador" icon="circle-check">
+    Os aprovadores obrigatórios anexados a uma issue tomam uma decisão explícita: aprovar ou rejeitar. Este é o verdadeiro portão para `done`, separado da cadeia de revisão automática.
+  </Accordion>
+</AccordionGroup>
+
+## O portão de aprovadores em detalhe
+
+Você pode anexar **aprovadores** a uma issue. Eles são o portão rígido antes da conclusão. O Orkestral calcula o estado do portão a partir da decisão de cada aprovador obrigatório.
+
+<Tabs>
+  <Tab title="Aprovado">
+    Todo aprovador obrigatório aprovou (ou não há aprovadores anexados). A issue tem permissão para finalizar e passa para `done`.
+  </Tab>
+  <Tab title="Pendente">
+    Pelo menos um aprovador obrigatório ainda não decidiu. O trabalho está completo, mas a issue fica em `in_review` com um comentário: aguardando aprovadores obrigatórios antes de poder ser finalizada. Ela não fecha.
+  </Tab>
+  <Tab title="Rejeitado">
+    Pelo menos um aprovador rejeitou. A issue não pode concluir. Ela passa para `blocked` com um comentário pedindo que você trate o feedback e solicite a aprovação novamente.
+  </Tab>
+</Tabs>
+
+<Warning>
+Uma única rejeição de qualquer aprovador obrigatório bloqueia a issue, mesmo que todos os outros aprovadores e toda a cadeia de revisão tenham dito sim. A rejeição sempre vence.
+</Warning>
+
+## Níveis de autonomia
+
+A autonomia é uma configuração no nível do workspace, armazenada no orquestrador CEO. Ela governa até onde o time finaliza por conta própria antes de um gerente ter que intervir. O padrão é **média**.
+
+<CardGroup cols={3}>
+  <Card title="Baixa" icon="shield">
+    A mais cautelosa. O trabalho consistentemente sobe para os gerentes para validação antes de qualquer coisa fechar. Use isto quando quiser um humano ou agente sênior no circuito em quase tudo.
+  </Card>
+  <Card title="Média" icon="gauge">
+    O padrão equilibrado. Mudanças de código ainda passam pelo Code Reviewer, e o trabalho que não é de código sobe para o gerente a quem o agente se reporta.
+  </Card>
+  <Card title="Alta" icon="bolt">
+    "Manda ver e vai dormir." O trabalho que não é de código pode finalizar sem subir para um gerente. Mudanças de código ainda passam pelo Code Reviewer, se houver um. Sem um Code Reviewer, a autonomia alta finaliza diretamente.
+  </Card>
+</CardGroup>
+
+<Info>
+A autonomia alta não desliga a revisão de código. Se uma execução tocou em código e existe um agente Code Reviewer, o trabalho sempre passa por esse revisor, independentemente do nível de autonomia. A autonomia só relaxa a etapa de validação do gerente para trabalho que não mudou código.
+</Info>
+
+Para mudá-la, abra seu orquestrador CEO e defina o nível de autonomia na sua configuração de runtime. A mudança se aplica ao workspace inteiro.
+
+{/* PRINT: o painel de configurações do agente CEO mostrando o seletor de nível de autonomia (baixa / média / alta) */}
+
+## Aprovação de roteamento de modelo local
+
+Existe uma aprovação separada e opcional que vive nas suas configurações de roteamento de modelo: **exigir aprovação para local**. Esta é sobre qual modelo roda, não sobre fechar a issue.
+
+O Orkestral pode tentar primeiro o modelo local Forge embutido e só escalar para um agente premium quando necessário. Se você ativar exigir aprovação para local, o caminho híbrido "Forge primeiro" é segurado, então agentes premium cuidam da execução diretamente em vez de deixar o modelo local tentar sem supervisão.
+
+<AccordionGroup>
+  <Accordion title="O que muda" icon="robot">
+    Com isto desligado (padrão para roteamento híbrido), uma issue elegível é tentada primeiro pelo Forge local, e depois escalada para premium se a execução local não terminar ou o risco da tarefa estiver acima do seu limite local. Com isto ligado, essa tentativa automática local-first não roda.
+  </Accordion>
+  <Accordion title="Limites de risco" icon="shield">
+    Mesmo quando o Forge-primeiro é permitido, o Orkestral classifica o risco de cada issue. Se o risco estiver acima do seu risco local máximo configurado, ele pula o local e vai direto para um agente premium, o que preserva o contexto e as permissões da CLI.
+  </Accordion>
+  <Accordion title="Orçamento de escalonamento premium" icon="clock">
+    Uma issue do Forge pode escalar para premium uma vez por ciclo de vida. Se o orçamento foi gasto ou o fallback premium está desativado, a issue é marcada como `blocked` com um comentário explicando que precisa de ajuda, em vez de gastar silenciosamente mais uso premium.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+A aprovação de roteamento local e o portão de aprovadores da issue são coisas diferentes. Uma decide qual modelo toca no seu código; a outra decide se o trabalho finalizado tem permissão para fechar. Você pode usar uma, ambas ou nenhuma.
+</Note>
+
+## Quando a cadeia perde a paciência
+
+A revisão automática tem um limite para que as issues nunca entrem em loop para sempre.
+
+<Steps>
+  <Step title="Idas e vindas limitadas">
+    Um executor e seu gerente podem ir e voltar um pequeno número de vezes. Cada solicitação de mudanças conta como uma tentativa.
+  </Step>
+  <Step title="Passar para um humano">
+    Quando a revisão automática esgota suas tentativas, a issue passa para `in_review` com um comentário de que precisa de revisão humana. O time para de adivinhar e espera por você.
+  </Step>
+  <Step title="Você decide">
+    Inspecione o diff, aprove para finalizar, ou rejeite e mande de volta com orientação. Sua decisão desempata o que os agentes não conseguiram resolver.
+  </Step>
+</Steps>
+
+## Configurações práticas
+
+<Tabs>
+  <Tab title="Supervisão máxima">
+    Defina a autonomia como **baixa**, anexe você mesmo (ou um agente sênior de confiança) como **aprovador** obrigatório nas issues importantes, e mantenha um Code Reviewer no workspace. Nada fecha sem um sim humano.
+  </Tab>
+  <Tab title="Equilibrado">
+    Mantenha a autonomia em **média** e confie no Code Reviewer para o trabalho de código. Anexe aprovadores apenas nas issues que realmente importam, como releases ou mudanças de schema.
+  </Tab>
+  <Tab title="Mãos livres">
+    Defina a autonomia como **alta** e deixe o time finalizar. Mantenha um Code Reviewer para que mudanças de código ainda recebam uma segunda passada, e deixe o fallback premium ligado para que issues travadas terminem em vez de bloquear.
+  </Tab>
+</Tabs>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Monte seu time" icon="users" href="/pt/agents">
+    Adicione um Code Reviewer e defina linhas de reporte para que a cadeia de validação tenha para quem subir.
+  </Card>
+  <Card title="Acompanhe o trabalho como issues" icon="list-check" href="/pt/issues">
+    Veja como as issues se movem por `in_progress`, `in_review`, `blocked` e `done`.
+  </Card>
+  <Card title="Entenda o Forge" icon="robot" href="/pt/forge">
+    Aprenda como o modelo local executa mudanças e quando ele escala para premium.
+  </Card>
+  <Card title="Ajuste o roteamento de modelo" icon="gear" href="/pt/settings">
+    Encontre os toggles de exigir aprovação para local e fallback premium nas configurações.
+  </Card>
+</CardGroup>

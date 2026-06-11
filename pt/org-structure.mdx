@@ -1,0 +1,193 @@
+---
+title: "Estrutura da org"
+description: "A hierarquia de reporte do seu time de agentes."
+---
+
+O Orkestral conduz o seu trabalho como uma org de software de verdade. No topo está você. Abaixo de você está um orquestrador **CEO** que lê seus repos, planeja e delega. Abaixo do CEO estão líderes e especialistas que de fato fazem o trabalho avançar. A página **Org** desenha isso como uma árvore, para que você veja, num relance, quem reporta a quem e como uma solicitação flui do seu prompt até o agente que escreve o código.
+
+Esta página explica a hierarquia, como as relações de reporte são armazenadas e como essa estrutura molda a delegação e a cobertura de fontes.
+
+{/* PRINT: A página Org mostrando a árvore de agentes com o CEO no topo */}
+
+## Por que uma hierarquia
+
+Uma lista plana de agentes não consegue responder à pergunta que mais importa: quando você pede algo, quem é o dono e para quem essa pessoa repassa? Uma hierarquia dá a cada solicitação um caminho claro. O CEO não escreve código linha a linha. Ele planeja, divide o trabalho e roteia cada parte para o especialista certo. Os líderes coordenam. Os especialistas executam na parte do código que possuem.
+
+<CardGroup cols={2}>
+  <Card title="Propriedade clara" icon="users">
+    Toda fonte e todo issue tem um dono natural com base no papel.
+  </Card>
+  <Card title="Delegação previsível" icon="sitemap">
+    O trabalho flui de cima para baixo: você para o CEO, o CEO para líderes e especialistas.
+  </Card>
+  <Card title="Contexto certo" icon="folder-tree">
+    Um especialista de frontend trabalha na fonte de frontend, não no monorepo inteiro.
+  </Card>
+  <Card title="Estrutura visível" icon="chart-line">
+    A página Org renderiza a árvore real a partir dos links de reporte dos seus agentes.
+  </Card>
+</CardGroup>
+
+## Os papéis
+
+Sua org é construída a partir de um pequeno conjunto de papéis. Os nomes exatos dos seus especialistas dependem das fontes do seu workspace, mas o formato é sempre o mesmo.
+
+<AccordionGroup>
+  <Accordion title="Você" icon="user">
+    Você fica acima da org. Você define metas, aprova planos e revisa resultados. Você fala com o CEO e com qualquer agente diretamente pelo chat. Nada é entregue sem o seu envolvimento.
+  </Accordion>
+  <Accordion title="CEO (orquestrador)" icon="brain">
+    O único orquestrador no topo da árvore. Ele é marcado com uma flag **isOrchestrator** e exibido com um selo de **CEO** na página Org. O CEO lê seus repos, planeja o trabalho, divide em issues e épicos e delega cada parte árvore abaixo. Ele não reporta a ninguém dentro da org.
+  </Accordion>
+  <Accordion title="Tech Lead" icon="sitemap">
+    Um papel de líder que coordena a execução. Os líderes ficam entre o CEO e os especialistas. Em termos de delegação, qualquer coisa que se pareça com um líder (CEO, orquestrador, tech lead, arquiteto) é tratada como cobertura ampla: pode dar suporte a qualquer fonte em vez de possuir uma parte específica.
+  </Accordion>
+  <Accordion title="Code Reviewer / QA" icon="circle-check">
+    Um papel de revisão focado em qualidade. Como os líderes, os revisores são tratados como cobertura ampla. Eles dão suporte a todas as fontes em vez de possuir uma, então podem opinar sobre qualquer mudança, independentemente de qual parte do código ela toca.
+  </Accordion>
+  <Accordion title="Especialistas" icon="robot">
+    Os agentes que executam. Cada especialista mapeia para um papel de fonte: **Frontend**, **Backend**, **Mobile**, **Infra**, **Docs** ou **Generalist**. Um especialista possui as fontes que correspondem ao seu papel.
+  </Accordion>
+</AccordionGroup>
+
+## Como o reporte é armazenado
+
+A árvore não é fixa no código. Cada agente carrega um campo `reportsTo` que aponta para o id do seu gestor. A página Org lê todos os agentes do workspace ativo e reconstrói a árvore a partir desses links.
+
+<Steps>
+  <Step title="Agrupar por gestor">
+    Os agentes são agrupados pelo valor de `reportsTo`. Agentes sem `reportsTo` (como o CEO) tornam-se raízes da árvore.
+  </Step>
+  <Step title="Construir recursivamente">
+    Para cada agente, seus filhos são os agentes cujo `reportsTo` é igual ao id daquele agente. A página desce recursivamente, acompanhando a profundidade para a indentação.
+  </Step>
+  <Step title="Renderizar os ramos">
+    Cada ramo mostra o avatar, o nome e o título ou papel do agente. O CEO recebe um selo de **CEO**. Um ponto de status ao vivo mostra se o agente está `live`, `paused`, `error` ou `idle`. Um pequeno selo de contagem mostra quantos reportes diretos um gestor tem.
+  </Step>
+</Steps>
+
+<Note>
+Como a árvore é derivada de `reportsTo`, mudar para quem um agente reporta altera o organograma imediatamente. Não há uma estrutura separada para manter sincronizada.
+</Note>
+
+## Lendo a página Org
+
+Abra **Org** na navegação do workspace. Você vê uma única árvore indentada.
+
+<CardGroup cols={2}>
+  <Card title="Indentação" icon="folder-tree">
+    Agentes mais profundos ficam mais indentados, com um chevron marcando cada nível abaixo da raiz.
+  </Card>
+  <Card title="Selo de CEO" icon="brain">
+    O orquestrador é marcado como **CEO**, para que o topo da org seja inconfundível.
+  </Card>
+  <Card title="Ponto de status" icon="gauge">
+    Um ponto colorido mostra live (verde, pulsando), paused (amarelo), error (vermelho) ou idle (cinza).
+  </Card>
+  <Card title="Contagem de reportes" icon="users">
+    Um gestor exibe um pequeno selo numérico com quantos agentes reportam diretamente a ele.
+  </Card>
+</CardGroup>
+
+Clique em qualquer agente na árvore para abrir o perfil dele, onde você pode revisar o papel, o título e a atividade.
+
+<Tip>
+Se a página disser que não há agentes, você ainda não contratou um time. Contrate seu time primeiro e o organograma se preenche automaticamente.
+</Tip>
+
+## Como a estrutura molda a delegação
+
+A hierarquia não é só uma imagem. Ela determina como o trabalho é atribuído às fontes. O Orkestral classifica tanto seus agentes quanto suas fontes por papel e então faz a correspondência entre eles.
+
+### Papéis de cobertura de agentes
+
+Cada agente é reduzido a um papel de cobertura:
+
+<Tabs>
+  <Tab title="Lead">
+    Qualquer agente marcado como orquestrador, ou cujo papel ou título se pareça com CEO, orquestrador, tech lead, arquiteto ou líder, torna-se um **lead**. Os líderes oferecem cobertura ampla e podem dar suporte a qualquer fonte.
+  </Tab>
+  <Tab title="Review">
+    Qualquer agente que se pareça com review, QA ou qualidade torna-se **review**. Os revisores também oferecem cobertura ampla em todas as fontes.
+  </Tab>
+  <Tab title="Specialist">
+    Todos os demais são reduzidos a um papel de fonte: **frontend**, **backend**, **mobile**, **infra**, **docs** ou **other**. Um especialista possui as fontes que correspondem exatamente ao seu papel.
+  </Tab>
+</Tabs>
+
+### Papéis de fonte
+
+Cada fonte (um repo ou pasta) é classificada no mesmo vocabulário. O Orkestral infere o papel primeiro a partir de sinais fortes, depois de qualquer papel que você tenha salvo e, por fim, do nome e do caminho da fonte.
+
+<AccordionGroup>
+  <Accordion title="Sinais fortes de pacote" icon="magnifying-glass">
+    Pistas de dependências e configuração têm o maior peso. Coisas como `next`, `vite`, `react-dom` ou `tailwindcss` apontam para **frontend**. `react-native`, `expo`, `flutter` ou um caminho `android`/`ios` apontam para **mobile**. `api`, `express`, `nestjs`, `django`, `rails` ou `prisma` apontam para **backend**. `terraform`, `docker`, `k8s` ou `helm` apontam para **infra**. `docs`, `wiki` ou `readme` apontam para **docs**.
+  </Accordion>
+  <Accordion title="Sobreposição de frontend e mobile" icon="puzzle-piece">
+    Quando uma fonte exibe sinais tanto de frontend quanto de mobile, o Orkestral olha para a identidade da fonte. Se ela parecer mobile (React Native, Expo, um segmento `android` ou `ios`), é classificada como **mobile**; caso contrário, permanece como **frontend**.
+  </Accordion>
+  <Accordion title="Papel salvo e fallback de nome" icon="gear">
+    Se os sinais fortes forem inconclusivos, é usado um papel que você salvou na fonte. Na falta disso, o rótulo, o nome do repo e o caminho são examinados em busca de palavras como `frontend`, `backend`, `infra` ou `docs`.
+  </Accordion>
+</AccordionGroup>
+
+### Combinando agentes com fontes
+
+Com os dois lados classificados, o Orkestral atribui a cobertura:
+
+<Steps>
+  <Step title="Donos primários">
+    Um especialista cobre uma fonte apenas quando seu papel corresponde exatamente ao papel da fonte. Um agente **Backend** possui uma fonte de backend. Uma fonte sem papel claro é coberta apenas por um **Generalist** (o papel `other`).
+  </Step>
+  <Step title="Suporte de líderes e revisores">
+    Líderes e revisores não possuem uma fonte, mas são anexados como **suporte** em todas as fontes. É assim que o CEO, o Tech Lead e o Code Reviewer permanecem envolvidos em todo o código.
+  </Step>
+  <Step title="Mobile recebe suporte de frontend">
+    Uma fonte mobile atrai especialistas de frontend como suporte, já que mobile compartilha conceitos com a web. O raciocínio que o Orkestral registra observa que mobile ainda precisa do próprio especialista para questões de runtime, navegação, build e plataforma.
+  </Step>
+  <Step title="Lacunas geram uma recomendação">
+    Quando uma fonte tem um papel claro mas nenhum especialista a possui, o Orkestral sinaliza que ela precisa de um novo agente e recomenda o rótulo de papel correspondente (por exemplo, **Frontend** ou **Infra**).
+  </Step>
+</Steps>
+
+<Warning>
+Uma fonte classificada como `other` não dispara uma recomendação de contratação. Apenas uma fonte com tipo claramente definido e zero donos (frontend, backend, mobile, infra ou docs) indica que você deve contratar um especialista.
+</Warning>
+
+## Um exemplo prático
+
+Imagine um workspace com três fontes: um web app Next.js, uma API Express e um repo de infra Terraform. Você contratou um CEO, um Tech Lead, um Code Reviewer, um especialista de Frontend e um especialista de Backend.
+
+<CardGroup cols={2}>
+  <Card title="Fonte do web app" icon="folder">
+    Classificada como **frontend** a partir de `next` e `react-dom`. Possuída pelo seu especialista de **Frontend**. Apoiada pelo CEO, pelo Tech Lead e pelo Code Reviewer.
+  </Card>
+  <Card title="Fonte da API" icon="folder">
+    Classificada como **backend** a partir de `express`. Possuída pelo seu especialista de **Backend**. Os mesmos líderes e revisor anexados como suporte.
+  </Card>
+  <Card title="Fonte de infra" icon="folder">
+    Classificada como **infra** a partir de `terraform`. Nenhum especialista a possui, então o Orkestral a sinaliza e recomenda contratar um agente de **Infra**.
+  </Card>
+  <Card title="Os líderes" icon="brain">
+    CEO, Tech Lead e Code Reviewer aparecem como suporte nas três fontes, nunca como o único dono de qualquer uma delas.
+  </Card>
+</CardGroup>
+
+O resultado: quando você pede ao CEO uma mudança no web app, ele tem um dono claro para delegar, um revisor anexado para garantir qualidade e uma lacuna visível (infra) que ele pode sugerir que você preencha com pessoal.
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Contrate seu time" icon="users" href="/pt/hiring">
+    Construa a org para que o organograma e a cobertura de fontes se preencham.
+  </Card>
+  <Card title="Conheça os agentes" icon="robot" href="/pt/agents">
+    Abra o perfil de um agente para ver seu papel, título e atividade.
+  </Card>
+  <Card title="Adicione fontes" icon="folder-tree" href="/pt/sources">
+    Conecte repos e pastas para que possam ser classificados e atribuídos.
+  </Card>
+  <Card title="Delegue trabalho" icon="comments" href="/pt/chat">
+    Fale com o CEO e veja a delegação fluir árvore abaixo.
+  </Card>
+</CardGroup>

@@ -1,0 +1,212 @@
+---
+title: "Code changes"
+description: "Review the diffs and artifacts your agents produced."
+---
+
+When an agent edits your codebase, the work lands on disk as real file changes in your local git repository. The **Code changes** view is where you read those changes line by line, group them into commits, and ship them. It is a built in git client, modeled on the GitHub Desktop layout, wired directly to the `git` CLI on your machine. Nothing is committed or pushed until you decide.
+
+<Note>
+Code changes operate on the actual working tree of a source (a repo or folder you added to the workspace). Whatever an agent writes, whatever you edit by hand in your editor, and whatever is already pending in git all show up here together.
+</Note>
+
+{/* PRINT: Code changes view with file list on the left and a diff on the right */}
+
+## How it works
+
+Orkestral never invents a hidden version control layer. It reads your repository state with `git status`, renders diffs with `git diff`, and applies your actions with `git commit`, `git push`, `git pull`, and friends. That means:
+
+<CardGroup cols={2}>
+  <Card title="Real git, real repo" icon="code-branch">
+    Every file, branch, and commit you see is the genuine git state. Open the same folder in your terminal and you will see the identical result.
+  </Card>
+  <Card title="Agent output lands here" icon="robot">
+    The Forge applies code edits locally to disk. Those edits appear as pending changes in this view, ready for you to review.
+  </Card>
+  <Card title="Auto refresh" icon="clock">
+    The file list re-reads `git status` every few seconds, so changes an agent makes while you watch appear without a manual reload.
+  </Card>
+  <Card title="Nothing is automatic" icon="shield">
+    Commits, pushes, and pulls only run when you click. Agents propose; you review and decide.
+  </Card>
+</CardGroup>
+
+## Where you find it
+
+You reach the same view from two places:
+
+<Steps>
+  <Step title="From the Code changes page">
+    Open the dedicated **Code changes** page for the active workspace. Use the **Current repository** picker at the top left to switch between sources when the workspace has more than one. With a single source, that picker is hidden to give the toolbar more room.
+  </Step>
+  <Step title="From a source detail page">
+    Open a source and its changes tab embeds the exact same reviewer, scoped to that one repository.
+  </Step>
+</Steps>
+
+<Info>
+If you see **No active workspace** or **No local sources**, add a source (a folder or a GitHub clone) in the sidebar first. The view needs a real path on disk to read git state.
+</Info>
+
+## The layout
+
+The view has a top toolbar, a left aside with two tabs, and a right pane that shows either a diff or a commit's details.
+
+<AccordionGroup>
+  <Accordion title="Top toolbar: repository, branch, origin" icon="sitemap">
+    From left to right: the **Current repository** picker (only when there is more than one source), the **Current branch** picker, and the **Origin** button for syncing with the remote. On the far right, **Open PR** appears when the branch has commits to publish.
+  </Accordion>
+  <Accordion title="Left aside: Changes and History tabs" icon="list-check">
+    The **Changes** tab lists every modified, added, deleted, and renamed file in the working tree, with a count badge. The **History** tab lists recent commits on the current branch.
+  </Accordion>
+  <Accordion title="Right pane: diff or commit details" icon="file-lines">
+    In the Changes tab, selecting a file shows its diff with line numbers and syntax highlighting. In the History tab, selecting a commit shows its message and metadata.
+  </Accordion>
+</AccordionGroup>
+
+## Reviewing what an agent changed
+
+This is the core day to day flow: read the diff, confirm it does what you wanted, and commit.
+
+<Steps>
+  <Step title="Open the Changes tab">
+    The file list shows each changed file with a colored status icon: green for added or untracked, red for deleted, blue for renamed, and yellow for modified or conflicted. The path is shown with the folder dimmed and the file name highlighted, so deep paths stay readable.
+  </Step>
+  <Step title="Select a file to see its diff">
+    Click any file. The right pane renders a unified diff with old and new line numbers, six lines of surrounding context, and `+`/`−` markers. Added lines are tinted green, removed lines red. The header shows the file path, the rename source (when a file moved), and a running tally of additions and deletions.
+  </Step>
+  <Step title="Filter a long list">
+    Type in the **Filter files** box to narrow the list to paths that match. Clear it with the **X** to see everything again.
+  </Step>
+  <Step title="Decide what to keep">
+    Use the checkbox on each row to include or exclude that file from your next commit. The header checkbox toggles all files at once and shows an indeterminate state when only some are selected.
+  </Step>
+</Steps>
+
+<Tip>
+Untracked files (brand new files an agent created) also get a full diff. Orkestral lists each new file individually rather than collapsing a new folder into one entry, and synthesizes an "all additions" diff so you can read new files just like edited ones.
+</Tip>
+
+### Reading the diff
+
+<Tabs>
+  <Tab title="Colors and signs">
+    Green lines with a `+` were added. Red lines with a `−` were removed. Dimmed lines are unchanged context. Hunk headers (`@@ ... @@`) and file metadata lines appear muted so the real changes stand out.
+  </Tab>
+  <Tab title="Line numbers">
+    A gutter on the left shows the line number for each row: the new line number on added and context lines, the old line number on removed lines. This makes it easy to map a change back to the file in your editor.
+  </Tab>
+  <Tab title="Binary or no changes">
+    If a file is binary or has no textual change, the pane shows **No diff available** instead of an empty view.
+  </Tab>
+</Tabs>
+
+## Committing the changes
+
+The commit footer at the bottom of the Changes tab works like GitHub Desktop.
+
+<Steps>
+  <Step title="Write a summary">
+    Enter a one line **Summary** (required). With exactly one file selected, the placeholder suggests a summary based on that file name.
+  </Step>
+  <Step title="Add a description (optional)">
+    Use the **Description** box for a longer body. The summary and description are joined into the commit message, separated by a blank line.
+  </Step>
+  <Step title="Generate with AI (optional)">
+    Click **Generate with AI** to have Orkestral draft a summary and description from the selected changes. It fills both fields for you to edit before committing.
+  </Step>
+  <Step title="Commit">
+    Click the **Commit** button. It shows the number of selected files and the target branch. The button stays disabled until you have a summary, at least one file checked, and a valid branch.
+  </Step>
+</Steps>
+
+<Warning>
+A commit only includes the files you have checked. Unchecked files stay as pending changes in the working tree and remain visible in the list.
+</Warning>
+
+## Branches and syncing
+
+The toolbar handles everything you need to move work to the remote.
+
+<AccordionGroup>
+  <Accordion title="Switch or create a branch" icon="code-branch">
+    Open the **Current branch** picker to search branches, grouped into the default branch, other local branches, and remote branches. Pick one to check it out. Click **New branch** to create one from the current branch. A lock icon marks protected branches (`main` or `master`).
+  </Accordion>
+  <Accordion title="Fetch, pull, push, publish" icon="arrows-rotate">
+    The **Origin** button shows the smartest next action based on your ahead/behind counts: **Pull** when you are behind, **Push** when you are ahead, **Publish branch** when the branch has no remote yet, or **Synced** otherwise. The caret next to it opens a menu with explicit **Fetch origin**, **Pull origin**, and **Push** actions.
+  </Accordion>
+  <Accordion title="Resolve merge conflicts" icon="code-merge">
+    If a pull produces conflicts, a dialog lists the conflicted files. Click a file to open it in the diff pane and resolve it in your editor, then commit the resolution. Conflicted files show a yellow merge icon in the list.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+Network actions against a private HTTPS remote use ephemeral authentication that lives only for the duration of the command. Your token is never written into the repository's git config.
+</Note>
+
+## Opening a pull request
+
+When the current branch has commits ahead of the remote (or has never been published), and the source is linked to a GitHub repository, the **Open PR** button appears in the toolbar.
+
+<Steps>
+  <Step title="Click Open PR">
+    A dialog opens showing the repository, your head branch, and an editable base branch.
+  </Step>
+  <Step title="Review the prefilled title and body">
+    Orkestral suggests a title and description from the diff of your branch against the base, and fills in the repo's default base branch. It only prefills fields you have not already touched. Click **Generate with AI** to refresh the suggestion.
+  </Step>
+  <Step title="Mark as draft if needed">
+    Toggle **Mark as draft** to open the PR in draft state.
+  </Step>
+  <Step title="Open the PR">
+    Clicking **Open PR** publishes the branch, resolves the base, and creates the pull request in one step. On success the dialog shows the PR number and a link to open it on GitHub.
+  </Step>
+</Steps>
+
+<Warning>
+You cannot open a PR directly from a protected branch (`main` or `master`). Create a branch first; the button's tooltip reminds you when this is the case.
+</Warning>
+
+## File actions and history
+
+<Tabs>
+  <Tab title="Per file actions">
+    Right click a file row (or use the discard button that appears on hover) for a context menu: **Discard changes**, **Copy path**, **Copy relative path**, **Reveal in Finder**, **Open in default editor**, **Ignore file**, and **Ignore all** files of that extension. Right clicking the header gives **Discard all changes**.
+  </Tab>
+  <Tab title="Discarding safely">
+    Discarding asks for confirmation and warns that the change cannot be undone. It reverts tracked files and removes untracked ones, so use it only when you are sure you do not want that work.
+  </Tab>
+  <Tab title="History">
+    The **History** tab lists recent commits with subject, short SHA, author, and relative date. Selecting a commit shows its full message body and author details in the right pane.
+  </Tab>
+</Tabs>
+
+## How it ties to issues and agents
+
+Code changes is the review surface for the work your team produces.
+
+<CardGroup cols={2}>
+  <Card title="From a chat or issue" icon="comments">
+    When an agent works an issue, the CEO plans and the Forge executes the edits locally. Those edits show up here as pending changes, ready for you to read before they become commits.
+  </Card>
+  <Card title="You stay the gate" icon="bullseye">
+    Agents do not commit or push on your behalf in this view. You review the diff, pick the files, write the message, and commit. This keeps a human in control of what enters history.
+  </Card>
+</CardGroup>
+
+<Info>
+The empty state says it best: when the working tree is clean, you see **All clean here** with a reminder to modify a file or ask an agent to make changes, and the result will appear in this list.
+</Info>
+
+## What to do next
+
+<CardGroup cols={3}>
+  <Card title="Track the work" icon="list-check" href="/en/issues">
+    See how issues and epics drive the changes that land here.
+  </Card>
+  <Card title="Understand the Forge" icon="robot" href="/en/forge">
+    Learn how local execution turns plans into file edits at zero API cost.
+  </Card>
+  <Card title="Chat with agents" icon="comments" href="/en/chat">
+    Ask a specialist to make a change, then come back here to review the diff.
+  </Card>
+</CardGroup>

@@ -1,0 +1,182 @@
+---
+title: "Conceitos-chave"
+description: "O modelo mental do Orkestral: workspaces, fontes, agentes, issues, o Forge e a base de conhecimento."
+---
+
+O Orkestral é um app de desktop local-first onde um time de agentes de IA trabalha no seu código com contexto completo. Antes de começar a clicar por aí, ajuda ter o modelo mental certo. Esta página é o mapa conceitual de todo o produto: seis ideias que se encaixam, mais um link para a página dedicada de cada uma.
+
+A visão geral em uma frase: você dá a um **workspace** algumas **fontes** (seus repositórios), um time de **agentes** planeja o trabalho e o transforma em **issues**, o **Forge** local executa as mudanças de código, e tudo o que o time aprende flui para a **base de conhecimento**.
+
+{/* PRINT: o deck operacional do Orkestral com o seletor de workspace, a barra lateral e um chat aberto */}
+
+## O modelo mental em um relance
+
+<CardGroup cols={3}>
+  <Card title="Workspace" icon="folder-tree" href="/pt/workspaces">
+    A unidade de contexto. Tudo (fontes, agentes, issues, conhecimento) pertence a um workspace.
+  </Card>
+  <Card title="Fontes" icon="folder" href="/pt/sources">
+    Os repositórios e pastas que os agentes têm permissão para ler e alterar.
+  </Card>
+  <Card title="Time de agentes" icon="users" href="/pt/agents">
+    Um orquestrador CEO mais especialistas que planejam e delegam o trabalho.
+  </Card>
+  <Card title="Issues e épicos" icon="list-check" href="/pt/issues">
+    Trabalho rastreável. Pedidos viram issues, agrupadas automaticamente em épicos.
+  </Card>
+  <Card title="O Forge" icon="bolt" href="/pt/forge">
+    O modelo local embutido que executa mudanças de código a $0 de custo de API.
+  </Card>
+  <Card title="Base de conhecimento" icon="brain" href="/pt/knowledge-base">
+    Um wiki vivo para cada workspace, construído a partir dos seus repositórios.
+  </Card>
+</CardGroup>
+
+## Como as peças se relacionam
+
+Leia este fluxo de cima para baixo. Cada conceito alimenta o próximo.
+
+<Steps>
+  <Step title="Você abre um workspace">
+    Um workspace é o contêiner para um produto ou área. Ele reúne suas fontes, seus agentes, suas issues e seu conhecimento em um só lugar.
+  </Step>
+  <Step title="Você adiciona fontes">
+    Você aponta o workspace para os repositórios e pastas em que quer que o time trabalhe. Esse é o contexto de onde os agentes leem.
+  </Step>
+  <Step title="O agente CEO planeja">
+    Você escreve um pedido em linguagem simples. O CEO lê as fontes, identifica a stack e decide o que precisa acontecer. Ele pode delegar para especialistas.
+  </Step>
+  <Step title="O trabalho vira issues">
+    Pedidos relevantes viram issues, agrupadas em épicos, com status, prioridade e responsável. O produto é trabalho rastreável, não chat descartável.
+  </Step>
+  <Step title="O Forge executa">
+    Quando mudanças de código são necessárias, um modelo premium planeja as edições e o Forge local as aplica de forma determinística na sua máquina.
+  </Step>
+  <Step title="Os aprendizados fluem para a base de conhecimento">
+    O que o time descobre sobre o seu código é escrito de volta na base de conhecimento do workspace, para que o trabalho futuro comece mais inteligente.
+  </Step>
+</Steps>
+
+<Note>
+  Tudo roda na sua máquina. Seu código, conversas, agentes e dados permanecem locais em `~/.orkestral`. Nenhum servidor é necessário e não há telemetria.
+</Note>
+
+## Workspace: a unidade de contexto
+
+Um workspace é a fronteira para tudo o que o Orkestral faz. Quando você troca de workspace, você troca o mundo inteiro: um conjunto diferente de fontes, um time de agentes diferente, issues diferentes e uma base de conhecimento diferente. Nada vaza de um workspace para outro.
+
+Use um workspace por produto, cliente ou área principal. Cada workspace também carrega sua própria cor de destaque, para que você os diferencie num relance.
+
+<Card title="Saiba mais sobre workspaces" icon="folder-tree" href="/pt/workspaces">
+  Como criar, trocar e organizar workspaces, e o que vive dentro de cada um.
+</Card>
+
+## Fontes: os repositórios e pastas
+
+Fontes são os repositórios e pastas locais que você conecta a um workspace. Elas são a verdade fundamental de onde os agentes leem: conteúdo dos arquivos, status do git, diffs e histórico. Sem fontes, o time não tem contexto para planejar.
+
+Você decide quais fontes um workspace pode ver. Os agentes leem em todas elas quando planejam, e o Forge escreve as mudanças de volta nelas quando executa.
+
+<Card title="Saiba mais sobre fontes" icon="folder" href="/pt/sources">
+  Como adicionar repositórios e pastas, e como os agentes os usam como contexto.
+</Card>
+
+## O time de agentes: CEO mais especialistas
+
+O Orkestral não te dá um único chatbot. Ele te dá um time com hierarquia de reporte.
+
+- O **CEO** (orquestrador) reporta a você. Ele lê o repositório, planeja e delega.
+- O **Tech Lead** e o **Code Reviewer** reportam ao CEO.
+- Os **especialistas** (Frontend, Backend, DevOps, QA, Designer) reportam ao Tech Lead.
+
+Você fala com o CEO em linguagem natural. Para encaminhar um pedido direto a um especialista, mencione `@agent` no chat. O CEO também pode propor e contratar um time inicial para um novo workspace.
+
+<Tip>
+  Os modelos premium fazem o planejamento, o Forge local faz a execução, e você permanece no controle. Essa divisão é o coração de como o Orkestral mantém o custo baixo sem perder qualidade.
+</Tip>
+
+<Card title="Saiba mais sobre o time de agentes" icon="users" href="/pt/agents">
+  Os papéis, a hierarquia, a contratação de um time e o encaminhamento de trabalho com `@agent`.
+</Card>
+
+## Issues e épicos: trabalho rastreável
+
+Todo pedido relevante vira uma issue. Issues carregam status, prioridade, responsável e vínculos pai/filho, e são agrupadas automaticamente em épicos. A deduplicação do lado do servidor evita que você acumule duplicatas.
+
+Essa é a parte que torna o Orkestral um deck operacional em vez de uma janela de chat: o trabalho não some em um buffer de rolagem. Uma conversa pode gerar uma issue, uma issue pode rodar um agente, e o resultado é rastreado.
+
+<AccordionGroup>
+  <Accordion title="Qual a diferença entre uma issue e um épico?" icon="list-check">
+    Uma issue é uma única unidade de trabalho. Um épico agrupa issues relacionadas para que um objetivo maior permaneça organizado. O Orkestral agrupa issues em épicos automaticamente.
+  </Accordion>
+  <Accordion title="De onde vêm as issues?" icon="comments">
+    Principalmente do chat. Quando você descreve um trabalho para o CEO, ele transforma o pedido em uma ou mais issues com os metadados certos.
+  </Accordion>
+  <Accordion title="Uma issue pode acionar um agente?" icon="robot">
+    Sim. Issues e chat compartilham o mesmo contexto de workspace, então uma issue pode rodar um agente para planejar ou executar o trabalho.
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Saiba mais sobre issues e épicos" icon="list-check" href="/pt/issues">
+  Status, prioridades, responsáveis, épicos e como pedidos viram trabalho rastreável.
+</Card>
+
+## O Forge: execução local a $0 de custo de API
+
+O Forge é um modelo de código local embutido (Qwen2.5-Coder, rodando totalmente offline) que executa mudanças de código na sua máquina. O pipeline é construído para manter o custo de API próximo de zero sem escrever código errado.
+
+<Steps>
+  <Step title="Um modelo premium planeja a mudança">
+    Ele decide quais arquivos tocar e quais edições fazer.
+  </Step>
+  <Step title="O Forge emite as edições">
+    Rodando localmente, ele produz blocos de edição SEARCH/REPLACE para a mudança.
+  </Step>
+  <Step title="Um aplicador determinístico as escreve">
+    As edições são aplicadas por correspondência exata, depois normalizadas em espaços em branco, depois um passo fuzzy seguro de correspondência única. Qualquer coisa ambígua é rejeitada em vez de aplicada de forma errada.
+  </Step>
+  <Step title="Escala apenas se necessário">
+    Se as edições não puderem ser aplicadas de forma limpa, o Orkestral escala para um modelo premium uma vez como fallback. Caso contrário, a execução termina a $0 de custo de API.
+  </Step>
+</Steps>
+
+<Warning>
+  O aplicador nunca adivinha. Se uma edição é ambígua, ele se recusa a escrever em vez de arriscar corromper seu arquivo. Um painel de custos mostra quantas execuções foram resolvidas localmente versus escaladas.
+</Warning>
+
+<Card title="Saiba mais sobre o Forge" icon="bolt" href="/pt/forge">
+  Como a execução local funciona, quando ela escala e como ler o painel de custos.
+</Card>
+
+## Base de conhecimento: o cérebro do workspace
+
+Cada workspace tem uma base de conhecimento no estilo wiki: páginas com wikilinks e uma visão em grafo. Ela é gerada automaticamente a partir dos seus repositórios e pesquisada com uma mistura de ranqueamento lexical (BM25) e busca semântica local (embeddings no dispositivo). Nenhuma nuvem está envolvida.
+
+A base de conhecimento fecha o ciclo. Os agentes leem dela quando planejam, e os aprendizados são escritos de volta nela, de modo que cada tarefa deixa a próxima mais bem informada.
+
+<Card title="Saiba mais sobre a base de conhecimento" icon="brain" href="/pt/knowledge-base">
+  Páginas, wikilinks, a visão em grafo e como a busca local recupera contexto.
+</Card>
+
+## Como tudo permanece unificado
+
+Chat, issues, status e diffs do git, code reviews e a base de conhecimento vivem todos no mesmo workspace e se alimentam mutuamente. Os agentes leem em todos eles. É por isso que uma única conversa pode planejar trabalho, abrir issues, rodar o Forge, revisar o resultado e escrever o que aprendeu de volta no cérebro, sem que você precise costurar ferramentas.
+
+{/* PRINT: um dashboard de workspace mostrando issues, atividade recente e o grafo de conhecimento lado a lado */}
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Configure seu primeiro workspace" icon="folder-tree" href="/pt/workspaces">
+    Crie um workspace e faça dele a casa do seu projeto.
+  </Card>
+  <Card title="Conecte suas fontes" icon="folder" href="/pt/sources">
+    Adicione os repositórios e pastas em que os agentes vão trabalhar.
+  </Card>
+  <Card title="Conheça o time de agentes" icon="users" href="/pt/agents">
+    Contrate um time e aprenda a encaminhar trabalho com `@agent`.
+  </Card>
+  <Card title="Veja o Forge em ação" icon="bolt" href="/pt/forge">
+    Assista à execução local aplicando mudanças reais de código a $0 de custo.
+  </Card>
+</CardGroup>

@@ -1,0 +1,188 @@
+---
+title: "Delegation"
+description: "How the CEO splits work and routes it to the right agent."
+---
+
+Delegation is how a single request becomes coordinated work across your team. You talk to the CEO orchestrator in plain language. The CEO reads your repos, plans the work, breaks it into issues, and routes each issue to the specialist who owns that area. Specialists execute, results flow up for validation, and the CEO closes the loop back in your chat.
+
+This page explains the full path: from one message, to a plan of issues, to the right agent picking up each piece, to escalation and review, to `@mention` routing.
+
+{/* PRINT: chat with the CEO turning a request into an epic with sub-issues on the board */}
+
+## What delegation does
+
+When you ask for something non-trivial, the CEO does not try to do it all in one place. It decomposes the request and assigns each part to the agent best suited for it. That keeps each agent focused, keeps premium model usage low (the local Forge executes code), and gives you a board you can watch.
+
+<CardGroup cols={2}>
+  <Card title="Plan into issues" icon="list-check">
+    The CEO breaks a request into an epic with sub-issues, one per slice of work.
+  </Card>
+  <Card title="Route by area" icon="sitemap">
+    Each issue lands on the specialist whose role covers that source (frontend, backend, mobile, infra, docs).
+  </Card>
+  <Card title="Validate up the chain" icon="shield">
+    Finished work flows up to a manager and the Code Reviewer before it is marked done.
+  </Card>
+  <Card title="Close the loop" icon="comments">
+    When the whole plan finishes, the CEO consolidates results and replies in your chat.
+  </Card>
+</CardGroup>
+
+## How the CEO splits work
+
+The CEO reads the request, looks at your connected sources, and produces a plan. A plan is usually an **epic** (the root) with **sub-issues** under it. Each sub-issue is a concrete, runnable unit of work with a title, a description, labels, and an assignee.
+
+<Steps>
+  <Step title="Understand the request">
+    The CEO grounds itself in your repos and the request, then decides what the work actually involves.
+  </Step>
+  <Step title="Decompose by area">
+    The work is split so each piece maps cleanly to one source and one specialist. A backend change and a frontend change become separate sub-issues, not one tangled task.
+  </Step>
+  <Step title="Create the epic and sub-issues">
+    The CEO writes the epic and its children to the board. Sub-issues can carry dependencies (`blockedBy`) so they run in the right order.
+  </Step>
+  <Step title="Assign and (optionally) start">
+    Each sub-issue gets an assignee. Issues marked ready start automatically; the rest wait their turn.
+  </Step>
+</Steps>
+
+<Note>
+Sub-issues run with concurrency limits. Two issues that target the **same repo** never run at the same time (to avoid file and git conflicts), and the local Forge runs strictly one job at a time. Issues in **different repos** can run in parallel.
+</Note>
+
+## How the right agent is picked
+
+Routing is driven by **roles**. Every source (repo or folder) has an area role, and every agent has a coverage role. Delegation matches them.
+
+### Source roles
+
+Orkestral classifies each source into one of these roles by reading its name, path, repo, and package hints (dependencies and config files):
+
+| Role | Signals it looks for |
+| --- | --- |
+| `frontend` | `next`, `react-dom`, `vite`, `vue`, `angular`, `svelte`, `tailwindcss`, `components.json` |
+| `mobile` | `react-native`, `expo`, `flutter`, `capacitor`, `ionic`, `android`, `ios` |
+| `backend` | `api`, `server`, `nestjs`, `express`, `laravel`, `django`, `rails`, `prisma`, `drizzle-orm` |
+| `infra` | `terraform`, `helm`, `k8s`, `docker`, `compose`, `ci`, `cd` |
+| `docs` | `docs`, `wiki`, `manual`, `readme`, `documentation` |
+| `other` | anything that does not match a strong signal |
+
+<Tip>
+Strong package signals win over a label. A repo labeled "web" that actually depends on `react-native` is classified as `mobile`. If frontend and mobile signals both appear, the source identity (its name or path mentioning `android`, `ios`, `expo`, and similar) breaks the tie.
+</Tip>
+
+### Agent coverage roles
+
+Each agent is mapped to a coverage role from its role, name, and title:
+
+<AccordionGroup>
+  <Accordion title="lead" icon="brain">
+    The CEO orchestrator, Tech Lead, or any architect or lead. A lead is not bound to one area; it can cover any source as support.
+  </Accordion>
+  <Accordion title="review" icon="shield">
+    Code Reviewer and QA roles. Like a lead, a reviewer is cross-cutting and not tied to a single area.
+  </Accordion>
+  <Accordion title="frontend / backend / mobile / infra / docs" icon="users">
+    Area specialists. Each covers the matching source role and is the primary owner of issues in that area.
+  </Accordion>
+</AccordionGroup>
+
+### The matching rule
+
+For each source, Orkestral builds the assignment like this:
+
+- A specialist is a **primary** owner when its area role equals the source role (a backend agent owns backend sources).
+- An agent with no clear area role only covers sources whose role is also `other`.
+- Leads and reviewers are added as **support** on every source, never as the primary owner.
+- A **frontend** agent is added as support on **mobile** sources, because mobile shares concepts with frontend but still needs its own specialist for runtime, navigation, build, and platform.
+- If a source has a real area role (not `other`) and **no** specialist covers it, Orkestral flags that the team needs a new agent and recommends the role to hire (for example, a `Backend` agent for an uncovered backend source).
+
+{/* PRINT: sources view showing each repo with its detected role and assigned specialist */}
+
+## How an issue reaches the right repo
+
+A specialist works inside the repo its issue targets. Orkestral resolves the target source per issue so a backend task does not run in the frontend folder.
+
+<Steps>
+  <Step title="Explicit source wins">
+    If the issue metadata names a source directly (for example a knowledge base analysis), that source is used.
+  </Step>
+  <Step title="Distinctive token match">
+    Otherwise Orkestral looks for a token that is unique across your sources (such as `backend` or `frontend`) and appears in the issue title or labels. A shared token (a product name both repos use) is ignored. The match is only used when it is unambiguous.
+  </Step>
+  <Step title="Fallback to primary">
+    If nothing matches cleanly, the issue runs in the primary source (or the first one).
+  </Step>
+</Steps>
+
+## Escalation and review
+
+A specialist does not close its own issue. When execution succeeds, the work flows **up** the chain for validation. This is what keeps quality high even when a fast local model did the typing.
+
+```
+specialist executes  →  manager validates  →  Code Reviewer validates  →  done
+        ▲                                                 │
+        └──────────────  changes requested  ◄─────────────┘
+```
+
+<AccordionGroup>
+  <Accordion title="Code Reviewer always checks code" icon="shield">
+    If the run touched code and the agent that ran is not itself the reviewer, the work goes to the **Code Reviewer**. This holds even at high autonomy, because that is the whole point of having a reviewer. Work that did not change code (an investigation, for example) skips code review.
+  </Accordion>
+  <Accordion title="Manager validation via reports_to" icon="sitemap">
+    When there is no Code Reviewer, or for non-code work, the issue rises to the agent the executor reports to (`reportsTo`). If that manager approves, it can rise another level toward the CEO at the top.
+  </Accordion>
+  <Accordion title="Changes requested loops back" icon="clock">
+    If a reviewer or manager finds problems, they comment exactly what to fix, reassign the issue back to the executor, and set it to `todo`. The executor runs again to correct it. The chat is told a fix is in progress, so nothing happens silently.
+  </Accordion>
+  <Accordion title="Loop guards" icon="gauge">
+    Validation is bounded. There is a cap on how many manager levels review above the executor, and a cap on executor and manager round trips. When the round trips run out, the issue is parked as needing human review instead of looping forever.
+  </Accordion>
+  <Accordion title="Required approvers" icon="circle-check">
+    Separately from the review chain, an issue can have explicit **approvers**. Even when a manager approves, the issue cannot be marked done while a required approver is still pending, and a rejection sends it back to blocked.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Autonomy level shapes how much the team finishes on its own. At **high** autonomy with no Code Reviewer, code work can finalize directly ("send it and sleep"). With a Code Reviewer present, code is still reviewed at every autonomy level.
+</Warning>
+
+## @mention routing
+
+Mentions are how agents hand work to each other inside an issue. When the system or an agent writes a comment like:
+
+```
+↑ @Frontend finished, @Tech Lead, please validate the work.
+```
+
+the `@mention` names who is responsible next. Behind the scenes the issue is reassigned to that agent and a validation or fix run starts for them. In review mode, the reviewer is told plainly which executor's work it is checking, so it validates rather than redoing the task.
+
+You can use the same convention yourself: mention an agent in an issue comment to pull them into the loop.
+
+<Info>
+Delegation that comes from the CEO has a reporter different from the assignee (the CEO files it, a specialist owns it). When an agent opens an issue **for itself** while already working in chat (reporter equals assignee), Orkestral does not spawn a duplicate run, because that agent is already doing the work inline.
+</Info>
+
+## Closing the loop
+
+When every sub-issue of an epic reaches a terminal state (`done`, `blocked`, or `cancelled`), the CEO consolidates the results and posts a single summary back to the chat the request came from: what was done, what to approve, and next steps. Single top-level issues close the loop the same way. This report fires once per plan, so two sub-issues finishing at nearly the same time will not generate two reports.
+
+Individual finishes are reported too. A done issue posts its summary, and a blocked or cancelled issue posts what happened so the chat never goes quiet.
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Build your team" icon="users" href="/en/agents">
+    Add specialists so every source role is covered and nothing falls back to a generalist.
+  </Card>
+  <Card title="Connect sources" icon="folder-tree" href="/en/sources">
+    Make sure each repo is connected and classified so routing lands on the right agent.
+  </Card>
+  <Card title="Track issues" icon="list-check" href="/en/issues">
+    Watch the epic and sub-issues move across the board as the team works.
+  </Card>
+  <Card title="Tune autonomy" icon="gauge" href="/en/autonomy">
+    Decide how much the team finishes on its own versus how much rises for review.
+  </Card>
+</CardGroup>

@@ -1,0 +1,169 @@
+---
+title: "Adapters de agente"
+description: "Os provedores que dão vida aos agentes: Claude Code, Codex, Forge e mais."
+---
+
+Todo agente no Orkestral roda sobre um **adapter**. Um adapter é a ponte entre um agente e o cérebro de fato que pensa e escreve código: uma CLI local como o Claude Code, um serviço em nuvem gerenciado como o Cursor Cloud, ou o modelo **Orkestral Forge** embutido, que executa patches com custo zero de API. Quando você contrata um agente, escolhe o adapter e um modelo dele, e a partir daí toda mensagem e toda issue em que esse agente trabalha passa por aquele provedor.
+
+Esta página explica o que é um adapter, lista os que você pode escolher e mostra como um agente usa um na prática.
+
+<Info>
+Adapters dizem respeito a **onde o trabalho roda**, não para que o agente serve. O papel (Tech Lead, Backend, QA) molda o comportamento e os prompts do agente. O adapter decide qual motor responde. Você pode dar a dois agentes o mesmo papel, mas adapters diferentes.
+</Info>
+
+## O que é um adapter
+
+Internamente, um adapter é um pequeno módulo que conhece três coisas sobre um provedor.
+
+<CardGroup cols={3}>
+  <Card title="Descritor" icon="id-card">
+    Nome, descrição, ícone e flags exibidos no seletor de agentes. Também os campos de configuração que o provedor precisa (por exemplo, esforço de raciocínio ou um override de comando).
+  </Card>
+  <Card title="Modelos" icon="brain">
+    A lista de modelos que você pode escolher para aquele provedor. Alguns são descobertos ao vivo pela CLI, outros vêm de uma lista versionada.
+  </Card>
+  <Card title="Teste" icon="circle-check">
+    Uma sonda "Testar agora" que verifica se o provedor está instalado, autenticado e responsivo antes de você depender dele.
+  </Card>
+</CardGroup>
+
+Cada adapter carrega algumas flags de capacidade que alteram onde ele pode ser usado.
+
+<AccordionGroup>
+  <Accordion title="recommended" icon="bullseye">
+    Marca os provedores que o Orkestral sugere primeiro. **Claude Code**, **Codex** e **Orkestral Forge** são recomendados e aparecem no topo do seletor.
+  </Accordion>
+  <Accordion title="executorOnly" icon="robot">
+    Um adapter somente-executor pode realizar mudanças de código, mas não pode ser o orquestrador nem planejar trabalho por conta própria. **Orkestral Forge** e o **OpenClaw Gateway** são somente-executor. Use-os em agentes especialistas que aplicam patches, não no seu orquestrador CEO.
+  </Accordion>
+  <Accordion title="configSchema" icon="gear">
+    O conjunto de campos específicos do provedor renderizado quando você cria ou edita um agente. O formulário muda conforme você troca de provedor. Um provedor sem schema (como o Forge) não precisa de nenhuma configuração.
+  </Accordion>
+</AccordionGroup>
+
+## Adapters disponíveis
+
+O seletor é agrupado: provedores recomendados primeiro, depois outras CLIs locais e, por fim, provedores remotos orientados a configuração. As escolhas mais comuns estão abaixo.
+
+<Tabs>
+  <Tab title="Claude Code">
+    A CLI `claude` da Anthropic, rodando localmente. Recomendada.
+
+    - **Modelos**: um padrão que segue a configuração da sua CLI, versões explícitas (Claude Opus 4.8, Opus 4.7, Sonnet 4.6, Haiku 4.5) e aliases de tier (`opus`, `sonnet`, `haiku`) que sempre resolvem para o modelo mais novo daquele tier.
+    - **Configuração**: **esforço** de raciocínio (low/medium/high), um toggle de **ferramentas de navegador (Chrome)**, um caminho de **arquivo de instruções** injetado no system prompt e um **override de comando** caso o `claude` não esteja no seu `PATH`.
+    - **Setup**: instale com `npm i -g @anthropic-ai/claude-code` e faça login com `claude login`.
+  </Tab>
+  <Tab title="Codex">
+    A CLI `codex` da OpenAI, rodando localmente. Recomendada.
+
+    - **Modelos**: lidos ao vivo do cache da CLI em `~/.codex/models_cache.json`, de modo que a lista corresponda ao que sua conta pode de fato usar. Quando esse cache está ausente, o Orkestral recorre a uma lista versionada (GPT-5.4, GPT-5.3 Codex, GPT-5, o3 e mais).
+    - **Configuração**: **esforço de raciocínio** (de minimal a xhigh), um toggle de **busca na web** e um **override de comando**.
+    - **Setup**: instale com `npm i -g @openai/codex` e faça login pela CLI. O diretório de configuração respeita `CODEX_HOME`.
+  </Tab>
+  <Tab title="Orkestral Forge">
+    O modelo local embutido (uma abstração sobre o llama.cpp rodando Qwen2.5-Coder). Recomendado e **somente-executor**.
+
+    - **Modelos**: um único modelo gerenciado, sem escolha a fazer.
+    - **Configuração**: nenhuma. O binário do modelo e os pesos vêm dentro do app e são resolvidos automaticamente.
+    - **Custo**: `$0` de custo de API. Roda offline e só produz patches que o app valida e aplica.
+
+    <Note>
+    O Forge não planeja nada. Ele executa. Adapters premium decidem a mudança, o Forge a escreve localmente. Se um build sair sem o modelo local, o Forge continua selecionável e recorre automaticamente a um modelo premium.
+    </Note>
+  </Tab>
+  <Tab title="Gemini">
+    A CLI `gemini` do Google, rodando localmente.
+
+    - **Modelos**: padrão, mais Gemini 2.5 Pro, 2.5 Flash, 2.5 Flash Lite, 2.0 Flash e 2.0 Flash Lite.
+    - **Configuração**: um toggle de **sandbox** (passa `--sandbox`) e um **override de comando**.
+    - **Setup**: instale com `npm i -g @google/gemini-cli`.
+  </Tab>
+  <Tab title="Cursor">
+    A CLI `cursor-agent`, rodando localmente.
+
+    - **Modelos**: padrão (auto), GPT-5.3 Codex, GPT-5.1 Codex Mini, Claude Sonnet 4.5, Claude Opus 4.1.
+    - **Configuração**: um seletor de **modo** (autonomous, plan, ask) passado via `--mode` e um **override de comando**.
+  </Tab>
+</Tabs>
+
+Outros provedores no registro incluem **OpenCode** e **Pi** (CLIs locais multi-provedor que usam ids `provider/model`), **Grok Build** e **Hermes Agent**. Dois são provedores remotos orientados a configuração, selecionáveis hoje com a execução como próximo passo: **Cursor Cloud** (um agente remoto gerenciado que precisa de uma URL de repositório e de `CURSOR_API_KEY`) e o **OpenClaw Gateway** (um executor remoto sobre um gateway WebSocket, somente-executor).
+
+{/* PRINT: a grade do seletor de adapters com os provedores recomendados primeiro */}
+
+## Como um agente usa um adapter
+
+Quando você cria um agente, escolhe um adapter e um modelo, e o Orkestral guarda essa escolha no agente. A partir daí a relação é um agente, um adapter por vez.
+
+<Steps>
+  <Step title="Escolha o provedor">
+    No formulário do agente, escolha um adapter na grade. Provedores recomendados (**Claude Code**, **Codex**, **Orkestral Forge**) aparecem primeiro.
+  </Step>
+  <Step title="Escolha um modelo">
+    O Orkestral pede ao adapter sua lista de modelos e a exibe. Toda lista inclui uma opção **Padrão** que segue o que a própria CLI estiver configurada para usar, então você pode deixar a escolha para o provedor.
+  </Step>
+  <Step title="Preencha a configuração do provedor">
+    O formulário renderiza os campos de configuração do adapter. Eles diferem por provedor: esforço de raciocínio, um toggle de sandbox, um arquivo de instruções, um override de comando, uma URL de repositório. Campos obrigatórios são marcados, e os valores persistem no agente.
+  </Step>
+  <Step title="Testar agora">
+    Rode a sonda. O Orkestral verifica se a CLI está no seu `PATH`, faz uma checagem de versão e (para o Claude Code) dispara um pequeno prompt "responda com hello" para confirmar a autenticação. Você recebe um pass, warn ou fail com um checklist legível por humanos.
+  </Step>
+  <Step title="Coloque o agente para trabalhar">
+    Quando o agente está ativo, toda mensagem de chat e toda issue atribuída passam pelo seu adapter. Troque de provedor depois editando o agente.
+  </Step>
+</Steps>
+
+### Lendo o resultado de um teste
+
+A sonda retorna um status geral mais o detalhe por checagem, então você vê exatamente o que está faltando.
+
+<CardGroup cols={3}>
+  <Card title="Pass" icon="circle-check">
+    Instalado, autenticado e responsivo. O agente está pronto para trabalhar.
+  </Card>
+  <Card title="Warn" icon="triangle-exclamation">
+    Utilizável, mas algo precisa de atenção, por exemplo você ainda não fez login, a sonda atingiu o timeout, ou um provedor remoto ainda precisa da sua URL e token.
+  </Card>
+  <Card title="Fail" icon="circle-xmark">
+    Um bloqueio rígido, geralmente o binário da CLI não está no seu `PATH`. O detalhe diz como instalá-lo.
+  </Card>
+</CardGroup>
+
+<Tip>
+Se uma checagem falhar porque o binário não foi encontrado, você não precisa adicioná-lo ao seu `PATH` global. A maioria dos adapters expõe um campo de **override de comando** onde você pode colar o caminho absoluto para a CLI.
+</Tip>
+
+## Escolhendo o adapter certo
+
+Algumas regras práticas baseadas naquilo para que cada provedor foi feito.
+
+<AccordionGroup>
+  <Accordion title="Para seu orquestrador (o CEO)" icon="sitemap">
+    Use um provedor premium capaz de planejar, como **Claude Code** ou **Codex**. Não use um adapter somente-executor (Forge, OpenClaw Gateway) aqui, já que o orquestrador precisa planejar e delegar.
+  </Accordion>
+  <Accordion title="Para aplicar mudanças de código de forma barata" icon="bolt">
+    Use o **Orkestral Forge**. Ele roda localmente com `$0` de custo de API e foi feito para transformar um plano aprovado em um patch validado. Combine-o com um planejador premium.
+  </Accordion>
+  <Accordion title="Para uma família de modelos específica" icon="brain">
+    Escolha o adapter que a expõe: modelos Gemini pela **Gemini CLI**, modelos OpenAI pelo **Codex**, ou uma mistura pelas CLIs multi-provedor como **OpenCode** e **Pi**.
+  </Accordion>
+  <Accordion title="Para execuções remotas totalmente gerenciadas" icon="cloud">
+    Veja o **Cursor Cloud** ou o **OpenClaw Gateway**. Eles são orientados a configuração e validam a conexão no primeiro uso real, em vez de durante a sonda.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Contrate seu primeiro agente" icon="users" href="/pt/agents">
+    Crie um agente, escolha seu adapter e modelo, e rode o teste.
+  </Card>
+  <Card title="Configure o Forge" icon="robot" href="/pt/forge">
+    Aprenda como o modelo local embutido executa patches com custo zero.
+  </Card>
+  <Card title="Entenda a orquestração" icon="sitemap" href="/pt/orchestration">
+    Veja como o CEO planeja e delega entre agentes e adapters.
+  </Card>
+  <Card title="Acompanhe o trabalho como issues" icon="list-check" href="/pt/issues">
+    Atribua issues a agentes e veja seus adapters executá-las.
+  </Card>
+</CardGroup>

@@ -1,0 +1,184 @@
+---
+title: "Approvals"
+description: "The gate before agents touch your code."
+---
+
+Approvals are the human checkpoints between an agent finishing work and that work being considered done. Orkestral runs a team of agents on your code, and you decide how much they finalize on their own versus how much waits for a person to look first. This page explains every gate an issue passes through, what you actually approve, and how autonomy levels change the picture.
+
+<Note>
+Orkestral never asks you to approve every keystroke. The agent does the work, captures a diff, and runs it through review and approval gates. You approve outcomes, not edits.
+</Note>
+
+## The big picture
+
+When an agent runs an issue, the work flows through a chain of gates before the issue can reach `done`. Some gates are automatic (agents reviewing agents), and some require a human decision.
+
+<CardGroup cols={2}>
+  <Card title="Validation chain" icon="sitemap">
+    The executor never closes its own issue. Work rises to the manager it reports to, and can climb up to the Code Reviewer and CEO.
+  </Card>
+  <Card title="Approver gate" icon="circle-check">
+    Required **approvers** you attach to an issue must say yes before it can be marked `done`. One rejection blocks it.
+  </Card>
+  <Card title="Autonomy level" icon="gauge">
+    A workspace setting (low, medium, high) that decides how far the team finalizes on its own before involving a manager.
+  </Card>
+  <Card title="Local routing approval" icon="robot">
+    An optional setting that holds the local Forge model back so premium agents handle the run instead.
+  </Card>
+</CardGroup>
+
+{/* PRINT: an issue card showing "waiting on approvers" status with an approve / reject control */}
+
+## How an issue reaches done
+
+<Steps>
+  <Step title="An agent executes the issue">
+    The assigned specialist runs the issue, edits files, and Orkestral captures a diff snapshot of what changed (so you can undo it later).
+  </Step>
+  <Step title="Work rises for validation">
+    A weaker or local executor does not finalize its own work. On success, the issue is reassigned to the manager the agent **reports to**, moves to `in_review`, and that manager runs again in review mode.
+  </Step>
+  <Step title="Code review when code changed">
+    If the run touched code and a **Code Reviewer** exists in the workspace, the work always goes through that reviewer, even at high autonomy. That is the whole point of having one.
+  </Step>
+  <Step title="The approver gate">
+    Before the issue can flip to `done`, Orkestral checks the required approvers attached to the issue. All must approve. Any rejection sends it back.
+  </Step>
+  <Step title="Done, and the loop closes">
+    Once every gate passes, the issue becomes `done`. If it came from a chat, the CEO reports the outcome back into that conversation.
+  </Step>
+</Steps>
+
+<Tip>
+The review chain (who reports to whom) and the approver gate are independent. An issue can be approved by a manager in the review chain and still wait, because a required approver has not decided yet.
+</Tip>
+
+## What you actually approve
+
+You are not signing off on individual edits. You approve at the issue level, after the agent has done the work and the diff is ready to inspect.
+
+<AccordionGroup>
+  <Accordion title="The captured diff" icon="code-branch">
+    Every run that changes files produces a change summary: the files touched, additions, and deletions. A transactional snapshot is saved, so approving is safe and reversible. Reject and you can undo the whole change set.
+  </Accordion>
+  <Accordion title="The reviewer's verdict" icon="magnifying-glass">
+    When a manager or Code Reviewer validates, they either approve or request changes. Request-changes is reported back in plain language so you always know why something looped back to the executor.
+  </Accordion>
+  <Accordion title="The approver decision" icon="circle-check">
+    Required approvers attached to an issue cast an explicit decision: approve or reject. This is the real gate on `done`, separate from the automatic review chain.
+  </Accordion>
+</AccordionGroup>
+
+## The approver gate in detail
+
+You can attach **approvers** to an issue. They are the hard gate before completion. Orkestral computes the gate state from every required approver's decision.
+
+<Tabs>
+  <Tab title="Approved">
+    Every required approver has approved (or there are no approvers attached). The issue is allowed to finalize and moves to `done`.
+  </Tab>
+  <Tab title="Pending">
+    At least one required approver has not decided yet. The work is complete, but the issue holds at `in_review` with a comment: waiting on required approvers before it can be finalized. It does not close.
+  </Tab>
+  <Tab title="Rejected">
+    At least one approver rejected. The issue cannot complete. It moves to `blocked` with a comment asking you to address the feedback and request approval again.
+  </Tab>
+</Tabs>
+
+<Warning>
+A single rejection from any required approver blocks the issue, even if every other approver and the entire review chain said yes. Rejection always wins.
+</Warning>
+
+## Autonomy levels
+
+Autonomy is a workspace level setting, stored on the CEO orchestrator. It governs how far the team finalizes on its own before a manager has to step in. The default is **medium**.
+
+<CardGroup cols={3}>
+  <Card title="Low" icon="shield">
+    Most cautious. Work consistently rises to managers for validation before anything closes. Use this when you want a human or senior agent in the loop on nearly everything.
+  </Card>
+  <Card title="Medium" icon="gauge">
+    The balanced default. Code changes still go through the Code Reviewer, and non-code work rises to the manager the agent reports to.
+  </Card>
+  <Card title="High" icon="bolt">
+    "Send it and sleep." Non-code work can finalize without rising to a manager. Code changes still go through the Code Reviewer if one exists. Without a Code Reviewer, high autonomy finalizes directly.
+  </Card>
+</CardGroup>
+
+<Info>
+High autonomy does not switch off code review. If a run touched code and a Code Reviewer agent exists, the work always passes through that reviewer regardless of autonomy level. Autonomy only relaxes the manager validation step for work that did not change code.
+</Info>
+
+To change it, open your CEO orchestrator and set the autonomy level in its runtime config. The change applies to the whole workspace.
+
+{/* PRINT: the CEO agent settings panel showing the autonomy level selector (low / medium / high) */}
+
+## Local model routing approval
+
+There is a separate, optional approval that lives in your model routing settings: **require approval for local**. This one is about which model runs, not about closing the issue.
+
+Orkestral can try the bundled local Forge model first and only escalate to a premium agent when needed. If you turn on require approval for local, the hybrid "Forge first" path is held back, so premium agents handle the run directly instead of letting the local model attempt it unattended.
+
+<AccordionGroup>
+  <Accordion title="What it changes" icon="robot">
+    With this off (default for hybrid routing), an eligible issue is attempted by the local Forge first, then escalated to premium if the local run does not finish or the task risk is above your local limit. With it on, that automatic local-first attempt does not run.
+  </Accordion>
+  <Accordion title="Risk limits" icon="shield">
+    Even when Forge-first is allowed, Orkestral classifies each issue's risk. If the risk is above your configured max local risk, it skips local and goes straight to a premium agent, which preserves CLI context and permissions.
+  </Accordion>
+  <Accordion title="Premium escalation budget" icon="clock">
+    A Forge issue can escalate to premium once per lifecycle. If the budget is spent or premium fallback is disabled, the issue is marked `blocked` with a comment explaining it needs help, rather than silently spending more premium usage.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+Local routing approval and the issue approver gate are different things. One decides which model touches your code; the other decides whether finished work is allowed to close. You can use either, both, or neither.
+</Note>
+
+## When the chain runs out of patience
+
+Automatic review is capped so issues never loop forever.
+
+<Steps>
+  <Step title="Limited round trips">
+    An executor and its manager can go back and forth a small number of times. Each request-changes counts as an attempt.
+  </Step>
+  <Step title="Hand off to a human">
+    When automatic review exhausts its attempts, the issue moves to `in_review` with a comment that it needs human review. The team stops guessing and waits for you.
+  </Step>
+  <Step title="You decide">
+    Inspect the diff, approve to finalize, or reject and send it back with guidance. Your decision breaks the tie the agents could not resolve.
+  </Step>
+</Steps>
+
+## Practical setups
+
+<Tabs>
+  <Tab title="Maximum oversight">
+    Set autonomy to **low**, attach yourself (or a trusted senior agent) as a required **approver** on important issues, and keep a Code Reviewer in the workspace. Nothing closes without a human yes.
+  </Tab>
+  <Tab title="Balanced">
+    Keep autonomy at **medium** and rely on the Code Reviewer for code work. Attach approvers only on the issues that truly matter, like releases or schema changes.
+  </Tab>
+  <Tab title="Hands off">
+    Set autonomy to **high** and let the team finalize. Keep a Code Reviewer so code changes still get a second pass, and leave premium fallback on so stuck issues finish instead of blocking.
+  </Tab>
+</Tabs>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Build your team" icon="users" href="/en/agents">
+    Add a Code Reviewer and set reporting lines so the validation chain has someone to rise to.
+  </Card>
+  <Card title="Track work as issues" icon="list-check" href="/en/issues">
+    See how issues move through `in_progress`, `in_review`, `blocked`, and `done`.
+  </Card>
+  <Card title="Understand the Forge" icon="robot" href="/en/forge">
+    Learn how the local model executes changes and when it escalates to premium.
+  </Card>
+  <Card title="Tune model routing" icon="gear" href="/en/settings">
+    Find the require approval for local and premium fallback toggles in settings.
+  </Card>
+</CardGroup>

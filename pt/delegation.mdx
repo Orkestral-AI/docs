@@ -1,0 +1,188 @@
+---
+title: "Delegação"
+description: "Como o CEO divide o trabalho e direciona pro agente certo."
+---
+
+Delegação é como uma única solicitação vira trabalho coordenado entre seu time. Você fala com o orquestrador CEO em linguagem natural. O CEO lê seus repos, planeja o trabalho, quebra em issues e direciona cada issue ao especialista que cuida daquela área. Os especialistas executam, os resultados sobem para validação, e o CEO fecha o ciclo de volta no seu chat.
+
+Esta página explica o caminho completo: de uma mensagem, a um plano de issues, ao agente certo assumindo cada parte, à escalada e revisão, ao roteamento por `@mention`.
+
+{/* PRINT: chat com o CEO transformando uma solicitação em um épico com sub-issues no board */}
+
+## O que a delegação faz
+
+Quando você pede algo não trivial, o CEO não tenta fazer tudo em um único lugar. Ele decompõe a solicitação e atribui cada parte ao agente mais adequado para ela. Isso mantém cada agente focado, mantém baixo o uso de modelos premium (o Forge local executa o código) e te dá um board para acompanhar.
+
+<CardGroup cols={2}>
+  <Card title="Planejar em issues" icon="list-check">
+    O CEO quebra uma solicitação em um épico com sub-issues, uma por fatia de trabalho.
+  </Card>
+  <Card title="Direcionar por área" icon="sitemap">
+    Cada issue cai no especialista cujo papel cobre aquela fonte (frontend, backend, mobile, infra, docs).
+  </Card>
+  <Card title="Validar pela cadeia" icon="shield">
+    O trabalho concluído sobe para um gerente e para o Code Reviewer antes de ser marcado como pronto.
+  </Card>
+  <Card title="Fechar o ciclo" icon="comments">
+    Quando todo o plano termina, o CEO consolida os resultados e responde no seu chat.
+  </Card>
+</CardGroup>
+
+## Como o CEO divide o trabalho
+
+O CEO lê a solicitação, olha suas fontes conectadas e produz um plano. Um plano normalmente é um **épico** (a raiz) com **sub-issues** abaixo dele. Cada sub-issue é uma unidade de trabalho concreta e executável, com título, descrição, labels e um responsável.
+
+<Steps>
+  <Step title="Entender a solicitação">
+    O CEO se fundamenta nos seus repos e na solicitação, e então decide o que o trabalho realmente envolve.
+  </Step>
+  <Step title="Decompor por área">
+    O trabalho é dividido para que cada parte mapeie de forma limpa para uma fonte e um especialista. Uma mudança de backend e uma mudança de frontend viram sub-issues separadas, não uma tarefa emaranhada.
+  </Step>
+  <Step title="Criar o épico e as sub-issues">
+    O CEO escreve o épico e seus filhos no board. As sub-issues podem carregar dependências (`blockedBy`) para rodarem na ordem certa.
+  </Step>
+  <Step title="Atribuir e (opcionalmente) iniciar">
+    Cada sub-issue ganha um responsável. Issues marcadas como prontas começam automaticamente; as demais aguardam sua vez.
+  </Step>
+</Steps>
+
+<Note>
+As sub-issues rodam com limites de concorrência. Duas issues que miram o **mesmo repo** nunca rodam ao mesmo tempo (para evitar conflitos de arquivo e git), e o Forge local roda estritamente um job por vez. Issues em **repos diferentes** podem rodar em paralelo.
+</Note>
+
+## Como o agente certo é escolhido
+
+O roteamento é guiado por **papéis** (roles). Toda fonte (repo ou pasta) tem um papel de área, e todo agente tem um papel de cobertura. A delegação faz a correspondência entre eles.
+
+### Papéis de fonte
+
+O Orkestral classifica cada fonte em um destes papéis lendo seu nome, caminho, repo e pistas do pacote (dependências e arquivos de config):
+
+| Papel | Sinais que ele procura |
+| --- | --- |
+| `frontend` | `next`, `react-dom`, `vite`, `vue`, `angular`, `svelte`, `tailwindcss`, `components.json` |
+| `mobile` | `react-native`, `expo`, `flutter`, `capacitor`, `ionic`, `android`, `ios` |
+| `backend` | `api`, `server`, `nestjs`, `express`, `laravel`, `django`, `rails`, `prisma`, `drizzle-orm` |
+| `infra` | `terraform`, `helm`, `k8s`, `docker`, `compose`, `ci`, `cd` |
+| `docs` | `docs`, `wiki`, `manual`, `readme`, `documentation` |
+| `other` | qualquer coisa que não corresponda a um sinal forte |
+
+<Tip>
+Sinais fortes de pacote vencem um label. Um repo rotulado como "web" que na verdade depende de `react-native` é classificado como `mobile`. Se sinais de frontend e mobile aparecem juntos, a identidade da fonte (seu nome ou caminho mencionando `android`, `ios`, `expo` e similares) desempata.
+</Tip>
+
+### Papéis de cobertura dos agentes
+
+Cada agente é mapeado para um papel de cobertura a partir do seu papel, nome e título:
+
+<AccordionGroup>
+  <Accordion title="lead" icon="brain">
+    O orquestrador CEO, o Tech Lead, ou qualquer arquiteto ou lead. Um lead não está preso a uma área; pode cobrir qualquer fonte como apoio.
+  </Accordion>
+  <Accordion title="review" icon="shield">
+    Papéis de Code Reviewer e QA. Como um lead, um revisor é transversal e não está atrelado a uma única área.
+  </Accordion>
+  <Accordion title="frontend / backend / mobile / infra / docs" icon="users">
+    Especialistas de área. Cada um cobre o papel de fonte correspondente e é o dono primário das issues daquela área.
+  </Accordion>
+</AccordionGroup>
+
+### A regra de correspondência
+
+Para cada fonte, o Orkestral monta a atribuição assim:
+
+- Um especialista é dono **primário** quando seu papel de área é igual ao papel da fonte (um agente de backend é dono das fontes de backend).
+- Um agente sem papel de área claro só cobre fontes cujo papel também é `other`.
+- Leads e revisores são adicionados como **apoio** em toda fonte, nunca como dono primário.
+- Um agente de **frontend** é adicionado como apoio nas fontes **mobile**, porque mobile compartilha conceitos com frontend, mas ainda precisa do seu próprio especialista para runtime, navegação, build e plataforma.
+- Se uma fonte tem um papel de área real (não `other`) e **nenhum** especialista a cobre, o Orkestral sinaliza que o time precisa de um novo agente e recomenda o papel a contratar (por exemplo, um agente `Backend` para uma fonte de backend descoberta).
+
+{/* PRINT: visão de fontes mostrando cada repo com seu papel detectado e o especialista atribuído */}
+
+## Como uma issue chega ao repo certo
+
+Um especialista trabalha dentro do repo que sua issue mira. O Orkestral resolve a fonte alvo por issue para que uma tarefa de backend não rode na pasta de frontend.
+
+<Steps>
+  <Step title="Fonte explícita vence">
+    Se os metadados da issue nomeiam uma fonte diretamente (por exemplo, uma análise de base de conhecimento), essa fonte é usada.
+  </Step>
+  <Step title="Correspondência por token distintivo">
+    Caso contrário, o Orkestral procura por um token único entre suas fontes (como `backend` ou `frontend`) que apareça no título ou nas labels da issue. Um token compartilhado (um nome de produto que ambos os repos usam) é ignorado. A correspondência só é usada quando é inequívoca.
+  </Step>
+  <Step title="Fallback para a primária">
+    Se nada corresponder de forma limpa, a issue roda na fonte primária (ou na primeira).
+  </Step>
+</Steps>
+
+## Escalada e revisão
+
+Um especialista não fecha sua própria issue. Quando a execução tem sucesso, o trabalho sobe a cadeia para validação. É isso que mantém a qualidade alta mesmo quando um modelo local rápido fez a digitação.
+
+```
+especialista executa  →  gerente valida  →  Code Reviewer valida  →  pronto
+        ▲                                                 │
+        └──────────────  mudanças solicitadas  ◄───────────┘
+```
+
+<AccordionGroup>
+  <Accordion title="O Code Reviewer sempre confere código" icon="shield">
+    Se a execução tocou em código e o agente que rodou não é ele mesmo o revisor, o trabalho vai para o **Code Reviewer**. Isso vale até em alta autonomia, porque é justamente o propósito de ter um revisor. Trabalho que não alterou código (uma investigação, por exemplo) pula a revisão de código.
+  </Accordion>
+  <Accordion title="Validação do gerente via reports_to" icon="sitemap">
+    Quando não há Code Reviewer, ou para trabalho que não é de código, a issue sobe para o agente a quem o executor se reporta (`reportsTo`). Se esse gerente aprovar, ela pode subir mais um nível em direção ao CEO no topo.
+  </Accordion>
+  <Accordion title="Mudanças solicitadas voltam ao ciclo" icon="clock">
+    Se um revisor ou gerente encontra problemas, ele comenta exatamente o que corrigir, reatribui a issue de volta ao executor e a coloca em `todo`. O executor roda de novo para corrigir. O chat é avisado de que uma correção está em andamento, então nada acontece em silêncio.
+  </Accordion>
+  <Accordion title="Travas de loop" icon="gauge">
+    A validação é limitada. Há um teto de quantos níveis de gerente revisam acima do executor, e um teto de idas e voltas entre executor e gerente. Quando as idas e voltas acabam, a issue é estacionada como necessitando de revisão humana em vez de entrar em loop infinito.
+  </Accordion>
+  <Accordion title="Aprovadores obrigatórios" icon="circle-check">
+    Separadamente da cadeia de revisão, uma issue pode ter **aprovadores** explícitos. Mesmo quando um gerente aprova, a issue não pode ser marcada como pronta enquanto um aprovador obrigatório ainda estiver pendente, e uma rejeição a manda de volta para bloqueada.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+O nível de autonomia molda quanto o time finaliza por conta própria. Em autonomia **alta** sem Code Reviewer, o trabalho de código pode ser finalizado diretamente ("manda e vai dormir"). Com um Code Reviewer presente, o código ainda é revisado em todos os níveis de autonomia.
+</Warning>
+
+## Roteamento por @mention
+
+As menções são como os agentes passam trabalho entre si dentro de uma issue. Quando o sistema ou um agente escreve um comentário como:
+
+```
+↑ @Frontend finished, @Tech Lead, please validate the work.
+```
+
+a `@mention` nomeia quem é responsável a seguir. Nos bastidores, a issue é reatribuída a esse agente e uma execução de validação ou correção começa para ele. No modo de revisão, o revisor é avisado claramente de quem é o trabalho do executor que está conferindo, então ele valida em vez de refazer a tarefa.
+
+Você pode usar a mesma convenção: mencione um agente em um comentário de issue para puxá-lo para o ciclo.
+
+<Info>
+A delegação que vem do CEO tem um relator diferente do responsável (o CEO a abre, um especialista é dono). Quando um agente abre uma issue **para si mesmo** enquanto já está trabalhando no chat (relator igual ao responsável), o Orkestral não dispara uma execução duplicada, porque aquele agente já está fazendo o trabalho inline.
+</Info>
+
+## Fechando o ciclo
+
+Quando toda sub-issue de um épico atinge um estado terminal (`done`, `blocked` ou `cancelled`), o CEO consolida os resultados e posta um único resumo de volta no chat de onde veio a solicitação: o que foi feito, o que aprovar e os próximos passos. Issues únicas de nível superior fecham o ciclo da mesma forma. Esse relatório dispara uma vez por plano, então duas sub-issues terminando quase ao mesmo tempo não geram dois relatórios.
+
+Conclusões individuais também são reportadas. Uma issue concluída posta seu resumo, e uma issue bloqueada ou cancelada posta o que aconteceu, para que o chat nunca fique em silêncio.
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Monte seu time" icon="users" href="/pt/agents">
+    Adicione especialistas para que todo papel de fonte seja coberto e nada caia num generalista.
+  </Card>
+  <Card title="Conecte fontes" icon="folder-tree" href="/pt/sources">
+    Garanta que cada repo esteja conectado e classificado para que o roteamento caia no agente certo.
+  </Card>
+  <Card title="Acompanhe issues" icon="list-check" href="/pt/issues">
+    Acompanhe o épico e as sub-issues se moverem pelo board enquanto o time trabalha.
+  </Card>
+  <Card title="Ajuste a autonomia" icon="gauge" href="/pt/autonomy">
+    Decida quanto o time finaliza sozinho versus quanto sobe para revisão.
+  </Card>
+</CardGroup>

@@ -1,0 +1,162 @@
+---
+title: "Contrate seu primeiro agente"
+description: "Peça ao CEO para montar um time e aprove seus primeiros agentes."
+---
+
+No Orkestral você não configura agentes uma caixa por vez. Você pede ao orquestrador **CEO** para ler seu workspace e propor um time inteiro para você. O CEO planeja os papéis, escolhe em qual modelo cada agente deve rodar e mostra um plano de contratação que você pode aprovar em um clique. Esta página apresenta esse fluxo de ponta a ponta.
+
+<Note>
+A contratação acontece dentro do chat com o CEO. O CEO nunca cria agentes silenciosamente. Ele propõe, e nada é criado até você aprovar.
+</Note>
+
+## Como funciona a contratação
+
+Quando você conversa com o CEO sobre seu projeto, ele pode responder com um **plano de contratação**: um resumo curto mais uma lista de agentes propostos. Cada agente proposto carrega um papel (Tech Lead, Code Reviewer, Frontend, Backend e assim por diante) e uma escolha de modelo. Você revisa o plano e clica em **Aprovar e criar** ou **Pular por enquanto**.
+
+<CardGroup cols={2}>
+  <Card title="Você pede, o CEO planeja" icon="brain">
+    O CEO lê suas fontes e propõe os papéis que seu projeto realmente precisa, não um template fixo.
+  </Card>
+  <Card title="Você aprova, os agentes aparecem" icon="circle-check">
+    Na aprovação, o Orkestral cria os agentes, define quem reporta a quem, e eles aparecem na página de Agentes.
+  </Card>
+</CardGroup>
+
+### Planos premium, Forge executa
+
+Cada agente proposto roda em um de dois modelos, mostrado como um selo no plano:
+
+<CardGroup cols={2}>
+  <Card title="PREMIUM" icon="brain">
+    O modelo premium do próprio CEO (por exemplo, Claude). Usado para papéis que precisam de raciocínio e julgamento reais: leads, arquitetos, revisores, papéis de produto e de planejamento.
+  </Card>
+  <Card title="FORGE" icon="bolt">
+    O modelo local incluído (Orkestral Forge, Qwen2.5-Coder). Usado para papéis executores (Frontend, Backend, DevOps, QA). Roda na sua máquina com custo de API de `$0`.
+  </Card>
+</CardGroup>
+
+<Info>
+O padrão é decidido pelo papel: revisores, leads, arquitetos, gestores, papéis de produto e de planejamento têm como padrão **premium**, e executores têm como padrão o **Forge** local. O CEO pode sobrescrever o padrão por agente quando propõe o plano. Se o modelo local ainda não estiver configurado, um executor Forge recorre ao modelo premium em tempo de execução, então aprovar um agente Forge é sempre seguro.
+</Info>
+
+## Passo a passo
+
+<Steps>
+  <Step title="Abra o chat com o CEO">
+    A partir do seu workspace, abra o chat do CEO. O CEO é seu agente orquestrador e o que propõe times. Conte a ele sobre seu projeto: o que você está construindo, a stack e o que você quer realizar.
+
+    {/* PRINT: chat do CEO com uma descrição de projeto digitada */}
+  </Step>
+  <Step title="Peça para montar um time">
+    Peça de forma direta, por exemplo: "Leia meus repositórios e proponha um time para este projeto." O CEO inspeciona suas fontes e responde com um card de plano de contratação em vez de texto comum.
+
+    <Tip>
+    Mencione seus objetivos (lançar uma funcionalidade, reforçar testes, configurar CI) para que os papéis propostos correspondam ao trabalho. O CEO adapta o time ao que vê, então mais contexto significa um plano mais afiado.
+    </Tip>
+  </Step>
+  <Step title="Revise o time proposto">
+    O card de plano de contratação mostra um resumo curto, uma decisão sugerida e uma linha por agente proposto. Cada linha mostra o **nome** do agente, seu **título** e um selo **PREMIUM** ou **FORGE** para você saber o que roda localmente antes de aprovar.
+
+    {/* PRINT: card de plano de contratação listando agentes propostos com selos PREMIUM e FORGE */}
+  </Step>
+  <Step title="Aprove ou pule">
+    Clique em **Aprovar e criar** para contratar o time, ou em **Pular por enquanto** para dispensar o plano sem criar nada. Enquanto os agentes estão sendo criados, o botão mostra um spinner. Quando termina, o card mostra quantos agentes foram criados.
+
+    {/* PRINT: card de plano de contratação após aprovação mostrando o selo de sucesso */}
+  </Step>
+  <Step title="Encontre seus novos agentes">
+    Abra a página de **Agentes** para ver cada agente como um card. Cada card abre uma página de detalhes onde você pode revisar e ajustar o agente. Seu CEO aparece primeiro, depois o resto do time.
+
+    {/* PRINT: grade da página de Agentes com o time recém-contratado */}
+  </Step>
+</Steps>
+
+## Os papéis que o CEO propõe
+
+O CEO propõe os especialistas que seu projeto precisa, e o Orkestral sempre garante que exista um pequeno **núcleo de equipe** depois que você aprova um plano. O núcleo de equipe preenche papéis essenciais para que seu time nunca fique sem liderança ou revisão.
+
+<AccordionGroup>
+  <Accordion title="Tech Lead" icon="sitemap">
+    Sempre faz parte do núcleo de equipe e roda no modelo premium. Responsável por arquitetura, decisões técnicas entre repositórios, contratos, e coordena os especialistas. Reporta ao CEO. Outros especialistas frequentemente reportam ao Tech Lead.
+  </Accordion>
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    Sempre faz parte do núcleo de equipe e roda no modelo premium. Revisa o projeto como um sistema completo: contratos entre repositórios, segurança, custo, performance, testes, regressões e adequação arquitetural. Reporta ao CEO.
+  </Accordion>
+  <Accordion title="QA" icon="list-check">
+    Adicionado quando seu workspace tem fontes de frontend, backend, mobile ou infraestrutura. Responsável por smoke tests, checagens de regressão, verificação de UI e validação de API. Roda no Forge por padrão e reporta ao Tech Lead.
+  </Accordion>
+  <Accordion title="Designer" icon="puzzle-piece">
+    Adicionado quando seu workspace tem fontes de frontend ou mobile. Responsável pelo design system, consistência de UX, acessibilidade e qualidade visual. Roda no Forge por padrão e reporta ao Tech Lead.
+  </Accordion>
+  <Accordion title="Especialistas (Frontend, Backend, DevOps)" icon="users">
+    Propostos com base no que o CEO vê em seus repositórios. Estes são papéis executores: eles fazem alterações de código. Rodam no Forge local por padrão e podem ser trocados para premium depois.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+A lista exata depende das suas fontes. Um workspace só de frontend não receberá um agente Backend, e um workspace sem fontes de UI não receberá um Designer. O CEO e a lógica do núcleo de equipe ajustam o time ao seu projeto.
+</Note>
+
+## O que acontece quando você aprova
+
+Aprovar o plano faz mais do que criar linhas. O Orkestral conecta o time para que ele esteja pronto para trabalhar.
+
+<CardGroup cols={2}>
+  <Card title="Agentes criados" icon="robot">
+    Cada agente proposto é criado com seu papel, título, modelo e capacidades. Executores recebem permissão para editar arquivos e rodar comandos para que possam fazer trabalho de verdade.
+  </Card>
+  <Card title="Hierarquia configurada" icon="sitemap">
+    Cada agente é vinculado a um gestor. Por padrão é o CEO, ou o agente que o plano indicou como seu chefe (frequentemente o Tech Lead).
+  </Card>
+  <Card title="Núcleo de equipe garantido" icon="shield">
+    Tech Lead e Code Reviewer são garantidos, mais QA e Designer quando suas fontes pedem, mesmo que o plano não os tenha listado.
+  </Card>
+  <Card title="Sem duplicatas" icon="circle-check">
+    Se um agente com o mesmo nome ou papel já existir, ele é ignorado. Reaprovar um plano não criará um segundo agente Backend.
+  </Card>
+</CardGroup>
+
+<Warning>
+Se você pular um plano, nada é criado. Você pode pedir ao CEO para propor de novo a qualquer momento. Um plano que adiciona apenas um novo papel (digamos, só um agente Frontend) continua acionável mesmo depois de um time anterior ter sido contratado, então você pode crescer o time em etapas.
+</Warning>
+
+## Onde os agentes aparecem depois
+
+Uma vez contratados, seus agentes vivem em alguns lugares pelo app.
+
+<Tabs>
+  <Tab title="Página de Agentes">
+    A página de **Agentes** lista cada agente como um card, com o CEO primeiro. Clique em um card para abrir sua página de detalhes, onde você pode revisar seu papel, modelo, capacidades, e removê-lo se preciso. Use **Novo agente** aqui para adicionar um manualmente.
+  </Tab>
+  <Tab title="Organograma">
+    A visão de **Org** mostra a hierarquia de reporte: quem reporta ao CEO, quem reporta ao Tech Lead, e assim por diante. É a forma mais rápida de ver o formato do seu time.
+  </Tab>
+  <Tab title="Pelo app">
+    Agentes contratados ficam atribuíveis em todo lugar onde o trabalho acontece: issues, metas, code reviews e chat. Quando você atribui uma tarefa, você escolhe a partir deste time.
+  </Tab>
+</Tabs>
+
+## Adicione um agente manualmente
+
+Você não precisa passar pelo CEO. Na página de **Agentes**, clique em **Novo agente** para abrir o diálogo de agente e criar um você mesmo, escolhendo seu papel, modelo e permissões. Isso é útil quando você quer um especialista bem específico que o CEO não propôs.
+
+<Tip>
+Para a maioria dos projetos, deixe o CEO propor o time primeiro. Ele escolhe papéis e modelos sensatos, e então você refina pela página de Agentes. Criação manual é a exceção, não o ponto de partida.
+</Tip>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Atribua sua primeira tarefa" icon="inbox" href="/pt/first-task">
+    Entregue trabalho ao seu novo time e veja os agentes planejarem e executarem.
+  </Card>
+  <Card title="Entenda o organograma" icon="sitemap" href="/pt/org-chart">
+    Veja como reporte e delegação funcionam pelo seu time.
+  </Card>
+  <Card title="Ajuste um agente" icon="gear" href="/pt/agents">
+    Abra a página de detalhes de um agente para ajustar seu modelo, papel e permissões.
+  </Card>
+  <Card title="Saiba mais sobre o Forge" icon="bolt" href="/pt/forge">
+    Veja como o modelo local executa alterações de código com custo de API zero.
+  </Card>
+</CardGroup>

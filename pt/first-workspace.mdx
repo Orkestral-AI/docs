@@ -1,0 +1,178 @@
+---
+title: "Crie seu primeiro workspace"
+description: "Configure um workspace, sua unidade de contexto para agentes, fontes e trabalho."
+---
+
+Um workspace é o lar de um projeto, produto ou codebase dentro do Orkestral. Ele agrupa tudo o que sua equipe de IA precisa para trabalhar: as **fontes** (repos e pastas) que ela lê, os **agentes** que você contrata, as **issues** e épicos que você acompanha, e o **conhecimento** destilado do seu código. Quando você abre um workspace, o app inteiro (o orquestrador CEO, o chat, os boards) opera dentro dele.
+
+Esta página orienta você na criação do seu primeiro workspace de ponta a ponta, na escolha da cor de destaque e na alternância entre workspaces depois que você tiver mais de um.
+
+<Note>
+Tudo permanece local. Os workspaces e seus dados ficam em `~/.orkestral` na sua máquina. Não há conta para criar nem projeto para enviar a um servidor.
+</Note>
+
+## O que um workspace contém
+
+Pense em um workspace como uma empresa. O orquestrador (seu **CEO**) a dirige, e cada parte da empresa tem seu lugar.
+
+<CardGroup cols={2}>
+  <Card title="Fontes" icon="folder-tree">
+    Os repos e pastas que a equipe lê. Conecte um repo do GitHub, um repo do Azure DevOps ou uma pasta local. Uma fonte é a fonte **primária**.
+  </Card>
+  <Card title="Agentes" icon="users">
+    Sua equipe contratada: o CEO mais especialistas (Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA, Designer). Cada agente é restrito a este workspace.
+  </Card>
+  <Card title="Issues" icon="list-check">
+    O trabalho, acompanhado como issues e épicos. O CEO planeja aqui e delega tarefas ao especialista certo.
+  </Card>
+  <Card title="Conhecimento" icon="brain">
+    Um entendimento destilado das suas fontes do qual os agentes se valem para obter contexto. O Orkestral o constrói automaticamente quando você adiciona uma fonte.
+  </Card>
+</CardGroup>
+
+<Info>
+Os workspaces são isolados. Agentes, issues e fontes de um workspace nunca vazam para outro. Isso permite manter projetos separados (um app de cliente, um projeto paralelo, uma ferramenta interna) limpos e apartados.
+</Info>
+
+## Antes de começar
+
+Você só precisa de duas coisas para concluir o assistente:
+
+- Um **nome** para o workspace.
+- Um **orquestrador** (o CEO): um adaptador de IA e um modelo que vai planejar e delegar.
+
+Uma fonte é opcional no assistente. Você pode adicionar repos e pastas depois. Dito isso, conectar uma fonte logo de início permite que o Orkestral analise seu código e proponha uma equipe inicial, deixando o workspace útil imediatamente.
+
+<Tip>
+Se você ainda não conectou nenhum adaptador, configure um primeiro para que a etapa do orquestrador tenha algo para escolher. Adaptadores locais mantêm o planejamento e a execução com custo de API de $0.
+</Tip>
+
+## Crie um workspace passo a passo
+
+Quando você não tem nenhum workspace ativo, o Orkestral mostra a tela de entrada listando seus workspaces disponíveis. Clique em **New workspace** para abrir o assistente de três etapas.
+
+{/* PRINT: Tela de entrada de workspaces com a lista de workspaces e o botão New workspace */}
+
+<Steps>
+  <Step title="Dê um nome e escolha uma cor">
+    Digite um **Name** claro (por exemplo, o nome do produto ou do repo). O nome é obrigatório, e o botão **Next** fica desabilitado até você digitar um.
+
+    Escolha uma **cor** de destaque na paleta. O padrão é roxo. A cor escolhida tinge o avatar do workspace e se torna a cor de destaque do app sempre que este workspace estiver ativo. Veja [Cor de destaque](#a-cor-de-destaque) abaixo para a lista completa.
+  </Step>
+
+  <Step title="Defina o orquestrador (CEO)">
+    O orquestrador é o agente que lê seus repos, planeja e delega aos especialistas.
+
+    - **Agent name**: tem como padrão `CEO`. Renomeie se quiser; deixar em branco volta para `CEO`.
+    - **Adapter**: o provedor que alimenta o orquestrador. Apenas adaptadores capazes de planejar aparecem aqui (adaptadores apenas de execução são filtrados).
+    - **Model**: o modelo para aquele adaptador. Deixe no padrão, ou escolha um modelo específico na lista.
+
+    <Note>
+    Trocar o adaptador redefine o modelo para o padrão, então confirme o modelo depois de mudar de provedor.
+    </Note>
+  </Step>
+
+  <Step title="Adicione uma fonte (opcional)">
+    Conecte o código no qual a equipe vai trabalhar. Use as abas para escolher um tipo de fonte e então selecione uma. Você pode pular esta etapa por completo e adicionar fontes depois.
+
+    <Tabs>
+      <Tab title="GitHub">
+        Pesquise seus repositórios pelo nome completo (`owner/repo`) e clique em um para selecioná-lo. O Orkestral o clona para o workspace.
+      </Tab>
+      <Tab title="Azure DevOps">
+        Se você ainda não estiver conectado, clique em **Connect** e conclua o login por dispositivo no seu navegador. Uma vez conectado, pesquise e escolha um repo pelo nome.
+      </Tab>
+      <Tab title="Folder">
+        Clique em **Choose** para escolher uma pasta local (ou cole o caminho dela). O Orkestral a escaneia automaticamente. Se a pasta for um repo git, ela vira uma fonte. Se ela contiver vários repos git dentro, você obtém a pasta-pai mais cada repo como itens separados e marcáveis, cada um com um rótulo editável. Desmarque o que você não quiser.
+      </Tab>
+    </Tabs>
+
+    Nesta etapa você também vê **Generate the starting team**. Quando uma fonte está selecionada, isso fica ativado por padrão: depois que a fonte estiver pronta, o CEO produz um plano de contratação e propõe especialistas com base no que encontra no código. Sem nenhuma fonte selecionada, a opção fica desabilitada (ainda não há nada para analisar).
+  </Step>
+
+  <Step title="Conclua">
+    Clique em **Create workspace**. O Orkestral cria o workspace, alterna para ele imediatamente, cria o orquestrador e (se você adicionou fontes) começa a cloná-las ou indexá-las. A primeira fonte que você adicionou se torna a fonte **primária**.
+  </Step>
+</Steps>
+
+{/* PRINT: Assistente de criação de workspace na etapa 1, campo de nome e paleta de cores */}
+
+<Warning>
+Para fontes do GitHub e do Azure, a análise de conhecimento e o plano de contratação rodam depois que o repo termina de clonar, então a equipe proposta pode levar um momento para aparecer. Para uma pasta local, isso acontece na hora.
+</Warning>
+
+## A cor de destaque
+
+Cada workspace carrega sua própria cor de destaque, armazenada como um valor hexadecimal no workspace. A paleta no assistente corresponde aos seis temas de destaque do app:
+
+<CardGroup cols={3}>
+  <Card title="Roxo" icon="bullseye">
+    `#a78bfa`, o destaque padrão.
+  </Card>
+  <Card title="Azul" icon="bullseye">
+    `#60a5fa`
+  </Card>
+  <Card title="Verde" icon="bullseye">
+    `#34d399`
+  </Card>
+  <Card title="Amarelo" icon="bullseye">
+    `#facc15`
+  </Card>
+  <Card title="Laranja" icon="bullseye">
+    `#fb923c`
+  </Card>
+  <Card title="Vermelho" icon="bullseye">
+    `#f87171`
+  </Card>
+</CardGroup>
+
+A cor faz duas coisas:
+
+1. Ela tinge o **avatar do workspace** em todos os lugares onde o workspace aparece (a tela de entrada, o seletor, os cabeçalhos).
+2. Ela define a **cor de destaque do app** enquanto aquele workspace estiver ativo. Troque de workspace e a cor de destaque de toda a UI muda para combinar com o que você abriu.
+
+<Tip>
+Dê a cada workspace uma cor distinta. Como a cor de destaque do app segue o workspace ativo, a cor se torna um sinal de relance de em qual projeto você está, o que ajuda bastante quando você está fazendo malabarismo com vários.
+</Tip>
+
+## Alterne entre workspaces
+
+Depois que você tem mais de um workspace, você se move entre eles de duas formas.
+
+<AccordionGroup>
+  <Accordion title="Pela tela de entrada" icon="inbox">
+    Quando nenhum workspace está ativo, a tela de entrada lista todos os workspaces com seu avatar, um código curto, suas fontes (a primária recebe um badge) e uma contagem de fontes. Clique em uma linha para abri-la. O Orkestral alterna para aquele workspace, aplica sua cor de destaque e leva você à tela inicial.
+  </Accordion>
+  <Accordion title="Pelo seletor dentro do app" icon="sitemap">
+    Dentro do app, o seletor de workspace mostra o workspace atual. Abra-o para ver a lista completa e escolher outro. Um check marca o ativo. Selecionar um workspace diferente troca o contexto ativo e a cor de destaque junto com ele.
+  </Accordion>
+</AccordionGroup>
+
+O Orkestral lembra do seu último workspace ativo e o reabre na próxima inicialização, para que você volte exatamente de onde parou.
+
+{/* PRINT: Popover do seletor de workspace dentro do app mostrando a lista com o workspace ativo marcado */}
+
+## Exclua um workspace
+
+Na tela de entrada, passe o mouse sobre uma linha de workspace e clique no ícone de lixeira para excluí-lo. Uma caixa de diálogo de confirmação explica a ação antes de executá-la.
+
+<Warning>
+Excluir um workspace remove seus agentes, issues e links de fontes do Orkestral. Seu código real no disco e seus repos remotos não são tocados, mas o trabalho acompanhado do workspace se vai. Não há como desfazer.
+</Warning>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Conecte mais fontes" icon="folder" href="/pt/sources">
+    Adicione repos e pastas para que a equipe veja o projeto inteiro. Escolha qual delas é a primária.
+  </Card>
+  <Card title="Contrate sua equipe" icon="users" href="/pt/agents">
+    Revise os especialistas propostos pelo CEO, ou adicione agentes você mesmo.
+  </Card>
+  <Card title="Converse com o CEO" icon="comments" href="/pt/chat">
+    Descreva o que você quer construir. O orquestrador planeja e delega.
+  </Card>
+  <Card title="Acompanhe o trabalho como issues" icon="list-check" href="/pt/issues">
+    Veja as tarefas fluírem pelo board conforme os agentes as assumem.
+  </Card>
+</CardGroup>

@@ -1,0 +1,169 @@
+---
+title: "Agent adapters"
+description: "The providers that power your agents: Claude Code, Codex, Forge and more."
+---
+
+Every agent in Orkestral runs on top of an **adapter**. An adapter is the bridge between an agent and the actual brain that thinks and writes code: a local CLI like Claude Code, a managed cloud service like Cursor Cloud, or the bundled **Orkestral Forge** model that executes patches at zero API cost. When you hire an agent, you pick its adapter and a model, and from then on every message and every issue that agent works on flows through that provider.
+
+This page explains what an adapter is, lists the ones you can choose from, and shows how an agent uses one in practice.
+
+<Info>
+Adapters are about **where the work runs**, not what the agent is for. The role (Tech Lead, Backend, QA) shapes the agent's behavior and prompts. The adapter decides which engine answers. You can give two agents the same role but different adapters.
+</Info>
+
+## What an adapter is
+
+Internally, an adapter is a small module that knows three things about a provider.
+
+<CardGroup cols={3}>
+  <Card title="Descriptor" icon="id-card">
+    Name, description, icon, and flags shown in the agent picker. Also the config fields the provider needs (for example reasoning effort or a command override).
+  </Card>
+  <Card title="Models" icon="brain">
+    The list of models you can pick for that provider. Some are discovered live from the CLI, others come from a versioned list.
+  </Card>
+  <Card title="Test" icon="circle-check">
+    A "Test now" probe that checks the provider is installed, authenticated, and responsive before you rely on it.
+  </Card>
+</CardGroup>
+
+Each adapter carries a couple of capability flags that change where it can be used.
+
+<AccordionGroup>
+  <Accordion title="recommended" icon="bullseye">
+    Marks the providers Orkestral suggests first. **Claude Code**, **Codex**, and **Orkestral Forge** are recommended and appear at the top of the picker.
+  </Accordion>
+  <Accordion title="executorOnly" icon="robot">
+    An executor-only adapter can run code changes but cannot be the orchestrator or plan work on its own. **Orkestral Forge** and the **OpenClaw Gateway** are executor-only. Use them on specialist agents that apply patches, not on your CEO orchestrator.
+  </Accordion>
+  <Accordion title="configSchema" icon="gear">
+    The set of provider-specific fields rendered when you create or edit an agent. The form changes as you switch providers. A provider with no schema (like Forge) needs nothing configured.
+  </Accordion>
+</AccordionGroup>
+
+## Available adapters
+
+The picker is grouped: recommended providers first, then other local CLIs, then config-driven remote providers. The most common choices are below.
+
+<Tabs>
+  <Tab title="Claude Code">
+    The `claude` CLI from Anthropic, running locally. Recommended.
+
+    - **Models**: a default that follows your CLI config, explicit versions (Claude Opus 4.8, Opus 4.7, Sonnet 4.6, Haiku 4.5), and tier aliases (`opus`, `sonnet`, `haiku`) that always resolve to the newest model in that tier.
+    - **Config**: reasoning **effort** (low/medium/high), a **browser tools (Chrome)** toggle, an **instructions file** path injected into the system prompt, and a **command override** if `claude` is not on your `PATH`.
+    - **Setup**: install with `npm i -g @anthropic-ai/claude-code` and sign in with `claude login`.
+  </Tab>
+  <Tab title="Codex">
+    The `codex` CLI from OpenAI, running locally. Recommended.
+
+    - **Models**: read live from the CLI cache at `~/.codex/models_cache.json` so the list matches what your account can actually use. When that cache is missing, Orkestral falls back to a versioned list (GPT-5.4, GPT-5.3 Codex, GPT-5, o3, and more).
+    - **Config**: **reasoning effort** (minimal to xhigh), a **web search** toggle, and a **command override**.
+    - **Setup**: install with `npm i -g @openai/codex` and sign in through the CLI. The config dir respects `CODEX_HOME`.
+  </Tab>
+  <Tab title="Orkestral Forge">
+    The bundled local model (an abstraction over llama.cpp running Qwen2.5-Coder). Recommended and **executor-only**.
+
+    - **Models**: a single managed model, no choice to make.
+    - **Config**: none. The model binary and weights ship inside the app and are resolved automatically.
+    - **Cost**: `$0` API cost. It runs offline and only produces patches that the app validates and applies.
+
+    <Note>
+    Forge plans nothing. It executes. Premium adapters decide the change, Forge writes it locally. If a build ships without the local model, Forge stays selectable and falls back to a premium model automatically.
+    </Note>
+  </Tab>
+  <Tab title="Gemini">
+    The `gemini` CLI from Google, running locally.
+
+    - **Models**: default, plus Gemini 2.5 Pro, 2.5 Flash, 2.5 Flash Lite, 2.0 Flash, and 2.0 Flash Lite.
+    - **Config**: a **sandbox** toggle (passes `--sandbox`) and a **command override**.
+    - **Setup**: install with `npm i -g @google/gemini-cli`.
+  </Tab>
+  <Tab title="Cursor">
+    The `cursor-agent` CLI, running locally.
+
+    - **Models**: default (auto), GPT-5.3 Codex, GPT-5.1 Codex Mini, Claude Sonnet 4.5, Claude Opus 4.1.
+    - **Config**: a **mode** select (autonomous, plan, ask) passed via `--mode`, and a **command override**.
+  </Tab>
+</Tabs>
+
+Other providers in the registry include **OpenCode** and **Pi** (multi-provider local CLIs that use `provider/model` ids), **Grok Build**, and **Hermes Agent**. Two are config-driven remote providers selectable today with execution as a follow-up: **Cursor Cloud** (a managed remote agent that needs a repo URL and `CURSOR_API_KEY`) and the **OpenClaw Gateway** (a remote executor over a WebSocket gateway, executor-only).
+
+{/* PRINT: the adapter picker grid with recommended providers first */}
+
+## How an agent uses an adapter
+
+When you create an agent you choose an adapter and a model, and Orkestral stores that choice on the agent. From then on the relationship is one agent, one adapter at a time.
+
+<Steps>
+  <Step title="Pick the provider">
+    In the agent form, choose an adapter from the grid. Recommended providers (**Claude Code**, **Codex**, **Orkestral Forge**) appear first.
+  </Step>
+  <Step title="Choose a model">
+    Orkestral asks the adapter for its model list and shows it. Every list includes a **Default** option that follows whatever the CLI itself is configured to use, so you can leave the choice to the provider.
+  </Step>
+  <Step title="Fill provider config">
+    The form renders the adapter's config fields. These differ per provider: reasoning effort, a sandbox toggle, an instructions file, a command override, a repo URL. Required fields are marked, and the values persist on the agent.
+  </Step>
+  <Step title="Test now">
+    Run the probe. Orkestral checks the CLI is on your `PATH`, runs a version check, and (for Claude Code) fires a tiny "respond with hello" prompt to confirm auth. You get a pass, warn, or fail with a human-readable checklist.
+  </Step>
+  <Step title="Put the agent to work">
+    Once the agent is live, every chat message and every assigned issue runs through its adapter. Switch providers later by editing the agent.
+  </Step>
+</Steps>
+
+### Reading a test result
+
+The probe returns an overall status plus per-check detail, so you can see exactly what is missing.
+
+<CardGroup cols={3}>
+  <Card title="Pass" icon="circle-check">
+    Installed, authenticated, and responsive. The agent is ready to work.
+  </Card>
+  <Card title="Warn" icon="triangle-exclamation">
+    Usable but something needs attention, for example you are not logged in yet, the probe timed out, or a remote provider still needs its URL and token.
+  </Card>
+  <Card title="Fail" icon="circle-xmark">
+    A hard blocker, usually the CLI binary is not on your `PATH`. The detail tells you how to install it.
+  </Card>
+</CardGroup>
+
+<Tip>
+If a check fails because the binary is not found, you do not have to add it to your global `PATH`. Most adapters expose a **command override** field where you can paste the absolute path to the CLI.
+</Tip>
+
+## Choosing the right adapter
+
+A few rules of thumb based on what each provider is built for.
+
+<AccordionGroup>
+  <Accordion title="For your orchestrator (the CEO)" icon="sitemap">
+    Use a planning-capable premium provider like **Claude Code** or **Codex**. Do not use an executor-only adapter (Forge, OpenClaw Gateway) here, since the orchestrator needs to plan and delegate.
+  </Accordion>
+  <Accordion title="For applying code changes cheaply" icon="bolt">
+    Use **Orkestral Forge**. It runs locally at `$0` API cost and is built to turn an approved plan into a validated patch. Pair it with a premium planner.
+  </Accordion>
+  <Accordion title="For a specific model family" icon="brain">
+    Pick the adapter that fronts it: Gemini models through **Gemini CLI**, OpenAI models through **Codex**, or a mix through multi-provider CLIs like **OpenCode** and **Pi**.
+  </Accordion>
+  <Accordion title="For fully managed remote runs" icon="cloud">
+    Look at **Cursor Cloud** or the **OpenClaw Gateway**. These are config-driven and validate their connection on first real use rather than during the probe.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Hire your first agent" icon="users" href="/en/agents">
+    Create an agent, pick its adapter and model, and run the test.
+  </Card>
+  <Card title="Set up the Forge" icon="robot" href="/en/forge">
+    Learn how the bundled local model executes patches at zero cost.
+  </Card>
+  <Card title="Understand orchestration" icon="sitemap" href="/en/orchestration">
+    See how the CEO plans and delegates across agents and adapters.
+  </Card>
+  <Card title="Track work as issues" icon="list-check" href="/en/issues">
+    Assign issues to agents and watch their adapters execute them.
+  </Card>
+</CardGroup>

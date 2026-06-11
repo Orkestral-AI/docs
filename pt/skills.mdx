@@ -1,0 +1,252 @@
+---
+title: "Skills"
+description: "Capacidades e conhecimento reutilizáveis que você dá aos agentes."
+---
+
+Uma skill é um manual curto e reutilizável que seus agentes podem ler sob demanda. Pense nela como um guia prático focado: um método de depuração, uma disciplina de testes, um procedimento de deploy ou qualquer técnica repetível que você queira que sua equipe aplique em vez de redescobrir toda vez. As skills existem por workspace, são escritas em Markdown, e os agentes as encontram pelo nome e puxam o conteúdo completo somente quando uma tarefa exige.
+
+Esta página explica o que é uma skill, as skills que o Orkestral já traz, como adicionar mais a partir do GitHub e exatamente como seus agentes as utilizam enquanto trabalham.
+
+<CardGroup cols={2}>
+  <Card title="Manuais inclusos" icon="brain">
+    Todo workspace começa com manuais de engenharia comprovados: depuração sistemática, TDD, refatoração segura, revisão de segurança e mais.
+  </Card>
+  <Card title="Adicionar do GitHub" icon="store">
+    Navegue pelo marketplace para instalar skills da comunidade puxadas ao vivo de repositórios canônicos do GitHub.
+  </Card>
+  <Card title="Escreva a sua" icon="pencil">
+    Crie skills de instrução em um editor de documentos completo. O conteúdo é injetado no prompt quando a skill é usada.
+  </Card>
+  <Card title="Agentes se autogerenciam" icon="robot">
+    Os agentes descobrem skills via `skill_list`, leem via `skill_view` e podem salvar novas que aprendem.
+  </Card>
+</CardGroup>
+
+## O que é uma skill
+
+Uma skill tem um formato pequeno e claro:
+
+- **Nome**: um título imperativo curto, como "Depuração Sistemática" ou "Adicionar um webhook de WhatsApp z-api". O nome também é o título do documento.
+- **Descrição**: uma linha que diz quando usar a skill. É isso que um agente lê primeiro para decidir se a skill é relevante.
+- **Conteúdo**: o corpo em Markdown, o manual passo a passo de fato com etapas, armadilhas e como verificar. Essa é a parte que é injetada no prompt do agente quando a skill é aplicada.
+- **Tipo**: as skills vêm em três tipos (veja abaixo). A página Skills foca nas skills do tipo `instruction`.
+
+<Info>
+As skills são armazenadas por workspace. Trocar de workspace mostra um conjunto diferente de skills, de modo que cada projeto mantém seus próprios manuais e convenções.
+</Info>
+
+### Os três tipos
+
+<CardGroup cols={3}>
+  <Card title="Instruction" icon="file-lines">
+    Um manual em Markdown injetado no prompt do agente. Essa é a skill que você escreve e edita na página Skills.
+  </Card>
+  <Card title="Tool" icon="wrench">
+    Uma capacidade que o agente pode chamar. Criada na página Skills junto com as skills de instrução.
+  </Card>
+  <Card title="MCP" icon="server">
+    Uma conexão com um servidor externo de Model Context Protocol. As skills MCP são gerenciadas na página MCPs, não aqui.
+  </Card>
+</CardGroup>
+
+<Note>
+Na página Skills você pode criar skills **Instruction** e **Tool**. As skills MCP existem como um tipo, mas vêm da página MCPs porque envolvem uma conexão com um servidor, não um manual escrito.
+</Note>
+
+## Como as skills chegam aos seus agentes
+
+O objetivo de design é manter o prompt pequeno. Os agentes nunca recebem o corpo de todas as skills despejado no contexto. Em vez disso, eles veem um índice leve e puxam o texto completo somente quando necessário.
+
+<Steps>
+  <Step title="Índice no prompt">
+    O agente é informado de que as skills existem e é incentivado a checá-las antes de trabalhos não triviais. Ele vê nomes e descrições de uma linha, não os corpos completos.
+  </Step>
+  <Step title="Listar sob demanda">
+    Quando uma tarefa parece não trivial, o agente chama `skill_list` para ver as skills reutilizáveis disponíveis no workspace (nome mais descrição).
+  </Step>
+  <Step title="Ler o manual">
+    Se uma skill parecer relevante, o agente chama `skill_view` com o nome ou slug e recebe o conteúdo completo passo a passo. O uso é rastreado para que as skills populares se destaquem.
+  </Step>
+  <Step title="Aplicá-la">
+    O agente segue o manual para a tarefa em questão em vez de improvisar. O orquestrador espera evidências de que `skill_list`/`skill_view` foram consultados quando aplicável.
+  </Step>
+</Steps>
+
+{/* PRINT: Um log de execução de agente mostrando chamadas skill_list e depois skill_view antes de iniciar o trabalho */}
+
+<Tip>
+Como o corpo carrega somente quando lido, você pode escrever manuais longos e detalhados sem inchar cada execução. Profundidade é de graça até a skill ser de fato usada.
+</Tip>
+
+## Skills inclusas
+
+Todo workspace é semeado com uma biblioteca de manuais de engenharia comprovados, adaptados de coleções de skills de agentes já estabelecidas. Eles chegam como skills `instruction` e são protegidos, de forma que um agente não consegue sobrescrevê-los por acidente. Eles aparecem no momento em que um workspace existe, então sua equipe tem conteúdo real desde o primeiro dia.
+
+<AccordionGroup>
+  <Accordion title="Depuração Sistemática" icon="magnifying-glass">
+    Método de causa raiz em quatro fases: investigar, encontrar o padrão, formar e testar uma única hipótese, e então implementar uma correção. A lei de ferro é nenhuma correção sem investigar a causa raiz primeiro.
+  </Accordion>
+  <Accordion title="Desenvolvimento Orientado a Testes" icon="circle-check">
+    O ciclo RED-GREEN-REFACTOR: escreva um teste que falha, veja-o falhar, escreva o código mínimo para passar e então refatore. Nenhum código de produção sem um teste que falha primeiro.
+  </Accordion>
+  <Accordion title="Escrever Planos de Implementação" icon="list-check">
+    Tarefas pequenas de dois a cinco minutos cada, com caminhos de arquivo exatos, código completo pronto para copiar e colar, comandos e etapas de verificação. Torne a implementação óbvia.
+  </Accordion>
+  <Accordion title="Spike / Experimento" icon="bolt">
+    Experimentos descartáveis para validar uma ideia antes de partir para uma construção de verdade: decomponha em perguntas de viabilidade, construa algo observável e então registre um veredicto.
+  </Accordion>
+  <Accordion title="Investigação e Pesquisa de Funcionalidade" icon="folder-tree">
+    Entenda a arquitetura e os padrões existentes antes de construir, para que você reutilize o que existe e evite surpresas no meio da implementação.
+  </Accordion>
+  <Accordion title="Execução Orientada por Subagentes" icon="sitemap">
+    Execute um plano com um subagente novo por tarefa mais uma revisão em duas etapas: conformidade com a especificação primeiro, depois qualidade do código.
+  </Accordion>
+  <Accordion title="Checklist de Revisão de Código" icon="shield">
+    Revisão sistemática abrangendo corretude, arquitetura, qualidade, segurança, testes e desempenho, com critérios claros de obrigatório versus desejável.
+  </Accordion>
+  <Accordion title="Estratégia de Refatoração Segura" icon="code-branch">
+    Testes primeiro, uma mudança por vez, verifique após cada etapa. Se o comportamento muda, não é refatoração.
+  </Accordion>
+  <Accordion title="Fluxo de Git e PR" icon="code-branch">
+    Commits atômicos, nomes de branch claros e descrições de PR úteis para que o histórico se leia como uma narrativa e as revisões corram bem.
+  </Accordion>
+  <Accordion title="Teste e Depuração de API" icon="plug">
+    Testes em camadas para REST e GraphQL: caminho feliz, autenticação, casos de erro, contratos e então casos extremos.
+  </Accordion>
+  <Accordion title="Estratégia de Atualização de Dependências e Versões" icon="gear">
+    Leia o changelog, entenda as mudanças que quebram compatibilidade, atualize em uma branch, rode a suíte completa e mantenha um plano de rollback pronto.
+  </Accordion>
+  <Accordion title="Profiling e Otimização de Desempenho" icon="gauge">
+    Faça profiling antes de otimizar, meça uma linha de base, corrija um gargalo por vez e então verifique a melhoria e que o comportamento não mudou.
+  </Accordion>
+  <Accordion title="Revisão de Código de Segurança" icon="shield">
+    Identifique vulnerabilidades comuns: injeção, XSS, falhas de autenticação e autorização, segredos hardcoded e dependências inseguras.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+A semeadura é idempotente e faz correspondência por nome (sem diferenciar maiúsculas de minúsculas). Se uma skill inclusa com o mesmo nome já existir no workspace, ela não é duplicada.
+</Info>
+
+## Abrir a página Skills
+
+Clique em **Skills** no seu workspace. A página tem duas abas no canto superior direito:
+
+<Tabs>
+  <Tab title="Mine">
+    Suas skills do workspace em uma grade de cards. Cada card mostra o nome da skill, uma descrição de duas linhas, o selo do seu tipo e o seu slug. Use a caixa de busca para filtrar por nome, slug ou descrição. Clique em um card para abri-lo e editá-lo. As skills MCP ficam ocultas aqui porque vivem na página MCPs.
+  </Tab>
+  <Tab title="Marketplace">
+    O navegador de marketplace de skills. É aqui que você instala skills puxadas ao vivo do GitHub. Instalar uma skill copia seu conteúdo para o seu workspace como uma skill de instrução.
+  </Tab>
+</Tabs>
+
+{/* PRINT: A página Skills, aba Mine, mostrando a grade de cards de skill */}
+
+## Criar uma skill
+
+<Steps>
+  <Step title="Inicie uma nova skill">
+    Na aba **Mine**, clique em **New skill**.
+  </Step>
+  <Step title="Dê um nome e escolha um tipo">
+    Digite um nome (com pelo menos dois caracteres) e escolha o tipo: **Instruction** ou **Tool**. O nome é o título do documento, então escreva-o como uma frase imperativa curta.
+  </Step>
+  <Step title="Crie e abra o editor">
+    Clique em **Create skill**. A skill abre em um editor de documentos de largura total, no mesmo estilo da Knowledge Base.
+  </Step>
+  <Step title="Escreva o manual">
+    Preencha a descrição (uma linha sobre quando usá-la) e o corpo. Um divisor identifica o corpo como o conteúdo que é injetado no prompt. Escreva etapas concisas, armadilhas e como verificar.
+  </Step>
+  <Step title="Salvar">
+    Quando você tem alterações não salvas, um indicador aparece na barra de ações. Clique em **Save** para persisti-las.
+  </Step>
+</Steps>
+
+<Warning>
+Não coloque fatos pontuais em uma skill. Skills são procedimentos repetíveis. Para fatos de projeto e material de referência, use a Knowledge Base. Nunca coloque segredos no corpo de uma skill.
+</Warning>
+
+### Editar ou excluir
+
+Abra qualquer card de skill para editar seu nome, descrição e conteúdo no local. A barra de ações mostra o selo do tipo e o slug, um botão de salvar que só fica ativo quando há alterações não salvas e um botão de excluir. A exclusão pede confirmação antes.
+
+## Adicionar skills do GitHub
+
+O marketplace puxa skills ao vivo de repositórios canônicos do GitHub que seguem o padrão Agent Skills (pastas contendo um arquivo `SKILL.md` com `name` e `description` no frontmatter). Não há um registro público separado, então o Orkestral lê os repositórios de origem diretamente.
+
+<Steps>
+  <Step title="Abra o marketplace">
+    Na página Skills, mude para a aba **Marketplace**.
+  </Step>
+  <Step title="Navegue pelo catálogo">
+    As skills aparecem com seu nome, descrição, categoria e autor. Elas são buscadas nos repositórios de origem e cacheadas por cerca de 30 minutos, então a lista reflete o que está publicado upstream.
+  </Step>
+  <Step title="Instale">
+    Instale uma skill para copiá-la para o seu workspace. Ela chega como uma skill `instruction`, usando o corpo do `SKILL.md` como seu conteúdo.
+  </Step>
+  <Step title="Personalize">
+    Uma vez instalada, abra-a na aba **Mine** e edite-a como qualquer outra skill para se adequar ao seu projeto.
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="De onde vêm as skills do marketplace?" icon="store">
+    Elas são puxadas de repositórios canônicos de Agent Skills no GitHub, incluindo os exemplos oficiais de `anthropics/skills`. Cada `SKILL.md` é analisado por seu frontmatter `name` e `description`, e o corpo em Markdown se torna o conteúdo instalável.
+  </Accordion>
+  <Accordion title="E se o GitHub estiver inacessível?" icon="plug">
+    A busca é best-effort, com um timeout curto e um cache de 30 minutos. Se falhar, o marketplace recorre à última lista cacheada ou a uma lista vazia. Suas skills existentes no workspace nunca são afetadas.
+  </Accordion>
+  <Accordion title="As skills instaladas são protegidas?" icon="shield">
+    As skills instaladas pelo usuário ou pelo marketplace são protegidas contra edições de agentes. Os agentes podem lê-las e aplicá-las, mas não podem reescrevê-las. Apenas as skills que um agente criou ele mesmo podem ser melhoradas por um agente.
+  </Accordion>
+</AccordionGroup>
+
+## Como os agentes criam e melhoram skills
+
+As skills não são apenas uma biblioteca de mão única que você preenche. Os agentes gerenciam as suas próprias. Quando um agente descobre uma técnica, correção ou procedimento repetível não óbvio, ele pode salvar uma nova skill para que tarefas futuras se beneficiem.
+
+<CardGroup cols={2}>
+  <Card title="Agente cria uma skill" icon="robot">
+    Após aprender algo reutilizável, um agente salva um manual conciso (etapas, armadilhas, verificação). A nova skill se anexa automaticamente à equipe inteira para que todos se beneficiem.
+  </Card>
+  <Card title="Agente melhora uma skill" icon="pencil">
+    Um agente pode acrescentar a ou substituir uma skill criada por agente quando aprende algo melhor. Skills que você ou o marketplace instalaram são protegidas e não podem ser alteradas desta forma.
+  </Card>
+</CardGroup>
+
+<Note>
+As skills salvas por agentes são mantidas concisas de propósito (limitadas a cerca de 8000 caracteres). A intenção é um manual enxuto, não um despejo de arquivo. Fatos pontuais pertencem à Knowledge Base, não a uma skill.
+</Note>
+
+## Skills versus a Knowledge Base
+
+Ambas dão contexto aos seus agentes, mas respondem a perguntas diferentes.
+
+| | Skills | Knowledge Base |
+|---|---|---|
+| Formato | Procedimento: como fazer algo | Fato: o que é verdade sobre o projeto |
+| Exemplo | Etapas de "Depuração Sistemática" | "Nossos tokens de auth expiram após 24h" |
+| Quando usada | O agente a aplica durante uma tarefa | O agente a consulta para contexto |
+| Melhor para | Técnicas e manuais repetíveis | Fatos, decisões e referências do projeto |
+
+<Tip>
+Se você se pega escrevendo "sempre faça X desta forma" para uma tarefa recorrente, isso é uma skill. Se você está registrando "X é o caso neste projeto", isso é uma página da Knowledge Base.
+</Tip>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Contrate e molde sua equipe" icon="users" href="/pt/agents">
+    Veja como o orquestrador e os especialistas adotam skills durante uma execução.
+  </Card>
+  <Card title="Registre fatos do projeto" icon="brain" href="/pt/knowledge-base">
+    Use a Knowledge Base para os fatos que complementam suas skills.
+  </Card>
+  <Card title="Conecte ferramentas externas" icon="plug" href="/pt/mcp">
+    Gerencie conexões MCP, o terceiro tipo de skill, na página MCPs.
+  </Card>
+  <Card title="Acompanhe o trabalho" icon="list-check" href="/pt/issues">
+    Veja as skills sendo aplicadas enquanto os agentes trabalham em issues e épicos.
+  </Card>
+</CardGroup>

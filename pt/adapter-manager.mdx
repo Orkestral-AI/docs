@@ -1,0 +1,192 @@
+---
+title: "Gerenciador de adapters"
+description: "Verifique disponibilidade e configure seus provedores."
+---
+
+Um adapter é a ponte entre o Orkestral e um modelo ou agente de código. Quando um agente assume um chat ou executa uma issue, ele roteia o trabalho por meio de um adapter: Claude, Codex, o Forge embutido ou um dos provedores locais. O gerenciador de adapters é onde você vê quais adapters estão prontos para rodar e quais ainda estão a caminho.
+
+Esta página explica como a disponibilidade funciona, por que alguns adapters aparecem mas ainda não podem executar e como você configura os provedores e integrações que alimentam seu time.
+
+<Note>
+O Orkestral é local-first. Adapters que encapsulam uma CLI local (como as ferramentas de linha de comando do Claude ou do Codex) rodam na sua máquina. O Forge roda totalmente offline em um modelo local embutido. Nada sobre o seu código sai da sua máquina, a não ser que um adapter que você escolheu faça uma chamada de rede.
+</Note>
+
+## Por que adapters podem estar disponíveis ou não
+
+Nem todo adapter que aparece no onboarding ou no registro consegue de fato rodar código hoje. Alguns são listados para que você veja o roadmap, mas ainda não estão ligados a um caminho de execução real. O Orkestral trata isso com honestidade: em vez de cair silenciosamente em um binário diferente e fingir que funcionou, um adapter indisponível falha com uma mensagem clara.
+
+Os adapters que estão visíveis mas ainda não podem executar são rastreados em um único lugar no processo principal (`src/main/services/adapter-availability.ts`):
+
+<CardGroup cols={2}>
+  <Card title="Gemini" icon="robot">
+    Listado como `gemini_local`. Ainda não disponível para execução.
+  </Card>
+  <Card title="OpenCode" icon="robot">
+    Listado como `opencode_local`. Ainda não disponível para execução.
+  </Card>
+  <Card title="Pi" icon="robot">
+    Listado como `pi_local`. Ainda não disponível para execução.
+  </Card>
+  <Card title="Grok" icon="robot">
+    Listado como `grok_local`. Ainda não disponível para execução.
+  </Card>
+</CardGroup>
+
+Quando você tenta usar um desses em um chat ou para executar uma issue, recebe uma mensagem informando que ele não está pronto e apontando para o que funciona hoje:
+
+<Info>
+O provedor ainda não está disponível para execução (em breve). Use Claude, Codex ou o Forge por enquanto.
+</Info>
+
+<Tip>
+Se você vir essa mensagem, não fez nada de errado. Reatribua o trabalho ao **Claude**, ao **Codex** ou ao **Forge** e ele vai rodar.
+</Tip>
+
+## O que está disponível hoje
+
+<CardGroup cols={3}>
+  <Card title="Claude" icon="brain">
+    Modelo premium usado para planejamento e raciocínio. Roteado pela ferramenta de linha de comando do Claude quando instalada.
+  </Card>
+  <Card title="Codex" icon="brain">
+    Modelo premium para planejamento e raciocínio. Roteado pela ferramenta de linha de comando do Codex quando instalada.
+  </Card>
+  <Card title="Forge" icon="bolt">
+    O executor local embutido (Qwen2.5-Coder). Aplica mudanças de código localmente com custo de API zero.
+  </Card>
+</CardGroup>
+
+A divisão de trabalho habitual é simples: adapters premium (Claude, Codex) PLANEJAM e o Forge EXECUTA as mudanças de código localmente por meio do motor determinístico do Fast Apply. Você pode ler mais em [Forge e Fast Apply](/pt/forge-fast-apply) e [Escolhendo modelos](/pt/choosing-models).
+
+## Como a disponibilidade é verificada
+
+A disponibilidade tem duas camadas. A primeira é se um adapter está ligado a um caminho de execução (a camada de roadmap acima). A segunda é se a CLI subjacente está de fato instalada na sua máquina.
+
+<Steps>
+  <Step title="O adapter está registrado">
+    O adapter aparece no onboarding e no registro para que você possa selecioná-lo. O registro por si só não significa que ele pode rodar.
+  </Step>
+  <Step title="O suporte a execução é confirmado">
+    O Orkestral verifica se o adapter tem um caminho de execução real. Adapters no conjunto indisponível (Gemini, OpenCode, Pi, Grok) param aqui e retornam a mensagem de em breve.
+  </Step>
+  <Step title="A CLI é detectada">
+    Para adapters baseados em CLI, como Claude e Codex, o Orkestral procura a ferramenta de linha de comando correspondente na sua máquina. Se o binário estiver ausente, instale-o para que o adapter possa iniciá-lo.
+  </Step>
+  <Step title="O adapter roda">
+    Com suporte a execução e um binário detectado (ou o modelo do Forge embutido), o agente roda o trabalho por meio do adapter.
+  </Step>
+</Steps>
+
+<Warning>
+Instalar a CLI de um provedor não é o mesmo que configurar uma chave de API. A CLI cuida da própria autenticação. Garanta que a ferramenta de linha de comando esteja instalada e logada antes de atribuir trabalho a esse adapter.
+</Warning>
+
+{/* PRINT: Seleção de adapter no painel do agente mostrando Claude, Codex e Forge como prontos */}
+
+## Configurando provedores e integrações
+
+Adapters cobrem os modelos e agentes de código. Integrações cobrem os serviços externos dos quais seu time lê e nos quais escreve (controle de versão, observabilidade, notificações). Você gerencia isso na página **Integrações**.
+
+A página de Integrações (`src/renderer/src/pages/IntegrationsPage.tsx`) oferece uma grade pesquisável e filtrável de todos os provedores que o Orkestral conhece. Cada card mostra um nome, uma descrição curta e uma categoria, além de uma ação de configurar ou uma etiqueta de em breve.
+
+<Steps>
+  <Step title="Abra Integrações">
+    Vá até a página **Integrações** pela barra lateral.
+  </Step>
+  <Step title="Pesquise ou filtre">
+    Digite na caixa de busca para encontrar por nome ou descrição, ou clique em um **Chip** de categoria (por exemplo **Observabilidade**) para reduzir a lista. Escolha **Todos** para limpar o filtro.
+  </Step>
+  <Step title="Abra um card">
+    Clique em um card ativo para configurá-lo. Cards marcados como em breve estão visíveis mas ainda não são configuráveis.
+  </Step>
+  <Step title="Conecte o provedor">
+    Siga o fluxo do card para autenticar ou colar as credenciais que o provedor precisa.
+  </Step>
+</Steps>
+
+### O que você pode configurar hoje
+
+<AccordionGroup>
+  <Accordion title="GitHub" icon="code-branch">
+    Conecte um host de repositório para que os agentes possam ler código, branches e pull requests. Configurado pelo próprio card na página de Integrações.
+  </Accordion>
+  <Accordion title="Voz" icon="comments">
+    Integração de entrada por voz, disponível agora e configurada a partir do card dedicado.
+  </Accordion>
+  <Accordion title="Sentry" icon="shield">
+    Rastreamento de erros para que os agentes possam trazer issues e stack traces para o contexto. Disponível agora.
+  </Accordion>
+  <Accordion title="New Relic" icon="chart-line">
+    Erros, logs e métricas por meio do NerdGraph e do NRQL, agrupados na categoria Observabilidade. Disponível agora.
+  </Accordion>
+  <Accordion title="Better Stack" icon="chart-line">
+    Incidentes, uptime e logs para investigação, também em Observabilidade. Disponível agora.
+  </Accordion>
+</AccordionGroup>
+
+### O que vem em breve
+
+Estes aparecem na grade com uma etiqueta de em breve e ainda não são configuráveis:
+
+<CardGroup cols={3}>
+  <Card title="Slack" icon="comments" />
+  <Card title="Jira" icon="list-check" />
+  <Card title="ClickUp" icon="list-check" />
+  <Card title="Google Calendar" icon="clock" />
+  <Card title="Gmail" icon="inbox" />
+  <Card title="Notion" icon="book" />
+</CardGroup>
+
+<Note>
+A grade de Integrações é bilíngue. Nomes, descrições e categorias seguem o idioma da sua interface, então o mesmo provedor aparece em inglês ou em português do Brasil conforme a sua configuração.
+</Note>
+
+## Lendo os cards
+
+Cada card na página de Integrações informa o seu estado de relance:
+
+<Tabs>
+  <Tab title="Pronto">
+    O card mostra uma ação de configurar. Clique nela para abrir o fluxo de conexão e autenticar.
+  </Tab>
+  <Tab title="Em breve">
+    O card fica esmaecido e mostra uma etiqueta de em breve no lugar de uma ação. Ele está no roadmap mas ainda não está ligado.
+  </Tab>
+  <Tab title="Filtrado">
+    Se a sua busca ou filtro de categoria esconder tudo, você vê uma mensagem de nada encontrado. Limpe a busca ou escolha **Todos** para trazer a grade de volta.
+  </Tab>
+</Tabs>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Um agente diz que um provedor não está disponível para execução" icon="robot">
+    Você atribuiu trabalho ao Gemini, OpenCode, Pi ou Grok. Eles estão visíveis no roadmap mas ainda não podem executar. Reatribua ao Claude, ao Codex ou ao Forge.
+  </Accordion>
+  <Accordion title="Claude ou Codex não roda" icon="gear">
+    A ferramenta de linha de comando correspondente provavelmente está ausente ou não está logada. Instale a CLI do provedor, autentique-a e tente de novo. Lembre-se de que a CLI cuida do próprio login, separado de qualquer chave de API.
+  </Accordion>
+  <Accordion title="Um provedor está faltando em Integrações" icon="magnifying-glass">
+    Limpe a caixa de busca e selecione a categoria **Todos**. Se ainda assim ele não aparecer, é porque ainda não está na grade.
+  </Accordion>
+  <Accordion title="Quero custo de API zero" icon="bolt">
+    Roteie a execução pelo Forge. Ele roda localmente no modelo embutido e aplica mudanças por meio do Fast Apply sem cobranças de API.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Forge e Fast Apply" icon="bolt" href="/pt/forge-fast-apply">
+    Saiba como o executor local aplica mudanças de código com custo zero.
+  </Card>
+  <Card title="Escolhendo modelos" icon="brain" href="/pt/choosing-models">
+    Decida qual adapter planeja e qual executa.
+  </Card>
+  <Card title="Contratando seu time" icon="users" href="/pt/hiring-team">
+    Atribua especialistas e os adapters em que eles rodam.
+  </Card>
+  <Card title="Conectando fontes" icon="folder-tree" href="/pt/connecting-sources">
+    Aponte seus agentes para os repos e pastas em que trabalham.
+  </Card>
+</CardGroup>

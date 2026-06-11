@@ -1,0 +1,167 @@
+---
+title: "Glossary"
+description: "Definitions of the main Orkestral terms, A to Z."
+---
+
+This page defines the vocabulary you will see across Orkestral: in chat, on the issues board, in settings, and in the knowledge base. Each term gets one or two sentences plus a pointer to where it shows up in the app, so you can scan it quickly and come back when a word feels unfamiliar.
+
+Orkestral is a local-first desktop app where a team of AI agents plans, tracks, executes and reviews your code on your own machine. The terms below describe the moving parts of that system.
+
+<Note>
+Everything in Orkestral lives on your machine under `~/.orkestral` (a local SQLite database plus the bundled models). No server is required and no telemetry is sent.
+</Note>
+
+## How the terms fit together
+
+Before the alphabetical list, here is the shape of the system so the definitions make sense in context.
+
+<CardGroup cols={3}>
+  <Card title="People (agents)" icon="users">
+    The **CEO** coordinates **specialists** like **Tech Lead** and **Code Reviewer**. You talk to them in chat.
+  </Card>
+  <Card title="Work (issues)" icon="list-check">
+    Requests become **issues**, grouped under **epics**, with status, priority and assignee.
+  </Card>
+  <Card title="Engine (Forge)" icon="bolt">
+    Premium **providers** plan; the local **Forge** model executes edits through **Fast Apply**.
+  </Card>
+</CardGroup>
+
+## A to Z
+
+Use the table for a fast lookup, then read the deep-dive entries below for the terms that carry the most weight.
+
+| Term | One-line definition |
+|---|---|
+| **Adapter** | The connector that lets Orkestral talk to a specific model backend (Claude, Codex, Forge, and others). |
+| **Agent** | An AI persona with a role, instructions and a place in the team hierarchy. |
+| **CEO** | The top orchestrator agent that reads your repos, plans, and delegates to the rest of the team. |
+| **Code Reviewer** | A specialist agent that performs senior-level reviews on your pull requests. |
+| **Epic** | A larger unit of work that groups related issues together. |
+| **Fast Apply** | The deterministic SEARCH/REPLACE engine that applies code edits without rewriting whole files. |
+| **Forge** | The bundled local code model that executes edits on your machine at $0 API cost. |
+| **Issue** | A trackable unit of work created from a request, with status, priority and assignee. |
+| **Knowledge base** | A wiki-style brain per workspace, auto-built from your repos with local search. |
+| **MCP** | Model Context Protocol, the standard Orkestral uses to plug in external tools and servers. |
+| **Provider** | A model vendor or backend (premium or local) that an adapter connects to. |
+| **Skill** | A reusable capability or focused instruction set an agent can apply to a task. |
+| **Source** | A repository or folder you add to a workspace so agents can read it. |
+| **Specialist** | A role-focused agent (Frontend, Backend, DevOps, QA, Designer) that does the hands-on work. |
+| **Tech Lead** | The specialist that coordinates the other specialists under the CEO. |
+| **Workspace** | The container that holds your sources, issues, agents, chat and knowledge base. |
+
+## Deep-dive entries
+
+<AccordionGroup>
+
+  <Accordion title="Adapter" icon="plug">
+    An adapter is the connector layer that lets Orkestral drive a specific model backend. Each provider (Claude, Codex, Forge, and others) has its own adapter that knows how to send prompts and receive responses. Premium adapters such as **Claude Code** and **Codex** rely on their CLIs being installed and authenticated, while the **Forge** adapter needs nothing extra because its model is bundled.
+
+    {/* PRINT: Settings showing the available agent providers and their adapters */}
+  </Accordion>
+
+  <Accordion title="Agent" icon="robot">
+    An agent is an AI persona with a defined role, instructions, and a position in the team. Agents report to one another through a real hierarchy: the **CEO** reports to you, the **Tech Lead** and **Code Reviewer** report to the CEO, and specialists report to the Tech Lead. You mention an agent with `@agent` in chat to route a turn to it.
+  </Accordion>
+
+  <Accordion title="CEO" icon="sitemap">
+    The CEO is the orchestrator at the top of the team. It reads your repositories, identifies the stack, plans the work, and delegates to specialists. The CEO reports to you and turns your natural-language requests into trackable work rather than throwaway prose.
+  </Accordion>
+
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    The Code Reviewer is a specialist agent focused on quality. It performs senior-level reviews on your GitHub pull requests, producing structured findings and inline comments. It reports to the CEO alongside the Tech Lead.
+  </Accordion>
+
+  <Accordion title="Epic" icon="folder-tree">
+    An epic is a larger container that groups related issues. When several issues belong to the same effort, Orkestral auto-groups them under an epic so you can track a feature or initiative as a whole instead of as scattered tasks.
+
+    {/* PRINT: Issues board with issues grouped under an epic */}
+  </Accordion>
+
+  <Accordion title="Fast Apply" icon="bolt">
+    Fast Apply is Orkestral's deterministic edit engine. It takes SEARCH/REPLACE edit blocks and applies them by exact match first, then whitespace-normalized match, then a safe single-match fuzzy pass. If an edit is ambiguous, it **rejects** the change rather than writing the wrong content, so it never corrupts a file. This is what lets the local model merge edits without rewriting whole files.
+  </Accordion>
+
+  <Accordion title="Forge" icon="gauge">
+    Forge is the bundled local code model (Qwen2.5-Coder, run via `node-llama-cpp`) that executes code changes entirely on your machine at $0 API cost. The flow is: a premium model plans the change, Forge emits the edits, and **Fast Apply** applies them deterministically. Forge only escalates to a premium model when it cannot apply an edit, and a cost view shows how many runs were resolved locally versus escalated.
+  </Accordion>
+
+  <Accordion title="Issue" icon="list-check">
+    An issue is a trackable unit of work created from a request. Each issue has a status, priority, assignee, and parent/child links, and it can be grouped under an epic. An approval gate sits in front of any code change, so nothing touches your repo until you say so. Server-side deduplication keeps you from getting duplicate issues.
+  </Accordion>
+
+  <Accordion title="Knowledge base" icon="brain">
+    The knowledge base is a wiki-style brain for each workspace, with pages, wikilinks, and a graph view. It is auto-built from your repositories using BM25 lexical search plus local semantic search (embeddings and RAG), all running on-device with no cloud. Learnings from chat and issues can be written back into it.
+
+    {/* PRINT: Knowledge base graph view with linked pages */}
+  </Accordion>
+
+  <Accordion title="MCP" icon="puzzle-piece">
+    MCP stands for Model Context Protocol. Orkestral uses it to connect external tools and servers, such as GitHub integration or Playwright browser tools, so agents can act beyond your codebase. You configure MCP servers in settings.
+  </Accordion>
+
+  <Accordion title="Provider" icon="key">
+    A provider is the model vendor or backend that an adapter connects to. Providers split into premium ones that plan (for example Claude and Codex) and the local **Forge** that executes. You can connect multiple providers and route work between them.
+  </Accordion>
+
+  <Accordion title="Skill" icon="bullseye">
+    A skill is a reusable capability or focused instruction set that an agent applies to a task. Skills let an agent specialize its behavior for a particular kind of work without changing its core role.
+  </Accordion>
+
+  <Accordion title="Source" icon="folder">
+    A source is a repository or folder you add to a workspace. Sources give the agents the code and context they need to plan, execute, and review. A workspace can hold several sources.
+
+    {/* PRINT: Adding a source (repo or folder) to a workspace */}
+  </Accordion>
+
+  <Accordion title="Specialist" icon="users">
+    A specialist is a role-focused agent that does the hands-on work: Frontend, Backend, DevOps, QA, or Designer. Specialists report to the Tech Lead, break work down, execute, and review one another before reporting back in chat.
+  </Accordion>
+
+  <Accordion title="Tech Lead" icon="code-branch">
+    The Tech Lead is the specialist that coordinates the other specialists. It sits under the CEO and directs Frontend, Backend, DevOps, QA, and Designer agents to turn a plan into implemented, reviewed work.
+  </Accordion>
+
+  <Accordion title="Workspace" icon="folder-tree">
+    A workspace is the container that holds everything for a project: its sources, issues and epics, agents, chat history, and knowledge base. Each workspace has its own accent color, and switching workspaces switches the whole context the agents work in.
+  </Accordion>
+
+</AccordionGroup>
+
+## How premium and local roles divide
+
+A recurring distinction worth pinning down: premium models plan and the local model executes.
+
+<Tabs>
+  <Tab title="Premium (plan)">
+    Premium **providers** like Claude and Codex read the repo and decide what files to touch and what edits to make. They are reached through their **adapters** and CLIs. They cost API tokens, so Orkestral uses them for planning and only as a fallback when local execution cannot apply an edit.
+  </Tab>
+  <Tab title="Local (execute)">
+    **Forge** runs the edits on your machine and **Fast Apply** writes them deterministically. This is free and offline. Forge escalates to a premium model only once, as a fallback, when it genuinely cannot apply a change.
+  </Tab>
+</Tabs>
+
+<Tip>
+When you read chat or issue activity and see a handoff from planning to execution, that is the premium-to-Forge boundary described above. The cost view tells you how often work stayed local.
+</Tip>
+
+## What to do next
+
+<Steps>
+  <Step title="Create a workspace and add a source">
+    Set up a **workspace** and add at least one **source** so the agents have a codebase to read.
+  </Step>
+  <Step title="Talk to the CEO">
+    Open chat and describe what you want. The **CEO** plans and turns it into **issues** and **epics**.
+  </Step>
+  <Step title="Let Forge execute">
+    Approve the work and let **Forge** plus **Fast Apply** make the changes locally, escalating only when needed.
+  </Step>
+  <Step title="Explore the knowledge base">
+    Browse the auto-built **knowledge base** to see how your repos are mapped and linked.
+  </Step>
+</Steps>
+
+<Info>
+If a term in the app is not listed here, it usually maps to one of the entries above (for example a specific specialist role is a kind of **specialist**, and a particular tool server is reached over **MCP**).
+</Info>

@@ -1,0 +1,249 @@
+---
+title: "Registro de atividade"
+description: "Uma linha do tempo de tudo que o time fez."
+---
+
+O registro de atividade é a sua trilha de auditoria. Ele responde à pergunta que todo time acaba fazendo: o que aconteceu, quem fez e quando. O Orkestral registra o trabalho que seus agentes fazem (respostas de chat, execuções de issues, heartbeats, code reviews, execuções do Forge) e o apresenta em duas visões complementares: uma linha do tempo limpa em **Activity** e um terminal **Logs** ao vivo com filtros e métricas.
+
+<Info>
+Tudo aqui é lido do seu banco SQLite local em `~/.orkestral`. Nada é enviado para lugar algum. O registro de atividade é uma janela para dados que você já possui.
+</Info>
+
+## Duas visões, duas funções
+
+O Orkestral divide "o que aconteceu" em duas telas porque as perguntas são diferentes. Escolha a que combina com o que você está tentando descobrir.
+
+<CardGroup cols={2}>
+  <Card title="Activity" icon="clock">
+    Uma linha do tempo calma e legível dos eventos relevantes: issues criadas, agentes pausados ou retomados, skills anexadas, sessões iniciadas, heartbeats. Ideal para um resumo de alto nível do tipo "o que mudou hoje".
+  </Card>
+  <Card title="Logs" icon="square-terminal">
+    Um fluxo técnico ao vivo com filtros de origem, busca, métricas de economia, um painel por agente e cards detalhados de execução do Forge. Ideal para auditar uma execução específica ou acompanhar o trabalho em tempo real.
+  </Card>
+</CardGroup>
+
+## A linha do tempo Activity
+
+Abra **Activity** para ver os eventos mais recentes do seu workspace ativo, dos mais novos para os mais antigos. A lista se atualiza sozinha a cada 20 segundos, então você pode deixá-la aberta e ver ir preenchendo.
+
+{/* PRINT: a página Activity mostrando uma linha do tempo vertical de eventos recentes */}
+
+Cada linha traz um ícone, um título legível e uma pequena linha de metadados embaixo:
+
+<Steps>
+  <Step title="Ícone e cor">
+    O ícone indica o tipo de evento de relance. Verde para uma issue criada, azul para uma mudança de status, amarelo quando um agente é pausado, roxo para uma execução de heartbeat, vermelho quando um heartbeat falha.
+  </Step>
+  <Step title="Título">
+    Uma frase curta descrevendo o evento, por exemplo a issue que foi criada ou o agente que mudou de estado.
+  </Step>
+  <Step title="Linha de metadados">
+    Três pequenos fatos: o **ator** (quem ou o que disparou), o **tipo** bruto do evento (mostrado em monospace, como `issue.created`) e o **timestamp**.
+  </Step>
+</Steps>
+
+### Tipos de evento que você vai ver
+
+Estes são os tipos que a linha do tempo reconhece e para os quais dá um ícone dedicado. Qualquer coisa não reconhecida ainda aparece, com um ícone neutro de fallback.
+
+<AccordionGroup>
+  <Accordion title="Issues" icon="list-check">
+    `issue.created` quando uma nova issue chega, e `issue.status_changed` quando uma issue muda de estado (por exemplo de backlog para in progress).
+  </Accordion>
+  <Accordion title="Agentes" icon="robot">
+    `agent.created` quando você contrata um agente, `agent.paused` quando um é pausado, e `agent.resumed` quando ele é retomado.
+  </Accordion>
+  <Accordion title="Skills" icon="puzzle-piece">
+    `skill.attached` e `skill.detached` quando você muda quais skills um agente carrega.
+  </Accordion>
+  <Accordion title="Sessões" icon="comments">
+    `session.created` quando uma nova sessão de chat é aberta com um agente.
+  </Accordion>
+  <Accordion title="Heartbeats" icon="heart">
+    `heartbeat.run` para um heartbeat agendado ou manual, e `heartbeat.failed` quando um não é concluído.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+A linha do tempo Activity sempre fica restrita ao seu **workspace ativo**. Se você trocar de workspace, vê os eventos daquele workspace. Sem nenhum workspace ativo selecionado, a página pede que você escolha um.
+</Note>
+
+## O terminal Logs
+
+Abra **Logs** para a visão mais profunda e ao vivo. Um pequeno ponto verde pulsante no cabeçalho rotulado **Live** indica que o fluxo está conectado. Novas linhas chegam em tempo real conforme o trabalho acontece, e o terminal rola automaticamente enquanto você está no fim. Role para cima para ler o histórico e um botão **New lines** aparece para você voltar ao fim quando quiser.
+
+{/* PRINT: a página Logs com a faixa de economia, o painel de agentes e o terminal ao vivo */}
+
+A página Logs empilha vários painéis de cima para baixo.
+
+### Faixa de economia
+
+Quando o Forge local fez algum trabalho, uma faixa compacta resume quanto custo de modelo premium ele economizou:
+
+<CardGroup cols={2}>
+  <Card title="Resolvido localmente" icon="gauge">
+    Quantas execuções o modelo local incluído resolveu sem chamar uma API premium.
+  </Card>
+  <Card title="Premium evitado" icon="bolt">
+    Chamadas premium que foram puladas porque o modelo local teve sucesso.
+  </Card>
+  <Card title="Tokens economizados" icon="chart-line">
+    Estimativa de tokens de entrada mais saída que você não gastou.
+  </Card>
+  <Card title="Economia estimada" icon="circle-check">
+    Um valor aproximado em dólares, mostrado com um sinal `≈` porque é uma estimativa contra um preço premium de referência.
+  </Card>
+</CardGroup>
+
+A faixa também mostra quantas execuções **escalaram** para um modelo premium e, quando disponível, uma indicação da taxa de sucesso local.
+
+<Tip>
+O valor em dólares é uma estimativa "para você ter uma noção", não uma fatura. Ele multiplica os tokens evitados por um preço premium de referência, então trate-o como um indicador aproximado de valor, não como contabilidade exata.
+</Tip>
+
+### Diagnóstico
+
+Quando há execuções de issues, uma linha de diagnóstico mostra a saúde agregada: total de execuções, a porcentagem resolvida localmente e quantas falharam. Abaixo dela, achados heurísticos sinalizam execuções que parecem travadas, suspeitas ou com falha, codificadas por cor conforme a severidade (vermelho alta, amarelo média, esmaecido baixa). Se tudo parece saudável, ele diz isso. Esse painel se atualiza a cada 15 segundos e se esconde quando não há execuções.
+
+### Painel de agentes
+
+Uma fileira de chips de agentes mostra quem está no time e o que cada um está fazendo agora. O ponto de status reflete o estado: um agente com erro mostra vermelho, pausado mostra amarelo, ocupado pulsa na cor do agente, e ocioso fica esmaecido. Um contador no cabeçalho informa quantos agentes estão **trabalhando agora** ou que todos estão ociosos. "Ocupado" é derivado do fluxo ao vivo: o início de uma execução de issue marca o agente como ocupado, e um sucesso ou erro o marca como ocioso de novo.
+
+### O fluxo ao vivo
+
+O painel inferior é o terminal em si. Cada linha é densa, mas legível:
+
+<Steps>
+  <Step title="Timestamp">
+    Preciso até o milissegundo, para que você possa correlacionar eventos de forma exata.
+  </Step>
+  <Step title="Chip de origem">
+    Uma tag colorida em maiúsculas para a origem do evento (veja a tabela abaixo).
+  </Step>
+  <Step title="Contexto">
+    O nome do agente e, quando relevante, o número da issue (por exemplo `#42`).
+  </Step>
+  <Step title="Mensagem">
+    O texto do evento, opcionalmente prefixado com um escopo. A cor do texto codifica o nível: vermelho erro, amarelo aviso, verde sucesso, neutro info, esmaecido debug.
+  </Step>
+  <Step title="Duração">
+    Quando uma etapa é cronometrada, sua duração em milissegundos aparece no fim da linha.
+  </Step>
+</Steps>
+
+## Filtrar e buscar nos logs
+
+A barra de ferramentas do terminal é onde a auditoria fica rápida. Combine um filtro de origem com busca por texto livre para chegar exatamente ao que você precisa.
+
+### Filtrar por origem
+
+Clique em um chip de origem para mostrar apenas aquele tipo de evento. O padrão é **All**.
+
+| Filtro | Origem | O que cobre |
+| --- | --- | --- |
+| All | toda origem | o fluxo sem filtro |
+| Forge | `forge` | execuções do modelo local (veja a visão especial abaixo) |
+| Routing | `model-routing` | decisões sobre qual modelo tratou uma tarefa |
+| Learning | `learning` | atividade de base de conhecimento e aprendizado |
+| Embedding | `embedding` | trabalho de embedding e busca semântica |
+| Issues | `issue` | eventos do ciclo de vida de execução de issues |
+| Chat | `chat` | respostas de chat |
+| Review | `review` | atividade de code review |
+
+Há também uma origem `system` para eventos internos que aparece na visão **All**.
+
+### Buscar no texto
+
+Fora da visão Forge, uma caixa de busca filtra as linhas visíveis conforme você digita. Ela faz correspondência com a mensagem, o nome do agente e o escopo, então você pode buscar por uma frase, um agente ou uma subetapa. Um contador ao lado da caixa mostra quantas linhas estão visíveis do total atualmente em buffer (o terminal mantém em memória as 1500 entradas mais recentes).
+
+<Warning>
+A busca e o contador de linhas operam sobre o que está carregado no terminal, não sobre todo o seu histórico. O fluxo é limitado às 1500 entradas mais recentes, então eventos muito antigos saem do buffer ao vivo.
+</Warning>
+
+### A visão Forge é especial
+
+Selecione o filtro **Forge** e as linhas de log brutas são substituídas por cards de execução legíveis, um por execução local. Esta é a melhor forma de auditar mudanças de código que o modelo local fez.
+
+<AccordionGroup>
+  <Accordion title="Selo local ou premium" icon="sitemap">
+    Cada card é marcado como resolvido localmente ou escalado para um modelo premium, então você vê de relance onde o trabalho aconteceu.
+  </Accordion>
+  <Accordion title="Resultado da validação" icon="circle-check">
+    Um selo mostra se a validação passou, falhou ou foi pulada depois que a mudança foi aplicada.
+  </Accordion>
+  <Accordion title="Arquivos e resumo do diff" icon="code-branch">
+    Expanda um card para ver os arquivos tocados, um resumo do diff e (quando falhou) o motivo pelo qual a execução escalou.
+  </Accordion>
+  <Accordion title="Detalhes da execução" icon="gear">
+    O card expandido também lista o modo de execução, o nível de risco, o número de tentativas e os tokens evitados.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+A caixa de busca, o contador de linhas e o botão de limpar ficam ocultos na visão Forge, porque essa visão é uma lista curada de execuções, e não um fluxo de texto bruto.
+</Note>
+
+## Limpar o trace
+
+Na visão de log padrão, um ícone de lixeira na barra de ferramentas limpa o trace visível e esvazia o buffer. Use-o para começar uma gravação limpa antes de reproduzir um problema, para que as próximas linhas sejam as que importam. Limpar afeta o buffer ao vivo que você está acompanhando.
+
+## Como a atividade é montada
+
+Nos bastidores, a atividade de um agente é uma fusão de várias fontes de dados, normalizadas em uma única linha do tempo. É por isso que o registro de um único agente pode incluir tipos de trabalho bem diferentes em um só lugar.
+
+<CardGroup cols={2}>
+  <Card title="Execuções de chat" icon="comments">
+    Mensagens que o agente respondeu, vinculadas de volta à sua sessão.
+  </Card>
+  <Card title="Execuções de heartbeat" icon="heart">
+    Heartbeats agendados ou manuais, marcados como tal.
+  </Card>
+  <Card title="Code reviews" icon="magnifying-glass">
+    Reviews onde o agente foi o revisor, vinculados ao repositório e ao PR.
+  </Card>
+  <Card title="Execuções de issue" icon="list-check">
+    Execuções onde o agente (Forge ou premium) de fato fez o trabalho em uma issue.
+  </Card>
+</CardGroup>
+
+Cada fonte usa suas próprias palavras de status, então o Orkestral as mapeia para um vocabulário compartilhado: **running**, **done**, **error**, **cancelled** e **queued**. Essa normalização é o que permite que a linha do tempo, a taxa de sucesso e as contagens por tipo tratem cada fonte de forma consistente. As durações são calculadas a partir dos horários de início e fim, e os itens são ordenados dos mais novos para os mais antigos antes de serem retornados.
+
+<Info>
+Mapeamento de status em termos simples: um review marcado como `completed` e um heartbeat marcado como `succeeded` ambos viram **done**, enquanto uma execução `failed` de qualquer tipo vira **error**. Isso mantém a pergunta "funcionou?" respondível em todos os tipos de trabalho que um agente faz.
+</Info>
+
+## Use para auditar
+
+O registro de atividade brilha quando você precisa reconstruir o que aconteceu. Alguns padrões:
+
+<Steps>
+  <Step title="Resumir o dia">
+    Abra **Activity** e passe o olho dos mais novos para os mais antigos. Os ícones e títulos dão uma narrativa rápida de issues, mudanças de estado de agentes e heartbeats sem nenhum ruído.
+  </Step>
+  <Step title="Investigar uma falha">
+    Abra **Logs**, confira a linha de diagnóstico em busca de execuções com falha, então filtre para a origem relevante (ou **Forge**) e leia as linhas vermelhas ou o motivo da falha no card de execução.
+  </Step>
+  <Step title="Verificar uma mudança de código">
+    Filtre para **Forge**, encontre a execução e expanda-a para confirmar quais arquivos mudaram, se a validação passou e quantas tentativas foram necessárias.
+  </Step>
+  <Step title="Confirmar a economia de custo">
+    Leia a faixa de economia para ver quanto trabalho ficou local e aproximadamente quanto gasto premium você evitou.
+  </Step>
+</Steps>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Executar uma issue" icon="list-check" href="/pt/issues">
+    Inicie o trabalho para haver atividade a acompanhar, depois siga-o ao vivo no terminal Logs.
+  </Card>
+  <Card title="Conheça o time" icon="users" href="/pt/agents">
+    Veja quais agentes você contratou e o que cada especialista faz.
+  </Card>
+  <Card title="Entenda o Forge" icon="bolt" href="/pt/forge">
+    Aprenda como o modelo local executa mudanças a custo zero de API.
+  </Card>
+  <Card title="Heartbeats" icon="heart" href="/pt/heartbeats">
+    Configure execuções recorrentes de agentes que aparecem na sua linha do tempo.
+  </Card>
+</CardGroup>

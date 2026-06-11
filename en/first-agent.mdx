@@ -1,0 +1,162 @@
+---
+title: "Hire your first agent"
+description: "Ask the CEO to assemble a team and approve your first agents."
+---
+
+In Orkestral you do not configure agents one box at a time. You ask the **CEO** orchestrator to read your workspace and propose a whole team for you. The CEO plans the roles, picks which model each agent should run on, and shows you a hiring plan you can approve in one click. This page walks you through that flow end to end.
+
+<Note>
+Hiring happens inside chat with the CEO. The CEO never creates agents silently. It proposes, and nothing is created until you approve.
+</Note>
+
+## How hiring works
+
+When you talk to the CEO about your project, it can respond with a **hiring plan**: a short summary plus a list of proposed agents. Each proposed agent carries a role (Tech Lead, Code Reviewer, Frontend, Backend, and so on) and a model choice. You review the plan, then click **Approve and create** or **Skip for now**.
+
+<CardGroup cols={2}>
+  <Card title="You ask, the CEO plans" icon="brain">
+    The CEO reads your sources and proposes the roles your project actually needs, not a fixed template.
+  </Card>
+  <Card title="You approve, agents appear" icon="circle-check">
+    On approval, Orkestral creates the agents, wires up who reports to whom, and they show up on the Agents page.
+  </Card>
+</CardGroup>
+
+### Premium plans, Forge executes
+
+Every proposed agent runs on one of two models, shown as a badge in the plan:
+
+<CardGroup cols={2}>
+  <Card title="PREMIUM" icon="brain">
+    The CEO's own premium model (for example Claude). Used for roles that need real reasoning and judgement: leads, architects, reviewers, product and planning roles.
+  </Card>
+  <Card title="FORGE" icon="bolt">
+    The bundled local model (Orkestral Forge, Qwen2.5-Coder). Used for executor roles (Frontend, Backend, DevOps, QA). It runs on your machine at `$0` API cost.
+  </Card>
+</CardGroup>
+
+<Info>
+The default is decided by role: reviewers, leads, architects, managers, product and planner roles default to **premium**, and executors default to local **Forge**. The CEO can override the default per agent when it proposes the plan. If the local model is not configured yet, a Forge executor falls back to the premium model at run time, so approving a Forge agent is always safe.
+</Info>
+
+## Step by step
+
+<Steps>
+  <Step title="Open chat with the CEO">
+    From your workspace, open the CEO chat. The CEO is your orchestrator agent and the one that proposes teams. Tell it about your project: what you are building, the stack, and what you want to get done.
+
+    {/* PRINT: CEO chat with a project description typed in */}
+  </Step>
+  <Step title="Ask it to assemble a team">
+    Ask plainly, for example: "Read my repos and propose a team for this project." The CEO inspects your sources and replies with a hiring plan card instead of plain prose.
+
+    <Tip>
+    Mention your goals (ship a feature, harden tests, set up CI) so the proposed roles match the work. The CEO tailors the team to what it sees, so more context means a sharper plan.
+    </Tip>
+  </Step>
+  <Step title="Review the proposed team">
+    The hiring plan card shows a short summary, a suggested decision, and one row per proposed agent. Each row shows the agent **name**, its **title**, and a **PREMIUM** or **FORGE** badge so you know what runs locally before you approve.
+
+    {/* PRINT: hiring plan card listing proposed agents with PREMIUM and FORGE badges */}
+  </Step>
+  <Step title="Approve or skip">
+    Click **Approve and create** to hire the team, or **Skip for now** to dismiss the plan without creating anything. While agents are being created, the button shows a spinner. When it finishes, the card shows how many agents were created.
+
+    {/* PRINT: hiring plan card after approval showing the success badge */}
+  </Step>
+  <Step title="Find your new agents">
+    Open the **Agents** page to see every agent as a card. Each card opens a detail page where you can review and adjust the agent. Your CEO appears first, then the rest of the team.
+
+    {/* PRINT: Agents page grid with the newly hired team */}
+  </Step>
+</Steps>
+
+## The roles the CEO proposes
+
+The CEO proposes the specialists your project needs, and Orkestral always ensures a small **core squad** exists after you approve a plan. The core squad fills in essential roles so your team is never missing leadership or review.
+
+<AccordionGroup>
+  <Accordion title="Tech Lead" icon="sitemap">
+    Always part of the core squad and runs on the premium model. Owns architecture, cross-repo technical decisions, contracts, and coordinates the specialists. Reports to the CEO. Other specialists often report to the Tech Lead.
+  </Accordion>
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    Always part of the core squad and runs on the premium model. Reviews the project as a whole system: contracts between repos, security, cost, performance, tests, regressions, and architectural fit. Reports to the CEO.
+  </Accordion>
+  <Accordion title="QA" icon="list-check">
+    Added when your workspace has frontend, backend, mobile, or infra sources. Owns smoke tests, regression checks, UI verification, and API validation. Runs on Forge by default and reports to the Tech Lead.
+  </Accordion>
+  <Accordion title="Designer" icon="puzzle-piece">
+    Added when your workspace has frontend or mobile sources. Owns the design system, UX consistency, accessibility, and visual quality. Runs on Forge by default and reports to the Tech Lead.
+  </Accordion>
+  <Accordion title="Specialists (Frontend, Backend, DevOps)" icon="users">
+    Proposed based on what the CEO sees in your repos. These are executor roles: they make code changes. They run on local Forge by default and can be switched to premium later.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+The exact list depends on your sources. A frontend-only workspace will not get a Backend agent, and a workspace with no UI sources will not get a Designer. The CEO and the core squad logic fit the team to your project.
+</Note>
+
+## What happens when you approve
+
+Approving the plan does more than create rows. Orkestral wires the team together so it is ready to work.
+
+<CardGroup cols={2}>
+  <Card title="Agents created" icon="robot">
+    Each proposed agent is created with its role, title, model, and capabilities. Executors get permission to edit files and run commands so they can do real work.
+  </Card>
+  <Card title="Reporting set up" icon="sitemap">
+    Each agent is linked to a manager. By default that is the CEO, or the agent the plan named as its boss (often the Tech Lead).
+  </Card>
+  <Card title="Core squad ensured" icon="shield">
+    Tech Lead and Code Reviewer are guaranteed, plus QA and Designer when your sources call for them, even if the plan did not list them.
+  </Card>
+  <Card title="No duplicates" icon="circle-check">
+    If an agent with the same name or role already exists, it is skipped. Re-approving a plan will not create a second Backend agent.
+  </Card>
+</CardGroup>
+
+<Warning>
+If you skip a plan, nothing is created. You can ask the CEO to propose again at any time. A plan that adds only one new role (say, just a Frontend agent) stays actionable even after an earlier team was hired, so you can grow the team in steps.
+</Warning>
+
+## Where agents appear afterwards
+
+Once hired, your agents live in a few places across the app.
+
+<Tabs>
+  <Tab title="Agents page">
+    The **Agents** page lists every agent as a card, with the CEO first. Click a card to open its detail page, where you can review its role, model, capabilities, and remove it if needed. Use **New agent** here to add one manually.
+  </Tab>
+  <Tab title="Org chart">
+    The **Org** view shows the reporting hierarchy: who reports to the CEO, who reports to the Tech Lead, and so on. It is the fastest way to see the shape of your team.
+  </Tab>
+  <Tab title="Across the app">
+    Hired agents become assignable everywhere work happens: issues, goals, code reviews, and chat. When you assign a task, you pick from this team.
+  </Tab>
+</Tabs>
+
+## Add an agent manually
+
+You do not have to go through the CEO. On the **Agents** page, click **New agent** to open the agent dialog and create one yourself, choosing its role, model, and permissions. This is useful when you want a very specific specialist that the CEO did not propose.
+
+<Tip>
+For most projects, let the CEO propose the team first. It picks sensible roles and models, then you fine tune from the Agents page. Manual creation is the exception, not the starting point.
+</Tip>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Assign your first task" icon="inbox" href="/en/first-task">
+    Hand work to your new team and watch the agents plan and execute it.
+  </Card>
+  <Card title="Understand the org chart" icon="sitemap" href="/en/org-chart">
+    See how reporting and delegation work across your team.
+  </Card>
+  <Card title="Tune an agent" icon="gear" href="/en/agents">
+    Open an agent's detail page to adjust its model, role, and permissions.
+  </Card>
+  <Card title="Learn about the Forge" icon="bolt" href="/en/forge">
+    See how the local model executes code changes at zero API cost.
+  </Card>
+</CardGroup>
