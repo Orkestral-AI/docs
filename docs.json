@@ -13,11 +13,14 @@
   "background": {
     "decoration": "gradient",
     "color": {
-      "light": "#ffffff",
+      "light": "#f6f4fb",
       "dark": "#07060c"
     }
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
   "navigation": {
     "languages": [
       {
@@ -27,6 +30,11 @@
             "group": "Get started",
             "icon": "rocket",
             "pages": ["en/introduction", "en/installation", "en/quickstart"]
+          },
+          {
+            "group": "Concepts",
+            "icon": "lightbulb",
+            "pages": ["en/agents", "en/forge"]
           }
         ]
       },
@@ -37,6 +45,11 @@
             "group": "Começar",
             "icon": "rocket",
             "pages": ["pt/introduction", "pt/installation", "pt/quickstart"]
+          },
+          {
+            "group": "Conceitos",
+            "icon": "lightbulb",
+            "pages": ["pt/agents", "pt/forge"]
           }
         ]
       }

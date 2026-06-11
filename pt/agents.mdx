@@ -1,0 +1,86 @@
+---
+title: "O time de agentes"
+description: "Como o CEO, Tech Lead, Code Reviewer e especialistas trabalham juntos."
+---
+
+No Orkestral você não fala com um único assistente — você **dirige um time**. Cada
+agente tem um papel, um lugar na hierarquia e pega o contexto compartilhado do seu
+workspace.
+
+## A hierarquia
+
+<Frame>
+```
+                 VOCÊ
+                  │  linguagem natural
+                  ▼
+            ┌────────────┐
+            │    CEO      │  lê repos, planeja, delega
+            └─────┬───────┘
+        ┌─────────┼──────────┐
+        ▼         ▼          ▼
+   ┌─────────┐ ┌──────────┐ ┌────────────┐
+   │Tech Lead│ │  Code     │ │Especialistas│ Frontend,
+   └────┬────┘ │ Reviewer  │ └────────────┘  Backend, DevOps…
+        │      └──────────┘
+        ▼
+  Issues · Mudanças de código · Reviews · Base de conhecimento
+```
+</Frame>
+
+- **Você** fala com o CEO em linguagem simples.
+- O **CEO** reporta pra você — lê os repositórios, planeja e delega.
+- O **Tech Lead** e o **Code Reviewer** reportam pro CEO.
+- Os **especialistas** (Frontend, Backend, DevOps, QA, Designer…) reportam pro Tech Lead.
+
+Todo pedido relevante vira **issues** — o produto é trabalho rastreável, não chat
+descartável.
+
+## Papéis
+
+<AccordionGroup>
+  <Accordion title="CEO (orquestrador)" icon="crown">
+    Seu ponto único de contato. Lê o projeto, identifica a stack, quebra os pedidos
+    em issues e delega pras pessoas certas. Também pode propor e "contratar" um time
+    inicial.
+  </Accordion>
+  <Accordion title="Tech Lead" icon="user-gear">
+    Coordena os especialistas, sequencia o trabalho e mantém a direção técnica
+    consistente.
+  </Accordion>
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    Revisa as mudanças de código com rigor sênior — achados estruturados e um
+    veredicto (aprovado / requer mudanças) que volta pra você no chat.
+  </Accordion>
+  <Accordion title="Especialistas" icon="users">
+    Frontend, Backend, DevOps, QA, Designer e mais — executam o trabalho de verdade
+    na sua área.
+  </Accordion>
+</AccordionGroup>
+
+## Contratando um time
+
+Peça ao CEO pra montar um time e ele propõe um time inicial com a estrutura de
+reporte adequada. Você aprova, e os agentes são criados no seu workspace.
+
+{/* PRINT: tela de contratação / time montado */}
+
+## Direcionando com @menções
+
+Mencione um agente com `@` pra enviar um turno **direto** pra ele. O agente pega o
+contexto do chat e faz o trabalho ele mesmo — sem delegação extra.
+
+```text
+@Code Reviewer revisa as mudanças de auth nesse PR
+```
+
+<Tip>
+  Use `@` quando você sabe exatamente quem deve cuidar de algo. Deixe pro CEO quando
+  quer que seja planejado e delegado por você.
+</Tip>
+
+## O loop fica fechado
+
+Quando um especialista termina, o trabalho volta: mudanças que mexem em código são
+direcionadas pro **Code Reviewer**, e o veredicto volta pro seu chat — então nada
+fica "pronto mas não validado".
