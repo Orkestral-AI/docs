@@ -1,34 +1,23 @@
-/* Orkestral docs — sidebar/base cinza (vem da cor global #131318 do docs.json),
-   conteúdo cinza-escuro com estrelas, code blocks shadcn e scrollbar sutil.
+/* Orkestral docs — conteúdo cinza quase preto (liso) + sidebar cinza escuro + scrollbar sutil.
    O Mintlify carrega este arquivo automaticamente (convenção style.css). */
 
-/* ----- Conteúdo: cinza-escuro (mais escuro que a sidebar) + campo de estrelas ----- */
+/* ----- Conteúdo: cinza quase preto, liso (sem estrelas) ----- */
 html.dark #content-area,
 html.dark #content-container {
   background-color: #08080b !important;
-  background-image:
-    radial-gradient(1px 1px at 25px 35px, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, 0.42), transparent),
-    radial-gradient(1.5px 1.5px at 60px 150px, rgba(206, 198, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 175px 55px, rgba(255, 255, 255, 0.38), transparent),
-    radial-gradient(1px 1px at 90px 195px, rgba(255, 255, 255, 0.34), transparent),
-    radial-gradient(1.5px 1.5px at 30px 110px, rgba(220, 220, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.42), transparent);
-  background-size: 240px 240px;
-  background-repeat: repeat;
-  background-attachment: fixed;
+  background-image: none !important;
 }
 
 /* ----- Borda sutil entre sidebar e conteúdo ----- */
 html.dark #sidebar {
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* ----- Code blocks estilo shadcn (borda sutil + cantos) ----- */
 html.dark pre,
 html.dark .prose pre {
-  background-color: #07070a !important;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background-color: #050507 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px !important;
 }
 
