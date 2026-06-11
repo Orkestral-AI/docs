@@ -1,0 +1,146 @@
+---
+title: "Adapter Cursor"
+description: "Use o Cursor como provedor em nuvem dos agentes."
+---
+
+O adapter Cursor permite que seus agentes planejem e raciocinem por meio dos **agentes em segundo plano do Cursor Cloud**. Ele é um cliente em nuvem: em vez de rodar um modelo na sua máquina, ele aponta o Cursor para um repositório Git e pede que os agentes hospedados do Cursor trabalhem nele. Você se autentica com uma chave de API do Cursor e uma URL de repositório.
+
+Adapters são os provedores que dão suporte aos agentes no Orkestral. O adapter Cursor é um dos provedores em nuvem (ao lado de Claude Code, Codex e Gemini), enquanto o **Forge** embutido roda localmente com custo de API de $0. Quando você atribui o adapter Cursor a um agente, o trabalho de planejamento desse agente é delegado ao Cursor Cloud.
+
+<Note>
+A execução no Cursor Cloud depende do SDK proprietário do Cursor (`@cursor/sdk`), que hoje não está embutido no Orkestral. O adapter valida sua configuração de verdade, mas **executar** um agente em segundo plano ainda não está disponível. Veja [Capacidades e limites](#capabilities-and-limits).
+</Note>
+
+## O que é
+
+O adapter Cursor encapsula os agentes em segundo plano do Cursor Cloud. Um agente em segundo plano roda no servidor contra um repositório Git que você especifica (`repoUrl`). O lado Orkestral da integração faz duas coisas:
+
+- Ele **valida** sua configuração (URL do repositório mais a chave de API) antes de qualquer trabalho começar.
+- Ele entrega o trabalho ao Cursor Cloud por meio do protocolo do SDK proprietário (`Agent.create`, `Agent.send`, streaming) quando esse SDK está presente.
+
+Como o Cursor Cloud não tem uma API HTTP pública e estável que o Orkestral possa replicar sem o SDK, o adapter é deliberadamente honesto: ele nunca simula sucesso. Se o SDK estiver ausente, a execução retorna um erro preciso e acionável em vez de um resultado falso.
+
+## Requisitos
+
+- Uma **conta Cursor** com acesso aos agentes em segundo plano do Cursor Cloud.
+- Uma **chave de API do Cursor** (`CURSOR_API_KEY`). Você gera isso nas configurações da sua conta Cursor.
+- Uma **URL de repositório Git** que o agente do Cursor possa acessar. Use uma URL `https://` (ou `http://`) ou uma URL SSH `git@`. A URL precisa corresponder a esse formato, caso contrário a validação falha.
+- Acesso de rede da sua máquina ao Cursor Cloud.
+
+<Warning>
+Sua chave de API é um segredo. Armazene-a por meio da configuração do adapter (ou do cofre de segredos do Orkestral), nunca em código aberto ou arquivos versionados.
+</Warning>
+
+## Como configurar
+
+<Steps>
+  <Step title="Obtenha sua chave de API do Cursor">
+    Faça login na sua conta Cursor e crie uma chave de API. Copie o valor (ele é mostrado apenas uma vez).
+
+    {/* PRINT: configurações da conta Cursor mostrando o campo da chave de API */}
+  </Step>
+  <Step title="Adicione o adapter Cursor no Orkestral">
+    Abra **Configurações**, vá até a seção de adapters ou provedores e adicione o adapter **Cursor**. É aqui que você informa a URL do repositório e a chave de API.
+
+    {/* PRINT: lista de adapters do Orkestral com Cursor selecionado */}
+  </Step>
+  <Step title="Defina a URL do repositório">
+    Forneça `repoUrl` para o adapter, ou defina-a no nível do workspace para que o adapter a herde. O adapter prefere o valor definido diretamente no adapter e, em seguida, recorre à URL de repositório do workspace.
+  </Step>
+  <Step title="Forneça a chave de API">
+    Adicione `CURSOR_API_KEY` ao adapter. Você pode fornecê-la diretamente no campo `apiKey` do adapter, ou em `env` do adapter como `CURSOR_API_KEY`. Ambos são aceitos.
+  </Step>
+  <Step title="Opcionalmente fixe um modelo">
+    Defina `model` se quiser direcionar um modelo específico do Cursor. Deixar em branco permite que o Cursor escolha.
+  </Step>
+  <Step title="Atribua o adapter a um agente">
+    Ao contratar ou editar um agente, escolha o adapter Cursor como seu provedor para que o planejamento desse agente seja executado pelo Cursor Cloud.
+
+    {/* PRINT: painel de edição de agente com Cursor escolhido como provedor */}
+  </Step>
+</Steps>
+
+## Opções de configuração
+
+O adapter lê sua configuração de `adapterConfig`. A URL de repositório do workspace é usada como fallback apenas para `repoUrl`.
+
+<ParamField path="repoUrl" type="string" required>
+  O repositório Git contra o qual o agente do Cursor trabalha. Precisa ser uma URL `http(s)://` ou uma URL SSH `git@`. Se não estiver definida no adapter, a URL de repositório do workspace é usada no lugar. A validação falha quando nenhuma das duas está presente.
+</ParamField>
+
+<ParamField path="apiKey" type="string">
+  Sua `CURSOR_API_KEY`. Verificada primeiro. Se estiver vazia, o adapter procura em `env`.
+</ParamField>
+
+<ParamField path="env.CURSOR_API_KEY" type="string | object">
+  Local alternativo para a chave de API. Você pode fornecê-la como uma string simples, ou como um objeto no formato `{ "type": "plain", "value": "<key>" }`. O adapter resolve qualquer um dos formatos para o valor da chave subjacente.
+</ParamField>
+
+<ParamField path="model" type="string">
+  Opcional. O modelo do Cursor a ser direcionado. Deixe em branco para que o Cursor decida. Esse valor é validado e repassado, mas não é obrigatório para que a configuração seja válida.
+</ParamField>
+
+### Como a chave é resolvida
+
+O adapter resolve `CURSOR_API_KEY` nesta ordem:
+
+| Ordem | Origem | Formatos aceitos |
+| --- | --- | --- |
+| 1 | `apiKey` | string não vazia |
+| 2 | `env.CURSOR_API_KEY` | string não vazia |
+| 3 | `env.CURSOR_API_KEY` | objeto `{ type: "plain", value: "<key>" }` |
+
+Strings vazias e valores compostos apenas por espaços em branco são tratados como ausentes.
+
+## Capacidades e limites
+
+<CardGroup cols={2}>
+  <Card title="Validação de configuração" icon="circle-check">
+    O adapter valida completamente `repoUrl` e a chave de API antes de qualquer execução, e exibe uma mensagem clara se algo estiver ausente ou malformado.
+  </Card>
+  <Card title="Execução honesta" icon="shield-check">
+    O adapter nunca simula uma execução bem-sucedida. Se não conseguir executar, ele retorna um código de erro e uma mensagem precisos.
+  </Card>
+  <Card title="Agentes com escopo de repositório" icon="git-branch">
+    Os agentes do Cursor Cloud trabalham contra o repositório Git para o qual você os aponta, não diretamente contra sua árvore de trabalho local.
+  </Card>
+  <Card title="Execução pendente de SDK" icon="hourglass">
+    Executar um agente em segundo plano requer o `@cursor/sdk` proprietário, que hoje não está embutido. A execução está bloqueada até que esse SDK seja integrado.
+  </Card>
+</CardGroup>
+
+Quando você dispara uma execução do Cursor Cloud hoje, o adapter:
+
+1. Valida a configuração.
+2. Se válida, escreve uma linha de diagnóstico no log do agente explicando que o `@cursor/sdk` é necessário.
+3. Retorna um resultado de falha com o código de erro `cursor_cloud_sdk_required`.
+
+Isso significa que você pode configurar e verificar o adapter de ponta a ponta agora, e a execução funcionará assim que o SDK for conectado (espelhando o fluxo `Agent.create` / `Agent.send` mais streaming do Cursor).
+
+<Info>
+Para execução local de custo zero que funciona hoje, use o **Forge** embutido. Veja [o adapter Forge](/pt/adapter-forge) e [a visão geral dos adapters](/pt/adapters).
+</Info>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Erro: configure repoUrl (config inválida)">
+    Nenhuma URL de repositório foi encontrada. Defina `repoUrl` no adapter Cursor, ou defina uma URL de repositório no workspace para que o adapter possa herdá-la. Código de erro: `cursor_cloud_config_invalid`.
+  </Accordion>
+  <Accordion title="Erro: repoUrl precisa ser uma URL http(s) ou SSH git">
+    O valor que você forneceu não corresponde ao formato esperado. Use uma URL que comece com `http://`, `https://` ou `git@`. Um caminho simples ou um estilo `ssh://` que não comece com `git@` não passará na validação.
+  </Accordion>
+  <Accordion title="Erro: CURSOR_API_KEY é obrigatória">
+    Nenhuma chave de API utilizável foi encontrada. Forneça-a como o `apiKey` do adapter, ou em `env` como `CURSOR_API_KEY` (string simples ou `{ type: "plain", value: "<key>" }`). Confirme que o valor não está vazio nem composto apenas por espaços em branco. Código de erro: `cursor_cloud_config_invalid`.
+  </Accordion>
+  <Accordion title="Execução falha com cursor_cloud_sdk_required">
+    Sua configuração é válida, mas a execução não pode prosseguir porque o `@cursor/sdk` proprietário não está instalado nesta build. Não há fallback HTTP público para a execução do Cursor Cloud. Use o adapter **Forge** local para execução hoje, e fique atento a um lançamento futuro que embuta o SDK do Cursor.
+  </Accordion>
+  <Accordion title="O formato de objeto da chave não é aceito">
+    Ao passar a chave como objeto em `env.CURSOR_API_KEY`, ele precisa ser exatamente `{ "type": "plain", "value": "<key>" }`. Outros formatos de objeto não são resolvidos e são tratados como chave ausente.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Defina a URL do repositório uma única vez no nível do workspace se todos os seus agentes do Cursor apontarem para o mesmo repo. O `repoUrl` no nível do adapter ainda o sobrescreve quando você precisa de um repositório diferente para um agente específico.
+</Tip>

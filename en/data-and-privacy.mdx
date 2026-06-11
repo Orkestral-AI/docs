@@ -1,0 +1,181 @@
+---
+title: "Data and privacy"
+description: "Everything stays on your machine. Export or clear it anytime."
+---
+
+Orkestral is local-first by design. Your workspaces, agents, chats, issues, knowledge base, and downloaded models all live on your own computer, inside a single folder in your home directory. There is no Orkestral account, no cloud sync, and no telemetry. You stay in control of your data, and you can inspect, export, or delete it whenever you want.
+
+<Note>
+The only network calls Orkestral makes are the ones you ask for: premium model API requests (when you wire up a provider key) and on-demand downloads of the bundled local model and voice packs. Your code, prompts, and project data are not collected by Orkestral.
+</Note>
+
+## Where your data lives
+
+Everything is stored under a single root folder: `~/.orkestral` (your home directory plus `.orkestral`). The app creates this folder on first run and keeps every kind of data underneath it.
+
+<CardGroup cols={2}>
+  <Card title="SQLite database" icon="database">
+    The main store is a single SQLite file at `~/.orkestral/instances/default/db/orkestral.db`. It holds workspaces, agents, chat sessions and messages, issues and epics, the knowledge base, and trace events.
+  </Card>
+  <Card title="Attachments" icon="paperclip">
+    Files you upload to comments and decisions are copied into `~/.orkestral/instances/default/attachments` so they travel with your local data.
+  </Card>
+  <Card title="Workspace artifacts" icon="folder-tree">
+    Per-workspace files and artifacts live under `~/.orkestral/workspaces/<workspaceId>/`.
+  </Card>
+  <Card title="Local models" icon="microchip">
+    The bundled Forge model (Qwen2.5-Coder) and any voice packs download on demand into `~/.orkestral/instances/default/models` and `.../voice`.
+  </Card>
+</CardGroup>
+
+<Info>
+The database runs in WAL mode for speed and safety. You may see `orkestral.db-wal` and `orkestral.db-shm` files next to the main `.db` file. That is normal SQLite behavior, not a duplicate copy of your data.
+</Info>
+
+## No telemetry, no account
+
+Orkestral does not ship analytics, crash reporting, or usage tracking. There is no sign-up and no background sync. The app works fully offline for everything except three explicit, user-driven actions:
+
+<AccordionGroup>
+  <Accordion title="Premium model planning calls" icon="brain">
+    When a premium model plans or delegates work, Orkestral calls the model provider you configured with your own API key. That request goes directly to the provider, not through Orkestral servers. Your code and project data leave your machine only as part of the prompt you chose to send.
+  </Accordion>
+  <Accordion title="Local model download" icon="download">
+    The Forge runs locally and executes code changes at zero API cost, but the model weights download once on demand into `~/.orkestral`. After that, the Forge runs offline.
+  </Accordion>
+  <Accordion title="Voice packs" icon="microphone">
+    Optional voice runtimes and models download on demand into the local `voice` folder. They are never uploaded anywhere.
+  </Accordion>
+</AccordionGroup>
+
+## Manage your data
+
+Open **Settings** and go to the **Data** panel. From there you can review what is stored, export a snapshot, open the data folder, clear the cache, and run cleanup. The panel scopes most counts to one workspace, which you pick at the top.
+
+{/* PRINT: the Data settings panel showing the storage hero, per-workspace counts, and maintenance actions */}
+
+<Steps>
+  <Step title="Open the Data panel">
+    Go to **Settings** then **Data**. At the top you see a storage hero with the total database size and the exact path to your `orkestral.db` file.
+  </Step>
+  <Step title="Pick a workspace to inspect">
+    Use the **workspace picker** at the top of the panel. Counts for agents, chat sessions, messages, and issues update for that workspace. The knowledge base section shows pages, chunks, embeddings, and trace events.
+
+    <Tip>
+    Switching the workspace here only changes what you are inspecting. It does not change your active workspace in the rest of the app.
+    </Tip>
+  </Step>
+  <Step title="Review the storage numbers">
+    The tiles give you a quick read on how much each workspace holds. The database size in the hero reflects the whole `.db` file across all workspaces.
+  </Step>
+</Steps>
+
+## Export your data
+
+The export writes a single JSON snapshot of your core data to a folder you choose. Use it for backups, migrating to another machine, or simply keeping a copy you own.
+
+<Steps>
+  <Step title="Click Export to JSON">
+    In the **Maintenance** section of the Data panel, click **Export to JSON**.
+  </Step>
+  <Step title="Choose a destination folder">
+    A native folder picker opens. Pick any directory, or create a new one. If you cancel, nothing is written.
+  </Step>
+  <Step title="Find the file">
+    Orkestral writes a file named `orkestral-export-<date>.json` into the folder you chose. A toast confirms success and shows the total record count and the file path.
+  </Step>
+</Steps>
+
+The snapshot is a readable JSON document that includes:
+
+<CardGroup cols={2}>
+  <Card title="Workspaces and agents" icon="users" />
+  <Card title="Chat sessions and messages" icon="comments" />
+  <Card title="Issues and epics" icon="circle-dot" />
+  <Card title="Knowledge base pages" icon="file-lines" />
+</CardGroup>
+
+<Note>
+The export captures all workspaces, not just the one you are inspecting. It also records the export timestamp and the app version, so you always know when and from where a snapshot came.
+</Note>
+
+<Warning>
+The JSON export is a portable backup of your primary records. It does not include downloaded model weights, voice packs, raw embedding vectors, or uploaded attachment binaries. Keep the export somewhere safe: it is plain text and may contain prompts and project content.
+</Warning>
+
+## Open the data folder
+
+Want to back up everything yourself, or just see what is on disk? Click **Open folder** in the **Maintenance** section. Orkestral opens `~/.orkestral/instances/default` in your operating system file manager.
+
+<Tip>
+For a complete manual backup, quit Orkestral first, then copy the whole `~/.orkestral` folder. Copying while the app is running can capture the database mid-write.
+</Tip>
+
+## Clear the cache
+
+The **Clear cache** action clears the app window network and session cache only. It does not touch your database, your files, or your models. Use it if the in-app UI behaves oddly or you want to free a small amount of disk used by web caching.
+
+<Warning>
+Clearing the cache is safe and non-destructive for your data. It never deletes workspaces, chats, issues, or knowledge base content.
+</Warning>
+
+## Run cleanup to reclaim space
+
+Over time the knowledge base can accumulate items you no longer need. Cleanup proposes a list of safe deletions for the selected workspace, shows how many items and roughly how many bytes each one frees, and only acts after you confirm.
+
+<Steps>
+  <Step title="Review the suggestions">
+    In the **Cleanup** field, Orkestral lists suggestions for the selected workspace. Each card shows a title, a short summary, the item count, and an estimated size.
+  </Step>
+  <Step title="Click the cleanup button">
+    If there is anything to clean, the button is enabled. Click it to reveal an inline confirmation prompt.
+  </Step>
+  <Step title="Confirm the deletion">
+    Click **Confirm** in the red confirmation bar. Orkestral applies every listed suggestion in a single transaction, then reports how many rows it removed and the estimated space reclaimed.
+  </Step>
+</Steps>
+
+Cleanup targets a few well-defined categories. None of them touch pinned pages.
+
+<AccordionGroup>
+  <Accordion title="Orphaned knowledge artifacts" icon="link-slash">
+    Chunks, token index entries, embedding items, and embeddings whose parent page no longer exists. Pure leftovers from deleted content.
+  </Accordion>
+  <Accordion title="Archived knowledge pages" icon="box-archive">
+    Pages you archived that have not been touched recently and are not pinned. The default window is older than 30 days.
+  </Accordion>
+  <Accordion title="Stale auto-generated knowledge" icon="robot">
+    Unpinned auto-generated and agent-memory pages that have not been used recently. The default window is older than 14 days, and pages used recently are kept.
+  </Accordion>
+  <Accordion title="Duplicate pages" icon="copy">
+    Pages that duplicate another by title (or by content, depending on the suggestion). Orkestral keeps the newest copy and removes the rest. Pinned and archived pages are left alone.
+  </Accordion>
+  <Accordion title="Stale embeddings" icon="vector-square">
+    Embeddings that point at missing items or that are older than the page or item they describe, so search stays accurate without dead vectors.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+After cleanup, Orkestral checkpoints the database WAL and optimizes it, so the on-disk size shrinks and your stats refresh automatically.
+</Note>
+
+<Warning>
+Cleanup permanently deletes the items it lists. It is scoped to the workspace you selected and never removes pinned pages, but there is no undo. Export a snapshot first if you want a safety copy.
+</Warning>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Knowledge base" icon="book" href="/en/knowledge-base">
+    Learn how pages, chunks, and embeddings are created so you understand what cleanup is acting on.
+  </Card>
+  <Card title="Models and the Forge" icon="microchip" href="/en/models">
+    See how the local Forge model and premium planning models are configured and stored.
+  </Card>
+  <Card title="Settings" icon="gear" href="/en/settings">
+    Explore the rest of the Settings panels, including the Data panel covered here.
+  </Card>
+  <Card title="Getting started" icon="rocket" href="/en/getting-started">
+    New to Orkestral? Start with the basics of workspaces and agents.
+  </Card>
+</CardGroup>

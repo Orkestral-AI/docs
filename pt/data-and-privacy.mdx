@@ -1,0 +1,181 @@
+---
+title: "Dados e privacidade"
+description: "Tudo fica na sua máquina. Exporte ou limpe quando quiser."
+---
+
+O Orkestral é local-first por design. Seus workspaces, agentes, chats, issues, base de conhecimento e modelos baixados ficam todos no seu próprio computador, dentro de uma única pasta no seu diretório home. Não existe conta do Orkestral, não existe sincronização na nuvem e não existe telemetria. Você mantém o controle dos seus dados e pode inspecionar, exportar ou apagar tudo quando quiser.
+
+<Note>
+As únicas chamadas de rede que o Orkestral faz são as que você solicita: requisições de API de modelos premium (quando você configura uma chave de provedor) e downloads sob demanda do modelo local incluído e dos pacotes de voz. Seu código, seus prompts e os dados do seu projeto não são coletados pelo Orkestral.
+</Note>
+
+## Onde seus dados ficam
+
+Tudo é armazenado sob uma única pasta raiz: `~/.orkestral` (seu diretório home mais `.orkestral`). O app cria essa pasta na primeira execução e mantém todos os tipos de dados embaixo dela.
+
+<CardGroup cols={2}>
+  <Card title="Banco de dados SQLite" icon="database">
+    O armazenamento principal é um único arquivo SQLite em `~/.orkestral/instances/default/db/orkestral.db`. Ele guarda workspaces, agentes, sessões e mensagens de chat, issues e épicos, a base de conhecimento e eventos de trace.
+  </Card>
+  <Card title="Anexos" icon="paperclip">
+    Os arquivos que você envia para comentários e decisões são copiados para `~/.orkestral/instances/default/attachments`, então eles viajam junto com seus dados locais.
+  </Card>
+  <Card title="Artefatos de workspace" icon="folder-tree">
+    Arquivos e artefatos por workspace ficam sob `~/.orkestral/workspaces/<workspaceId>/`.
+  </Card>
+  <Card title="Modelos locais" icon="microchip">
+    O modelo Forge incluído (Qwen2.5-Coder) e quaisquer pacotes de voz são baixados sob demanda para `~/.orkestral/instances/default/models` e `.../voice`.
+  </Card>
+</CardGroup>
+
+<Info>
+O banco de dados roda em modo WAL para ganhar velocidade e segurança. Você pode ver arquivos `orkestral.db-wal` e `orkestral.db-shm` ao lado do arquivo `.db` principal. Esse é o comportamento normal do SQLite, não uma cópia duplicada dos seus dados.
+</Info>
+
+## Sem telemetria, sem conta
+
+O Orkestral não inclui analytics, relatório de falhas ou rastreamento de uso. Não há cadastro e nem sincronização em segundo plano. O app funciona totalmente offline para tudo, exceto três ações explícitas e iniciadas por você:
+
+<AccordionGroup>
+  <Accordion title="Chamadas de planejamento de modelos premium" icon="brain">
+    Quando um modelo premium planeja ou delega trabalho, o Orkestral chama o provedor de modelo que você configurou com a sua própria chave de API. Essa requisição vai direto para o provedor, não passa pelos servidores do Orkestral. Seu código e os dados do projeto saem da sua máquina apenas como parte do prompt que você escolheu enviar.
+  </Accordion>
+  <Accordion title="Download do modelo local" icon="download">
+    O Forge roda localmente e executa mudanças de código com custo de API zero, mas os pesos do modelo são baixados uma vez, sob demanda, para `~/.orkestral`. Depois disso, o Forge roda offline.
+  </Accordion>
+  <Accordion title="Pacotes de voz" icon="microphone">
+    Runtimes e modelos de voz opcionais são baixados sob demanda para a pasta local `voice`. Eles nunca são enviados para lugar nenhum.
+  </Accordion>
+</AccordionGroup>
+
+## Gerencie seus dados
+
+Abra **Settings** e vá até o painel **Data**. A partir dali você pode revisar o que está armazenado, exportar um snapshot, abrir a pasta de dados, limpar o cache e rodar a limpeza. O painel restringe a maioria das contagens a um workspace, que você escolhe no topo.
+
+{/* PRINT: o painel de configurações Data mostrando o hero de armazenamento, as contagens por workspace e as ações de manutenção */}
+
+<Steps>
+  <Step title="Abra o painel Data">
+    Vá em **Settings** e depois **Data**. No topo você vê um hero de armazenamento com o tamanho total do banco de dados e o caminho exato do seu arquivo `orkestral.db`.
+  </Step>
+  <Step title="Escolha um workspace para inspecionar">
+    Use o **seletor de workspace** no topo do painel. As contagens de agentes, sessões de chat, mensagens e issues são atualizadas para aquele workspace. A seção da base de conhecimento mostra páginas, chunks, embeddings e eventos de trace.
+
+    <Tip>
+    Trocar o workspace aqui muda apenas o que você está inspecionando. Isso não muda o seu workspace ativo no restante do app.
+    </Tip>
+  </Step>
+  <Step title="Revise os números de armazenamento">
+    Os tiles dão uma leitura rápida de quanto cada workspace guarda. O tamanho do banco de dados no hero reflete o arquivo `.db` inteiro, somando todos os workspaces.
+  </Step>
+</Steps>
+
+## Exporte seus dados
+
+A exportação grava um único snapshot JSON dos seus dados principais em uma pasta que você escolhe. Use para backups, para migrar para outra máquina ou simplesmente para manter uma cópia que é sua.
+
+<Steps>
+  <Step title="Clique em Export to JSON">
+    Na seção **Maintenance** do painel Data, clique em **Export to JSON**.
+  </Step>
+  <Step title="Escolha uma pasta de destino">
+    Um seletor de pastas nativo se abre. Escolha qualquer diretório, ou crie um novo. Se você cancelar, nada é gravado.
+  </Step>
+  <Step title="Encontre o arquivo">
+    O Orkestral grava um arquivo chamado `orkestral-export-<date>.json` na pasta que você escolheu. Um toast confirma o sucesso e mostra a contagem total de registros e o caminho do arquivo.
+  </Step>
+</Steps>
+
+O snapshot é um documento JSON legível que inclui:
+
+<CardGroup cols={2}>
+  <Card title="Workspaces e agentes" icon="users" />
+  <Card title="Sessões e mensagens de chat" icon="comments" />
+  <Card title="Issues e épicos" icon="circle-dot" />
+  <Card title="Páginas da base de conhecimento" icon="file-lines" />
+</CardGroup>
+
+<Note>
+A exportação captura todos os workspaces, não apenas o que você está inspecionando. Ela também registra o timestamp da exportação e a versão do app, então você sempre sabe quando e de onde veio um snapshot.
+</Note>
+
+<Warning>
+A exportação JSON é um backup portátil dos seus registros principais. Ela não inclui pesos de modelos baixados, pacotes de voz, vetores brutos de embedding nem binários de anexos enviados. Guarde a exportação em um lugar seguro: ela é texto puro e pode conter prompts e conteúdo do projeto.
+</Warning>
+
+## Abra a pasta de dados
+
+Quer fazer o backup de tudo por conta própria, ou só ver o que está em disco? Clique em **Open folder** na seção **Maintenance**. O Orkestral abre `~/.orkestral/instances/default` no gerenciador de arquivos do seu sistema operacional.
+
+<Tip>
+Para um backup manual completo, feche o Orkestral primeiro e depois copie a pasta `~/.orkestral` inteira. Copiar com o app em execução pode capturar o banco de dados no meio de uma escrita.
+</Tip>
+
+## Limpe o cache
+
+A ação **Clear cache** limpa apenas o cache de rede e de sessão da janela do app. Ela não toca no seu banco de dados, nos seus arquivos ou nos seus modelos. Use se a UI do app se comportar de forma estranha ou se você quiser liberar uma pequena quantidade de disco usada pelo cache web.
+
+<Warning>
+Limpar o cache é seguro e não destrói seus dados. Isso nunca apaga workspaces, chats, issues ou conteúdo da base de conhecimento.
+</Warning>
+
+## Rode a limpeza para recuperar espaço
+
+Com o tempo, a base de conhecimento pode acumular itens que você não precisa mais. A limpeza propõe uma lista de exclusões seguras para o workspace selecionado, mostra quantos itens e aproximadamente quantos bytes cada uma libera, e só age depois que você confirma.
+
+<Steps>
+  <Step title="Revise as sugestões">
+    No campo **Cleanup**, o Orkestral lista sugestões para o workspace selecionado. Cada card mostra um título, um resumo curto, a contagem de itens e um tamanho estimado.
+  </Step>
+  <Step title="Clique no botão de limpeza">
+    Se houver algo a limpar, o botão fica habilitado. Clique nele para revelar um prompt de confirmação inline.
+  </Step>
+  <Step title="Confirme a exclusão">
+    Clique em **Confirm** na barra vermelha de confirmação. O Orkestral aplica todas as sugestões listadas em uma única transação e depois informa quantas linhas removeu e o espaço estimado recuperado.
+  </Step>
+</Steps>
+
+A limpeza mira algumas categorias bem definidas. Nenhuma delas toca em páginas fixadas.
+
+<AccordionGroup>
+  <Accordion title="Artefatos de conhecimento órfãos" icon="link-slash">
+    Chunks, entradas de índice de token, itens de embedding e embeddings cuja página pai não existe mais. Puras sobras de conteúdo apagado.
+  </Accordion>
+  <Accordion title="Páginas de conhecimento arquivadas" icon="box-archive">
+    Páginas que você arquivou, que não foram tocadas recentemente e que não estão fixadas. A janela padrão é mais antiga que 30 dias.
+  </Accordion>
+  <Accordion title="Conhecimento gerado automaticamente e obsoleto" icon="robot">
+    Páginas não fixadas geradas automaticamente e de memória de agente que não foram usadas recentemente. A janela padrão é mais antiga que 14 dias, e páginas usadas recentemente são mantidas.
+  </Accordion>
+  <Accordion title="Páginas duplicadas" icon="copy">
+    Páginas que duplicam outra por título (ou por conteúdo, dependendo da sugestão). O Orkestral mantém a cópia mais recente e remove as demais. Páginas fixadas e arquivadas ficam intactas.
+  </Accordion>
+  <Accordion title="Embeddings obsoletos" icon="vector-square">
+    Embeddings que apontam para itens inexistentes ou que são mais antigos que a página ou o item que descrevem, para que a busca continue precisa, sem vetores mortos.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+Depois da limpeza, o Orkestral faz um checkpoint do WAL do banco de dados e o otimiza, então o tamanho em disco diminui e suas estatísticas são atualizadas automaticamente.
+</Note>
+
+<Warning>
+A limpeza apaga permanentemente os itens que ela lista. Ela é restrita ao workspace que você selecionou e nunca remove páginas fixadas, mas não há como desfazer. Exporte um snapshot antes se quiser uma cópia de segurança.
+</Warning>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Base de conhecimento" icon="book" href="/pt/knowledge-base">
+    Aprenda como páginas, chunks e embeddings são criados para entender sobre o que a limpeza está agindo.
+  </Card>
+  <Card title="Modelos e o Forge" icon="microchip" href="/pt/models">
+    Veja como o modelo Forge local e os modelos de planejamento premium são configurados e armazenados.
+  </Card>
+  <Card title="Settings" icon="gear" href="/pt/settings">
+    Explore o restante dos painéis de Settings, incluindo o painel Data abordado aqui.
+  </Card>
+  <Card title="Primeiros passos" icon="rocket" href="/pt/getting-started">
+    Novo no Orkestral? Comece pelo básico de workspaces e agentes.
+  </Card>
+</CardGroup>

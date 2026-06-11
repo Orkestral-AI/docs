@@ -1,0 +1,165 @@
+---
+title: "Adapter Codex"
+description: "Use a CLI do Codex como provedor de planejamento."
+---
+
+O adapter do Codex permite que o Orkestral comande a **CLI do Codex** da OpenAI como provedor de planejamento. Quando você contrata um agente baseado no Codex, esse agente usa o binário `codex` na sua máquina para raciocinar, planejar e propor trabalho. O modelo premium planeja; o Forge local incluído executa as alterações de código de fato, sem custo de API.
+
+Este adapter é **recomendado** e roda inteiramente contra a sua instalação local do `codex`. O Orkestral nunca embute a sua chave da OpenAI: ele aciona a CLI que você já autenticou.
+
+<Info>
+O tipo interno do adapter é `codex_local` e ele aparece como **Codex** na grade de onboarding. Veja [Visão geral dos adapters](/pt/adapters) para entender como os provedores e o Forge se encaixam.
+</Info>
+
+## Requisitos
+
+<CardGroup cols={2}>
+  <Card title="CLI do Codex" icon="terminal">
+    O binário `codex` precisa estar instalado e localizável no seu `PATH`.
+  </Card>
+  <Card title="Autenticação" icon="key">
+    Uma sessão do Codex logada ou uma `OPENAI_API_KEY` no seu ambiente.
+  </Card>
+</CardGroup>
+
+Instale a CLI com:
+
+```bash
+npm i -g @openai/codex
+```
+
+Depois autentique usando uma destas opções:
+
+```bash
+codex login
+```
+
+ou exporte uma chave antes de abrir o Orkestral:
+
+```bash
+export OPENAI_API_KEY=sk-...
+```
+
+<Note>
+O Orkestral lê a sua configuração do Codex a partir de `CODEX_HOME` quando definido, caso contrário a partir de `~/.codex`. A lista de modelos vem de `~/.codex/models_cache.json`, um cache que a própria CLI mantém.
+</Note>
+
+## Como o Orkestral roda o Codex
+
+O Orkestral invoca a CLI em modo exec headless. Durante o teste de ambiente, ele roda uma sondagem equivalente a:
+
+```bash
+codex exec --skip-git-repo-check --yolo -
+```
+
+com um prompt curto enviado por stdin. As opções de esforço de raciocínio e busca na web que você configura são traduzidas em flags de CLI em tempo de execução (veja [Configuração](#configuração)). O Orkestral fecha o stdin automaticamente e interpreta a resposta, então você não precisa passar essas flags manualmente.
+
+## Configure o adapter
+
+<Steps>
+  <Step title="Instale e autentique a CLI">
+    Confirme que o binário funciona em um terminal antes de abrir o Orkestral:
+
+    ```bash
+    codex --version
+    ```
+
+    Se isso falhar, corrija a sua instalação ou o `PATH` primeiro.
+  </Step>
+  <Step title="Abra o adapter do Codex no Orkestral">
+    Vá até a grade de adapters (durante o onboarding ou nas configurações) e selecione **Codex**.
+
+    {/* PRINT: Card do Codex na grade de adapters */}
+  </Step>
+  <Step title="Rode o teste de ambiente">
+    Use **Testar ambiente**. O Orkestral verifica se o `codex` está no `PATH`, se o `--version` responde e se o agente responde a um prompt de exemplo. Revise o resultado de cada verificação.
+
+    {/* PRINT: Resultados do teste de ambiente para o Codex */}
+  </Step>
+  <Step title="Escolha um modelo">
+    Escolha um modelo na lista. Os modelos vêm do seu cache real do Codex quando disponível, então a lista reflete o que a sua conta realmente pode acessar.
+  </Step>
+  <Step title="Configure as opções e salve">
+    Defina o esforço de raciocínio, a busca na web e uma substituição de comando opcional, depois salve. O adapter agora fica disponível ao contratar agentes.
+  </Step>
+</Steps>
+
+## Configuração
+
+O adapter do Codex expõe três opções. Defina-as no painel de configuração do adapter.
+
+<ParamField path="modelReasoningEffort" type="select" default="medium">
+  Quão intensamente o modelo raciocina antes de responder. Passado para a CLI como `-c model_reasoning_effort=<value>`. Valores permitidos: `minimal`, `low`, `medium`, `high`, `xhigh`. Um esforço maior pode melhorar a qualidade do plano, mas custa mais tempo e tokens.
+</ParamField>
+
+<ParamField path="search" type="toggle" default={false}>
+  Habilita a busca na web adicionando a flag `--search` à invocação do Codex. Ative isto quando o planejamento precisar de informações externas atuais.
+</ParamField>
+
+<ParamField path="command" type="text" default="codex">
+  Substitui o comando ou caminho usado para iniciar a CLI. Deixe vazio para usar o `codex` do seu `PATH`. Defina um caminho absoluto aqui se o seu binário estiver fora do local padrão.
+</ParamField>
+
+### Níveis de esforço de raciocínio
+
+| Valor | Rótulo | Quando usar |
+|-------|-------|-------------|
+| `minimal` | Mínimo | Mais rápido, mais barato, tarefas leves. |
+| `low` | Baixo | Planejamento simples com raciocínio leve. |
+| `medium` | Médio | Equilíbrio padrão entre velocidade e profundidade. |
+| `high` | Alto | Problemas mais difíceis que precisam de análise mais profunda. |
+| `xhigh` | Muito alto | Raciocínio máximo para os planos mais difíceis. |
+
+## Modelos
+
+O seletor de modelos sempre inclui uma entrada **Default** que usa o modelo que a sua CLI do Codex estiver configurada para usar. Além disso:
+
+- Se `~/.codex/models_cache.json` existir, o Orkestral lista os modelos aos quais a sua conta de fato tem acesso. Modelos internos (aqueles não marcados para listagem) são filtrados.
+- Se nenhum cache estiver presente, o Orkestral recorre a uma lista estática, do mais novo ao mais antigo, que inclui entradas como GPT-5.4, GPT-5.3 Codex, GPT-5, GPT-5 Mini, a série o da OpenAI e Codex Mini.
+
+<Tip>
+Para atualizar a lista de modelos, rode qualquer comando `codex` para que a CLI atualize seu cache, depois reabra o adapter no Orkestral.
+</Tip>
+
+## Verificações do teste de ambiente
+
+Quando você roda **Testar ambiente**, o Orkestral reporta estas verificações:
+
+| Verificação | Significado |
+|-------|---------|
+| `codex` no PATH | O binário foi encontrado. Uma falha aqui interrompe o teste. |
+| Versão da CLI | `codex --version` respondeu com sucesso. |
+| Resposta do agente | Uma sondagem headless retornou uma resposta esperada, ou um aviso se a autenticação ou a resposta parecerem estranhas. |
+
+Um aviso de autenticação aparece quando a saída da sondagem menciona login, chave ausente ou acesso não autorizado. O teste ainda é concluído, mas você deve autenticar antes de depender do adapter.
+
+## Capacidades e limites
+
+- Planeja e raciocina através da CLI do Codex; a execução de código é feita pelo Forge, não por este adapter.
+- Reflete o acesso real da sua conta através do cache de modelos da CLI, com um fallback estático.
+- Roda localmente e usa as credenciais já presentes no seu shell ou na configuração do Codex.
+- Não armazena nem transmite a sua chave da OpenAI pelo Orkestral; ele depende da CLI.
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="CLI codex não encontrada no PATH">
+    O Orkestral não conseguiu localizar o binário. Instale-o com `npm i -g @openai/codex` ou siga o guia oficial, depois confirme que `codex --version` funciona no mesmo shell de onde o Orkestral é iniciado. Se você usa um gerenciador de versões, garanta que o binário esteja no `PATH` que a sua sessão de desktop herda, ou defina um caminho absoluto na substituição de **command**.
+  </Accordion>
+  <Accordion title="Aviso de não autenticado">
+    A sondagem viu uma mensagem de login, não autorizado ou chave de API. Rode `codex login` (ou `codex auth`), ou exporte `OPENAI_API_KEY` antes de abrir o Orkestral, depois teste novamente.
+  </Accordion>
+  <Accordion title="Verificação de versão falhou">
+    `codex --version` não respondeu. A instalação pode estar quebrada ou parcialmente atualizada. Reinstale a CLI e verifique se ela roda em um terminal.
+  </Accordion>
+  <Accordion title="Sondagem expirou">
+    O prompt de exemplo não retornou a tempo. Isso costuma ser transitório. Teste novamente. Se persistir, verifique a sua rede e se a sua conta do Codex está ativa.
+  </Accordion>
+  <Accordion title="Lista de modelos parece errada ou desatualizada">
+    A lista vem de `~/.codex/models_cache.json` (ou `CODEX_HOME`). Rode qualquer comando `codex` para atualizar o cache, depois reabra o adapter. Se o cache estiver ausente, o Orkestral mostra sua lista de fallback estática.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+A sondagem de ambiente roda o Codex com `--yolo`, que pula seus prompts interativos de aprovação para que o teste possa rodar sem supervisão. Isso é usado apenas para a verificação headless curta.
+</Warning>

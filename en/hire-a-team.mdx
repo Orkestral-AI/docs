@@ -1,0 +1,213 @@
+---
+title: "Hire and set up a team"
+description: "Step-by-step: assemble your agent team and configure roles."
+---
+
+A workspace in Orkestral is run by a team, not a single bot. A **CEO** orchestrator reads your repositories, plans the work, and delegates to specialists like Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA, and Designer. This guide shows you how to hire that team through the CEO in plain language, and how to fine tune each role afterward.
+
+You have two ways to grow a team:
+
+<CardGroup cols={2}>
+  <Card title="Ask the CEO" icon="comments">
+    Describe the team or agent you want in chat. The CEO proposes a hiring plan, you approve it, and Orkestral creates every agent with sensible roles and models.
+  </Card>
+  <Card title="Configure manually" icon="sliders">
+    Open the advanced form and set the adapter, model, capabilities, and reporting line for a single specialist yourself.
+  </Card>
+</CardGroup>
+
+<Note>
+The fastest path is to let the CEO hire the whole team at once. Manual setup is best when you want one very specific agent or you want to tweak an existing role.
+</Note>
+
+## How hiring works
+
+When the CEO proposes a team, it writes a short plan plus one machine readable block per agent. Each block looks like `<orkestral:create-agent name="..." role="..." />`. When you approve, Orkestral parses those blocks and creates the agents.
+
+A few things happen automatically when a plan is approved:
+
+<AccordionGroup>
+  <Accordion title="Models are assigned by role" icon="microchip">
+    Planning and review roles (anything matching review, lead, architect, manager, product, or coordinator) get a **premium** model, the same one your CEO uses, because they reason and decide. Executor roles (frontend, backend, devops, qa, and similar) get the local **Forge** model as primary, so day to day code changes cost nothing in API fees. The CEO can override this per agent by tagging a role as `forge` or `premium` in the plan.
+  </Accordion>
+  <Accordion title="Duplicate roles and names are skipped" icon="copy">
+    If an agent with the same name, or the same normalized role, already exists in the workspace, that block is ignored. So re-running a hiring plan will not create twins. Role names are normalized, which means "front-end", "frontend", and "UI" all map to the same Frontend role.
+  </Accordion>
+  <Accordion title="Reporting lines are wired up" icon="sitemap">
+    Each agent can declare who it reports to. If the plan says `reports_to="CEO"` or names another hired agent, Orkestral sets that manager. If it is empty or unknown, the agent reports to the CEO by default.
+  </Accordion>
+  <Accordion title="A core squad is guaranteed" icon="users-gear">
+    Every workspace is backfilled with a core squad: a **Tech Lead** and **Code Reviewer** (both premium, reporting to the CEO), plus **QA** and **Designer** when your sources call for them. QA appears when you have frontend, backend, mobile, or infra code; Designer appears when you have frontend or mobile code.
+  </Accordion>
+  <Accordion title="Specialists are matched to your repos" icon="folder-tree">
+    After hiring, Orkestral scans your connected sources and syncs the team to match the stack it finds. This keeps the right specialists pointed at the right repositories.
+  </Accordion>
+</AccordionGroup>
+
+## Hire a full team via the CEO
+
+<Steps>
+  <Step title="Open a chat with the CEO">
+    Go to your workspace and start a session with the **CEO** (the orchestrator). This is the agent flagged as the orchestrator in your agent list. If you have not connected any repositories yet, do that first so the CEO can read your stack and plan accurately.
+
+    {/* PRINT: workspace chat with the CEO selected */}
+  </Step>
+  <Step title="Describe the team you want">
+    Tell the CEO what you are building and the team you have in mind. Be concrete about scope. For example:
+
+    > "I am building a Next.js web app with a Node API and Postgres. Hire a full team: a tech lead, a frontend dev, a backend dev, a DevOps engineer, QA, and a designer."
+
+    You can also just describe the product and let the CEO decide who is needed. The more context it has from your sources, the better the plan.
+  </Step>
+  <Step title="Review the proposed hiring plan">
+    The CEO replies with a plan: a short rationale and a roster of agents, each with a name, role, and the model it will use. Read it and check three things:
+
+    <CardGroup cols={3}>
+      <Card title="Roles" icon="user-tag">
+        The right specialists for your stack.
+      </Card>
+      <Card title="Models" icon="microchip">
+        Premium for planners and reviewers, Forge for executors.
+      </Card>
+      <Card title="Reporting" icon="sitemap">
+        Who each agent reports to.
+      </Card>
+    </CardGroup>
+
+    {/* PRINT: CEO hiring plan with the proposed roster */}
+  </Step>
+  <Step title="Approve the plan">
+    If the plan looks right, tell the CEO to go ahead (for example, "approved, hire them"). On approval, Orkestral creates every agent, wires the reporting lines, guarantees the core squad, and matches specialists to your repositories. If you want changes, ask the CEO to adjust the roster before approving and it will rewrite the plan.
+
+    <Warning>
+    Nothing is created until you approve. A plan that is only described in prose, without the create-agent blocks, will not hire anyone. If that happens, ask the CEO to "output the create-agent blocks".
+    </Warning>
+  </Step>
+  <Step title="Confirm the team appears">
+    Open your agent list. You should see the new specialists plus the core squad, each with an avatar, a title, and a reporting line. From here you can start delegating issues, or open any agent to fine tune it.
+
+    {/* PRINT: agent list showing the newly hired team */}
+  </Step>
+</Steps>
+
+## Hire a single agent
+
+You do not have to hire a whole team. You can ask the CEO for one specialist, or build one by hand.
+
+<Tabs>
+  <Tab title="Ask the CEO">
+    <Steps>
+      <Step title="Open the new agent dialog">
+        From the agents area, choose to add a new agent. The dialog opens in **Ask CEO** mode by default.
+      </Step>
+      <Step title="Name the agent and write its mission">
+        Enter a **Name** and an optional **Mission** that describes what this agent should own. The mission is the single most useful field: it tells the CEO what the agent is for.
+
+        {/* PRINT: Ask CEO form with name and mission filled in */}
+      </Step>
+      <Step title="Ask the CEO to create it">
+        Confirm. Orkestral opens a session with the CEO carrying your request, and the CEO proposes and creates the agent the same way it handles a full team. If no CEO exists in the workspace, the dialog warns you, so make sure your workspace has an orchestrator first.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Configure manually">
+    Use this when you want full control over the adapter, model, and permissions. See the next section for every field.
+  </Tab>
+</Tabs>
+
+## Configure roles manually
+
+In the new agent dialog, choose **Configure manually** to open the advanced form. This is also where you fine tune the parameters of a specialist the CEO created.
+
+<Steps>
+  <Step title="Set identity">
+    Pick an **avatar**, then enter a **Name** and a **Title**. The avatar is derived from the name until you choose one explicitly in the picker.
+  </Step>
+  <Step title="Set the reporting line">
+    Use the **Reports to** pill to choose a manager. Pick the CEO, another agent, or no manager. When an agent reports to a manager, it validates its changes with that manager before applying them, which is how review gates work in a hierarchy.
+  </Step>
+  <Step title="Choose the adapter and model">
+    Select an **adapter type** (the engine that runs the agent). Then pick the **primary model**. You can optionally enable a **cheap model** for lighter steps, and set the **thinking effort** from auto up to high for harder reasoning.
+
+    <Info>
+    For executor roles, point the adapter at the local Forge so code changes run at zero API cost. Keep premium models for planning and review, where reasoning quality matters most.
+    </Info>
+  </Step>
+  <Step title="Tune run options">
+    Adjust the **command**, **max turns**, an **instructions file** (an absolute path to an AGENTS.md style file), **extra args**, and **environment variables**. Mark any sensitive variable as a **secret** so its value is stored encrypted rather than in plain text.
+
+    {/* PRINT: advanced form adapter and run options */}
+  </Step>
+  <Step title="Set capabilities">
+    Toggle what the agent is allowed to do:
+
+    <CardGroup cols={2}>
+      <Card title="Edit files" icon="file-pen">
+        Let the agent change code in your sources.
+      </Card>
+      <Card title="Run commands" icon="terminal">
+        Let the agent run shell commands.
+      </Card>
+      <Card title="Create agents" icon="user-plus">
+        Let the agent hire other agents. Usually reserved for the CEO.
+      </Card>
+      <Card title="Assign tasks" icon="list-check">
+        Let the agent delegate issues to others.
+      </Card>
+    </CardGroup>
+
+    <Tip>
+    Match capabilities to the role. A Code Reviewer rarely needs to edit files, while a Frontend dev needs edit and command access. Keep create agents off for everyone except the CEO.
+    </Tip>
+  </Step>
+  <Step title="Add a system prompt">
+    Write an optional **system prompt** to shape the agent's behavior, voice, and priorities. Keep it focused on what this role owns.
+  </Step>
+  <Step title="Test the agent">
+    Use **Test agent** to verify the adapter is reachable and configured. You get a pass, warn, or fail status with per check detail. Fix any failing check before you rely on the agent.
+
+    {/* PRINT: agent test result with checks */}
+  </Step>
+  <Step title="Create the agent">
+    Confirm to create. The new agent joins the workspace immediately and is ready to receive work.
+  </Step>
+</Steps>
+
+## The default roles
+
+These are the roles Orkestral guarantees in every workspace, along with their default model tier and reporting line.
+
+<AccordionGroup>
+  <Accordion title="Tech Lead" icon="user-tie">
+    Premium model, reports to the CEO. Owns architecture, cross repo decisions, contracts, and delegation to specialists. Created in every workspace.
+  </Accordion>
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    Premium model, reports to the CEO. Reviews the project as a whole system: contracts between repos, security, cost, performance, tests, regressions, and architectural fit. Created in every workspace.
+  </Accordion>
+  <Accordion title="QA" icon="vial">
+    Forge model, reports to the Tech Lead. Runs smoke tests, regression checks, and contract validation. Added when you have frontend, backend, mobile, or infra sources.
+  </Accordion>
+  <Accordion title="Designer" icon="palette">
+    Forge model, reports to the Tech Lead. Protects the design system, accessibility, visual hierarchy, and component consistency. Added when you have frontend or mobile sources.
+  </Accordion>
+  <Accordion title="Specialists" icon="code">
+    Frontend, Backend, DevOps, and similar executor roles run on Forge as primary and are matched to the repositories where their stack lives.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Delegate your first issue" icon="list-check" href="/en/delegate-work">
+    Hand work to the team and watch the CEO route it to the right specialist.
+  </Card>
+  <Card title="Connect more sources" icon="folder-tree" href="/en/connect-sources">
+    Add repositories so specialists get matched to the right code.
+  </Card>
+  <Card title="Understand the Forge" icon="hammer" href="/en/the-forge">
+    See how the local model executes code changes at zero API cost.
+  </Card>
+  <Card title="Tune adapters and models" icon="sliders" href="/en/adapters-and-models">
+    Pick the right engine and model for each role.
+  </Card>
+</CardGroup>

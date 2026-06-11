@@ -1,0 +1,275 @@
+---
+title: "Sentry"
+description: "Transforme issues do Sentry em trabalho dos agentes automaticamente."
+---
+
+Conecte sua organização do Sentry ao Orkestral e seus erros de produção deixam de viver em uma aba separada. Você vê issues ao vivo dentro do app, abre qualquer uma delas para inspecionar o stack trace e os breadcrumbs, e entrega tudo isso à sua equipe de agentes com um único clique. Com as automações ligadas, novos erros viram trabalho dos agentes por conta própria, sem nenhum clique.
+
+Esta página cobre as três partes da integração: conectar o Sentry, navegar e ler issues, e as regras de automação que transformam erros em trabalho enquanto você dorme.
+
+<CardGroup cols={3}>
+  <Card title="Conectar" icon="plug">
+    Vincule sua organização do Sentry uma vez a partir de Integrações.
+  </Card>
+  <Card title="Navegar e analisar" icon="bug">
+    Leia issues com contexto completo e envie qualquer uma a um agente.
+  </Card>
+  <Card title="Automatizar" icon="bolt">
+    Regras que propõem ou iniciam trabalho automaticamente quando os erros correspondem.
+  </Card>
+</CardGroup>
+
+## Como funciona
+
+O Orkestral conversa com a API do Sentry da sua organização. Uma vez conectado, ele puxa suas issues mais recentes (até 50 por vez) e as exibe na página **Sentry** na barra lateral. Cada issue mantém seus metadados reais: nível, projeto, contagem de ocorrências, usuários afetados, primeira e última ocorrência, e um permalink de volta ao Sentry.
+
+Quando você analisa uma issue, o Orkestral empacota o contexto do erro (título, culpado, exceção, stack trace, breadcrumbs, requisição, tags) e abre uma sessão de chat com sua equipe. O orquestrador **CEO** lê esse contexto, planeja e delega ao especialista certo. Modelos premium planejam; o FORGE local executa mudanças de código com custo de API de $0.
+
+As automações aplicam a mesma ideia sem que você precise observar. Uma regra corresponde aos erros recebidos por nível e projeto, e então propõe trabalho para sua revisão ou inicia a análise automaticamente.
+
+<Note>
+A página do Sentry só renderiza dados depois que você conecta uma conta. Até lá você vê um aviso para conectar. Tudo abaixo pressupõe que um workspace esteja ativo.
+</Note>
+
+## Conectar o Sentry
+
+<Steps>
+  <Step title="Abra Integrações">
+    Vá até **Integrações** na barra lateral. A página do Sentry leva direto até lá com um botão **Conectar** quando nenhuma conta está vinculada ainda.
+  </Step>
+  <Step title="Autorize sua organização">
+    Siga o fluxo de conexão do Sentry e conceda ao Orkestral acesso à sua organização. Você conecta uma organização por workspace.
+  </Step>
+  <Step title="Confirme a conexão">
+    Volte à página **Sentry**. O subtítulo agora mostra o slug da sua organização e o projeto (ou **todos os projetos** quando nenhum projeto único está selecionado). As issues começam a carregar automaticamente.
+  </Step>
+</Steps>
+
+{/* PRINT: Cabeçalho da página do Sentry mostrando o slug da organização conectada no subtítulo */}
+
+<Tip>
+A conexão existe por workspace. Se você trocar de workspace, cada um tem sua própria conta do Sentry, issues, regras e histórico de execuções.
+</Tip>
+
+## Navegar pelas issues
+
+Uma vez conectado, a página **Sentry** lista suas issues recentes, da mais nova para a mais antiga. Cada linha mostra a barra e o badge de severidade, o projeto, o ID curto, o título, o culpado (o local do código que o Sentry responsabiliza), a contagem de ocorrências, os usuários afetados e há quanto tempo foi vista pela última vez.
+
+### Filtrar e buscar
+
+Uma barra de filtros aparece assim que houver pelo menos uma issue.
+
+<CardGroup cols={3}>
+  <Card title="Buscar" icon="magnifying-glass">
+    Correspondência por texto livre no título, no culpado e no ID curto.
+  </Card>
+  <Card title="Projeto" icon="folder">
+    Restrinja a um único projeto do Sentry, ou mantenha **todos os projetos**.
+  </Card>
+  <Card title="Nível" icon="signal">
+    Filtre por severidade: fatal, error, warning, info ou debug.
+  </Card>
+</CardGroup>
+
+O contador à direita mostra quantas issues correspondem do total carregado. A filtragem acontece localmente sobre o conjunto carregado, então é instantânea.
+
+### Cores de severidade
+
+<AccordionGroup>
+  <Accordion title="Fatal e error" icon="circle-exclamation">
+    Barra e badge vermelhos. As issues de maior atenção, crashes e exceções não tratadas.
+  </Accordion>
+  <Accordion title="Warning" icon="triangle-exclamation">
+    Amarelo. Problemas recuperáveis que merecem uma olhada.
+  </Accordion>
+  <Accordion title="Info" icon="circle-info">
+    Azul. Eventos informativos que chegaram ao Sentry.
+  </Accordion>
+  <Accordion title="Debug" icon="bug">
+    Cinza apagado. Eventos de diagnóstico de baixa prioridade.
+  </Accordion>
+</AccordionGroup>
+
+### Atualizar e atualização automática
+
+Clique em **Atualizar** no cabeçalho para puxar as issues mais recentes sob demanda. Quando a atualização automática está ligada, o cabeçalho mostra um ponto verde com o intervalo (por exemplo **auto ligado, a cada 5 min**) e a lista se atualiza sozinha. Você define o intervalo na página de automações (veja abaixo). O padrão é a cada 5 minutos.
+
+<Info>
+Abrir a página do Sentry limpa o badge de não lidas no item da barra lateral, então o badge reflete os erros que você ainda não olhou.
+</Info>
+
+## Ler uma issue em detalhe
+
+Clique em qualquer linha para abrir a página de detalhe da issue. É aqui que você obtém o quadro completo antes de decidir o que fazer.
+
+<Tabs>
+  <Tab title="Coluna principal">
+    - **Mensagem**: a mensagem de erro bruta, pré-formatada.
+    - **Exceção**: o tipo e o valor da exceção, destacados em vermelho.
+    - **Stack trace**: cada frame com arquivo e linha. Os frames in-app são destacados e trazidos para frente; os frames de biblioteca ficam esmaecidos e marcados como **lib** para você focar no seu próprio código.
+    - **Requisição**: o método HTTP e a URL quando o erro veio de uma requisição.
+    - **Breadcrumbs**: a linha do tempo de eventos que levaram ao erro, cada um com sua categoria, mensagem e horário.
+  </Tab>
+  <Tab title="Painel lateral">
+    - Contagens de ocorrências e de usuários afetados como cartões de estatística.
+    - Metadados: nível, projeto, plataforma, primeira ocorrência, última ocorrência (passe o mouse para ver o timestamp exato).
+    - **Tags**: os pares chave/valor que o Sentry anexou ao evento, como ambiente, release ou navegador.
+  </Tab>
+</Tabs>
+
+{/* PRINT: Página de detalhe da issue com o stack trace, frames in-app destacados e o painel lateral de tags */}
+
+No cabeçalho você pode:
+
+<CardGroup cols={2}>
+  <Card title="Abrir no Sentry" icon="arrow-up-right-from-square">
+    Pule para o permalink da issue no Sentry no seu navegador.
+  </Card>
+  <Card title="Analisar" icon="sparkles">
+    Entregue a issue à sua equipe de agentes e abra a sessão de chat resultante.
+  </Card>
+</CardGroup>
+
+## Analisar uma issue com sua equipe
+
+**Analisar** é a ponte do erro ao trabalho. Você pode acioná-lo a partir da lista de issues (o botão em cada linha) ou do cabeçalho de detalhe da issue.
+
+<Steps>
+  <Step title="Clique em Analisar">
+    O Orkestral coleta o contexto completo do erro e abre uma sessão de chat com sua equipe. Você cai nessa sessão automaticamente.
+  </Step>
+  <Step title="Deixe o CEO planejar e delegar">
+    O orquestrador CEO lê o stack trace e os breadcrumbs, então encaminha o trabalho ao especialista certo (Backend, Frontend e assim por diante) e usa o FORGE para aplicar mudanças de código locais.
+  </Step>
+  <Step title="Reabra a análise a qualquer momento">
+    Depois que uma issue foi analisada, seu botão muda para **Ver análise** (verde). Clique nele a partir da lista ou da página de detalhe para voltar exatamente àquela sessão, em vez de começar de novo.
+  </Step>
+</Steps>
+
+<Warning>
+Analisar inicia trabalho real em uma sessão de chat. Se você só quer ler o erro, use **Abrir no Sentry** ou apenas revise a página de detalhe.
+</Warning>
+
+## Automatizar: transformar erros em trabalho
+
+Abra **Automações** pelo botão no cabeçalho do Sentry. É aqui que você para de clicar em **Analisar** manualmente. As regras observam as issues recebidas e agem sobre as que correspondem.
+
+### O painel num relance
+
+O topo da página mostra quatro estatísticas para você saber que o sistema está vivo:
+
+<CardGroup cols={2}>
+  <Card title="Regras ativas" icon="toggle-on">
+    Quantas das suas regras estão habilitadas, do total.
+  </Card>
+  <Card title="Monitoradas" icon="eye">
+    Quantas issues estão atualmente em vista para correspondência.
+  </Card>
+  <Card title="Execuções" icon="list-check">
+    Quantas vezes as automações dispararam.
+  </Card>
+  <Card title="Última execução" icon="clock">
+    Quando a automação mais recente disparou, ou **nunca**.
+  </Card>
+</CardGroup>
+
+### Definir o intervalo de atualização automática
+
+No canto superior direito, escolha com que frequência o Orkestral verifica o Sentry em busca de novas issues: **desligado**, ou a cada **1**, **5**, **15**, **30** ou **60** minutos. Este é o mesmo intervalo mostrado na página do Sentry. Defina como **desligado** para pausar a verificação por completo (você ainda pode atualizar manualmente).
+
+### Criar uma regra
+
+<Steps>
+  <Step title="Clique em Nova regra">
+    Use **Nova regra** no cabeçalho (ou o botão no estado vazio quando você ainda não tem regras).
+  </Step>
+  <Step title="Dê um nome">
+    Dê à regra um nome claro, por exemplo `Erros fatais no checkout`. Um nome é obrigatório.
+  </Step>
+  <Step title="Defina o nível mínimo">
+    Escolha a menor severidade que deve disparar a regra: **fatal**, **error**, **warning** ou **info**. A regra corresponde a esse nível e a qualquer coisa mais severa (exibido como `error+` e assim por diante).
+  </Step>
+  <Step title="Restrinja a um projeto">
+    Escolha um único projeto do Sentry, ou deixe em **qualquer projeto** para corresponder a todos eles.
+  </Step>
+  <Step title="Escolha o agente">
+    Atribua o trabalho a um agente específico, ou deixe em **CEO (padrão)** para que o orquestrador decida quem cuida disso.
+  </Step>
+  <Step title="Escolha o modo">
+    Escolha **propor** ou **auto** (explicado abaixo), depois **Salvar**.
+  </Step>
+</Steps>
+
+{/* PRINT: Diálogo do editor de regras com os campos de nome, nível mínimo, projeto, agente e modo */}
+
+### Propor vs auto
+
+O modo decide quanto a regra faz por conta própria.
+
+<CardGroup cols={2}>
+  <Card title="Propor" icon="inbox">
+    A regra apresenta um erro correspondente como trabalho proposto para você revisar. Nada começa até você aprovar. Padrão mais seguro. Exibido com um badge azul.
+  </Card>
+  <Card title="Auto" icon="sparkles">
+    A regra inicia a análise automaticamente, abrindo uma sessão sem cliques. O caminho mais rápido do erro à correção. Exibido com um badge roxo.
+  </Card>
+</CardGroup>
+
+<Warning>
+O modo **auto** dispara o trabalho dos agentes sem você no circuito. Comece restrito: restrinja a um projeto e a um nível mínimo alto (como `fatal`), confirme que as execuções parecem certas, e então amplie.
+</Warning>
+
+### Gerenciar suas regras
+
+Cada linha de regra mostra um interruptor, seu nome, o badge de modo e um resumo de uma linha como `error+ · checkout-api · Backend`.
+
+<CardGroup cols={3}>
+  <Card title="Habilitar ou desabilitar" icon="toggle-on">
+    Acione o interruptor para ligar ou desligar uma regra sem excluí-la.
+  </Card>
+  <Card title="Editar" icon="pencil">
+    Reabra o editor para alterar qualquer campo.
+  </Card>
+  <Card title="Excluir" icon="trash">
+    Remova a regra após um aviso de confirmação.
+  </Card>
+</CardGroup>
+
+### Revisar o histórico de execuções
+
+A seção **Execuções** lista o que as automações fizeram, da mais nova para a mais antiga. Cada entrada informa o resultado num relance:
+
+<AccordionGroup>
+  <Accordion title="Analisado" icon="sparkles">
+    Ícone roxo. A regra iniciou uma análise. Clique na execução para pular direto para aquela sessão de chat.
+  </Accordion>
+  <Accordion title="Proposto" icon="circle-check">
+    Ícone verde. A regra apresentou a issue para sua revisão. Clique na execução para abrir a página de detalhe da issue.
+  </Accordion>
+  <Accordion title="Erro" icon="circle-xmark">
+    Ícone vermelho. A execução falhou. Clique nela para abrir a issue relacionada e olhar mais de perto.
+  </Accordion>
+</AccordionGroup>
+
+Cada execução também mostra qual regra disparou (como um pequeno badge), o título da issue ou o ID curto, e há quanto tempo foi executada.
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Comece com uma regra" icon="flag">
+    Crie uma única regra **propor** no nível `error` para o seu projeto mais movimentado, então acompanhe o histórico de execuções por um dia.
+  </Card>
+  <Card title="Ajuste o intervalo" icon="gauge">
+    Se os erros são raros, aumente o intervalo de atualização para economizar chamadas de API. Se são críticos em tempo, reduza para cada minuto.
+  </Card>
+  <Card title="Evolua para auto" icon="rocket">
+    Quando as execuções em propor parecerem confiáveis, troque a regra para **auto** para que as correções comecem sem você.
+  </Card>
+  <Card title="Leia antes de enviar" icon="book-open">
+    Abra as sessões analisadas e revise o plano e as mudanças do FORGE antes de fazer o merge.
+  </Card>
+</CardGroup>
+
+<Note>
+O Sentry combina bem com o resto do Orkestral. Issues analisadas viram sessões de chat normais, então a mesma revisão e acompanhamento que você usa para trabalho planejado se aplicam também aos erros.
+</Note>

@@ -1,0 +1,246 @@
+---
+title: "Settings"
+description: "Configure Orkestral: providers, autonomy, appearance and more."
+---
+
+Settings is where you tune Orkestral to fit you and your team. You manage your profile, pick which AI providers and models power your agents, control how much the team can do on its own, change the look of the app, and run data maintenance. Everything lives behind a single window with a sidebar of grouped sections.
+
+Open Settings from anywhere with `Cmd ,` (or `Ctrl ,` on Windows and Linux). Press it again to close, or hit `Esc`. The same shortcut works as a toggle.
+
+{/* PRINT: the Settings window with the grouped sidebar on the left and a panel open on the right */}
+
+<Note>
+Most changes save instantly. Toggles, selectors and color swatches apply the moment you click them. The **General** profile form is the exception: edit the fields, then press **Save**.
+</Note>
+
+## How Settings is organized
+
+The sidebar groups sections by context so you find things fast. The version number sits at the bottom of the sidebar.
+
+<CardGroup cols={2}>
+  <Card title="Account" icon="user">
+    **General** profile, **Team** (coming soon) and **Subscription** (coming soon).
+  </Card>
+  <Card title="Workspace" icon="briefcase">
+    **Workspace** management and autonomy, plus **Models** (your AI providers).
+  </Card>
+  <Card title="App" icon="sliders">
+    **System**, **Appearance**, **Audio**, **Shortcuts**, **Privacy** (coming soon) and **Data**.
+  </Card>
+  <Card title="Help" icon="life-ring">
+    **Support** links and, in local workspaces only, **Advanced** developer tools.
+  </Card>
+</CardGroup>
+
+<Info>
+Sections tagged **Soon** persist your preferences but do not yet have a backend behind them. **Advanced** appears only when your active workspace runs in local mode.
+</Info>
+
+## General
+
+This is your profile and the app's about block.
+
+<Steps>
+  <Step title="Set your identity">
+    Fill in **Name** and **Email**. The name is how agents address you in chat.
+  </Step>
+  <Step title="Add aliases">
+    Use **Aliases** for other names people call you (comma separated). Agents recognize these when they read your repos and messages.
+  </Step>
+  <Step title="Save">
+    Press **Save**. The button stays disabled until your profile finishes loading.
+  </Step>
+  <Step title="Pick a timezone behavior">
+    Toggle **Use device timezone** on to follow your machine, or open **Date and time settings** to adjust the operating system clock.
+  </Step>
+  <Step title="Check for updates">
+    The **About** block shows your version and checks GitHub Releases. If a newer version exists, you get a clickable link to it; otherwise it confirms you are up to date. **Quit** closes the app.
+  </Step>
+</Steps>
+
+## Workspace
+
+The Workspace section manages the workspaces you have created and sets how autonomous the team is.
+
+A **scope picker** at the top lets you inspect or manage any non-archived workspace without switching the one you are actively working in.
+
+<AccordionGroup>
+  <Accordion title="Workspace card and live stats" icon="chart-simple">
+    The card shows the name, organization, mission, plan badge (**Team** or **Local**), creation date and a live count of agents, sources, issues and knowledge base pages. Below that you see each connected source (GitHub repo or local folder) with its role and primary flag.
+  </Accordion>
+  <Accordion title="Autonomy" icon="gauge-high">
+    The **Autonomy** slider is a workspace-wide setting that lives on the CEO orchestrator. It has three levels: **Low**, **Medium** and **High**. Higher autonomy lets the team take more steps before it pauses to ask you. It is set here, not per agent, because the orchestrator drives the whole team.
+  </Accordion>
+  <Accordion title="Archive a workspace" icon="box-archive">
+    Archiving hides a workspace from the switcher but keeps all its data. Archived workspaces are listed below with a **Restore** action.
+  </Accordion>
+  <Accordion title="Delete a workspace" icon="trash">
+    Deleting is permanent and asks for confirmation. If you delete the active workspace, Orkestral switches to another one or, if none remain, opens the onboarding wizard to create a new workspace.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Delete is irreversible. It removes the workspace and its data for good. Archive instead if you might want it back.
+</Warning>
+
+## Models
+
+This is your providers section. It lists the real AI adapters Orkestral discovered and, for each one, the models it actually exposes. Nothing here is hardcoded: the model chips come from each provider's own discovery.
+
+{/* PRINT: the Models panel showing provider cards with model chips and the Forge marked as Local included */}
+
+<AccordionGroup>
+  <Accordion title="Provider cards" icon="microchip">
+    Each provider shows its name, description and a row of available models. Badges tell you what a provider is: **Local, included** for the bundled Forge, **Recommended**, **Executor** for execute-only models and **Soon** for providers that are not connected yet.
+  </Accordion>
+  <Accordion title="The Forge" icon="hammer">
+    The bundled local model, the Forge (`orkestral_local`), is marked **Local, included**. It runs on your machine at no API cost and is the engine that applies code changes.
+  </Accordion>
+</AccordionGroup>
+
+### Smart routing
+
+Below the providers you control how work splits between premium planning models and the local Forge.
+
+<Tabs>
+  <Tab title="Core toggles">
+    - **Allow premium fallback** lets routing fall back to a premium model when the local path cannot handle a task.
+    - **Enabled** turns smart routing on or off.
+    - **Preserve CLI context** keeps your terminal context when routing.
+    - **Require approval for local** makes the team pause for your sign-off before running work locally.
+  </Tab>
+  <Tab title="Routing mode">
+    Choose how aggressively work moves to the local model:
+    - **Observe** watches without acting.
+    - **Ask** checks with you before routing.
+    - **Local assist** uses local help alongside premium planning.
+    - **Local first** prefers the local Forge whenever it can.
+  </Tab>
+  <Tab title="Max local risk">
+    **Max local risk** caps which tasks the local model is allowed to take: **Low**, **Medium** or **High**. Tasks above the cap stay with premium models.
+  </Tab>
+</Tabs>
+
+<Tip>
+Start with **Local first** and a **Medium** risk cap to keep cost near zero while the premium models stay reserved for planning. Read more in [Hybrid model routing](/en/hybrid-routing) and [The Forge](/en/forge).
+</Tip>
+
+## System
+
+System covers operating-system behavior and notifications, split into two groups.
+
+<CardGroup cols={2}>
+  <Card title="General" icon="desktop">
+    **Launch on startup** opens Orkestral when you sign in. **Time format** switches between 12h and 24h. **Show app in** controls whether the app lives in the dock, the status bar, or both.
+  </Card>
+  <Card title="Notifications" icon="bell">
+    **Notifications** turns desktop alerts on (the first time, it asks the OS for permission). **Notification sound** plays a sound with each alert. **Inbox notifications** controls alerts for inbox activity.
+  </Card>
+</CardGroup>
+
+## Appearance
+
+Appearance has two tabs: the general look, and the code theme used for highlighting and diffs.
+
+<Steps>
+  <Step title="Pick a theme">
+    Choose **Dark**, **Light** or **System** to follow your operating system.
+  </Step>
+  <Step title="Set the language">
+    Choose **Portuguese (Brazil)**, **English** or **System** to follow your OS language. The interface is bilingual.
+  </Step>
+  <Step title="Recolor a workspace">
+    The accent color is per workspace. Use the scope picker to choose which workspace to recolor, then click a color swatch. Recoloring a workspace other than the active one does not change the current session's color.
+  </Step>
+  <Step title="Tune density and font size">
+    Set **Density** to **Comfortable** or **Compact**, and **Font size** to **Small**, **Medium** or **Large**.
+  </Step>
+  <Step title="Choose a code theme">
+    Switch to the **Theme** tab and pick from the live preview cards. Each card shows real syntax highlighting plus a sample diff in that theme's colors.
+  </Step>
+</Steps>
+
+<Note>
+Theme, language, density and font size are global. Only the accent color follows the workspace scope picker.
+</Note>
+
+## Audio
+
+Audio picks the microphone used for voice dictation and the output device.
+
+Device names only appear after you grant microphone permission, so the panel shows a permission prompt first. Click the button to request access, then choose your **Input** and **Output** devices. Each falls back to **System default**. If your platform does not support output selection, that control is hidden.
+
+## Shortcuts
+
+Shortcuts is a read-only reference of every keyboard shortcut the app actually registers, grouped by **Navigation**, **Chat** and **General**. The list is generated from the live shortcut registry, so it always matches what works.
+
+## Privacy
+
+<Info>
+Privacy is tagged **Soon**. The three preference toggles persist for real, but Orkestral does not yet collect telemetry or run a masking engine. Treat them as recorded preferences the future will honor. The data actions below are real and take effect immediately.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Preferences" icon="shield-halved">
+    **Local telemetry**, **Mask secrets** and **Block sensitive files** are stored preferences. Nothing is sent anywhere today.
+  </Accordion>
+  <Accordion title="Clear cache" icon="eraser">
+    Clears the app's browsing cache immediately.
+  </Accordion>
+  <Accordion title="Clear chat history" icon="trash">
+    Scoped to the workspace you pick. After you confirm, it deletes that workspace's chat sessions and messages and reports how many were removed.
+  </Accordion>
+</AccordionGroup>
+
+## Data
+
+Data is your maintenance and storage hub. A hero block shows total database size and the on-disk path. A scope picker filters the counts to one workspace.
+
+<AccordionGroup>
+  <Accordion title="Counts" icon="database">
+    Two tile grids show workspace counts (agents, sessions, messages, issues) and knowledge base counts (pages, chunks, embeddings, trace events).
+  </Accordion>
+  <Accordion title="Embedding jobs" icon="wand-magic-sparkles">
+    When a knowledge base embedding job is queued or running, you see its status and progress, with a button to cancel it.
+  </Accordion>
+  <Accordion title="Suggested cleanup" icon="broom">
+    Orkestral previews safe-to-remove data for the selected workspace and estimates the space you would reclaim. Review the suggestions, then confirm to run the cleanup.
+  </Accordion>
+  <Accordion title="Maintenance" icon="screwdriver-wrench">
+    **Export to JSON** writes a full export and reports the path. **Open folder** reveals the data directory in your file manager. **Clear cache** wipes the app cache.
+  </Accordion>
+</AccordionGroup>
+
+## Support
+
+Support gathers real links and actions only. It shows your version, then opens the GitHub repository, a new issue form, the release notes, the in-app **Logs** view, and the data folder.
+
+## Advanced
+
+<Warning>
+Advanced appears only in local workspaces and holds developer and destructive actions. **Redo onboarding** resets the onboarding state and asks for confirmation before running.
+</Warning>
+
+## Team and Subscription
+
+These two sections are honest placeholders for features that depend on Orkestral Cloud, which does not exist yet.
+
+- **Team** lists the only real human (you) as the owner. AI agents are managed in the Agents area, not here. Inviting human teammates is disabled until Cloud ships.
+- **Subscription** shows your real plan and presents Orkestral Cloud as a **Soon** tier. There are no prices to buy and no invoices.
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Connect a provider" icon="plug" href="/en/providers">
+    Add API keys so premium models can plan for your team.
+  </Card>
+  <Card title="Tune routing" icon="route" href="/en/hybrid-routing">
+    Balance premium planning against the free local Forge.
+  </Card>
+  <Card title="Set autonomy" icon="gauge-high" href="/en/autonomy">
+    Decide how far the team goes before it asks you.
+  </Card>
+  <Card title="Back up your data" icon="download" href="/en/data-export">
+    Export to JSON and learn where your data lives on disk.
+  </Card>
+</CardGroup>

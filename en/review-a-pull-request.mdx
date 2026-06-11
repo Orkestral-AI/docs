@@ -1,0 +1,209 @@
+---
+title: "Review a pull request"
+description: "Step-by-step: get a senior-level review on a GitHub PR."
+---
+
+Orkestral runs a senior staff-level review on any GitHub pull request. A reviewer agent fetches the PR and its diff, reads your project conventions, then returns a structured verdict: a summary, a rating, a recommendation, inline comments tied to real lines, and a file-by-file walkthrough. You read everything inside the app, apply fixes locally, and optionally post the whole thing back to GitHub as a single review.
+
+This page walks you through running a review end to end, reading the findings, and acting on them.
+
+## What you get
+
+<CardGroup cols={2}>
+  <Card title="Inline comments" icon="comments">
+    Up to 12 comments tied to exact diff lines, each with a kind, a severity, a why-it-matters message, and an optional code suggestion.
+  </Card>
+  <Card title="Verdict and rating" icon="gavel">
+    A 0 to 10 rating, a risk level, an effort estimate, and a recommendation: approve, request changes, or comment.
+  </Card>
+  <Card title="File walkthrough" icon="list-check">
+    One line per changed file describing what changed and how it is classified (feature, fix, refactor, and so on).
+  </Card>
+  <Card title="Tests assessment" icon="flask">
+    What is covered, what is missing, and in which critical scenarios (auth, billing, sensitive data).
+  </Card>
+</CardGroup>
+
+## Before you start
+
+<AccordionGroup>
+  <Accordion title="A reviewer agent with an adapter" icon="user-gear">
+    The review runs through an agent. Orkestral picks an agent whose role or name matches `code-review` or `reviewer`, and falls back to your CEO orchestrator. That agent **must have an adapter configured** (Claude, Codex, or Gemini). With no adapter, the review fails with a clear message pointing you to **Agent settings, Adapter**.
+  </Accordion>
+  <Accordion title="The matching CLI installed" icon="terminal">
+    The adapter shells out to a local CLI: `claude`, `codex`, or `gemini`. The binary must be installed and on your `PATH`, with valid credentials or an API key. If it is missing, the review fails with the CLI name and the exit code so you can fix it.
+  </Accordion>
+  <Accordion title="GitHub access to the repo" icon="github">
+    Orkestral fetches the PR metadata and the unified diff through the GitHub API. The repo must be reachable with your connected GitHub credentials.
+  </Accordion>
+  <Accordion title="A local workspace path (recommended)" icon="folder-open">
+    If the workspace points at a local clone, the reviewer runs **inside that directory**. That lets it read `package.json`, lint and TypeScript configs, and neighbouring files to learn your conventions before commenting. It also unlocks applying suggestions to local files later.
+  </Accordion>
+</AccordionGroup>
+
+## Run a review
+
+<Steps>
+  <Step title="Open the code review surface">
+    Go to the code review area of your workspace and start a new review. You provide the repository (`owner/repo`) and the pull request number.
+
+    {/* PRINT: the new code review form with repo and PR number fields */}
+  </Step>
+  <Step title="Pick the reviewer (optional)">
+    Leave the reviewer on **auto** to let Orkestral choose, or pick a specific agent. The chosen agent's adapter and model drive the analysis. The agent's own instructions (its `AGENTS.md`) are prepended to the review prompt, so a reviewer you have tuned for your stack carries that context in.
+  </Step>
+  <Step title="Add linked PRs for cross-stack reviews (optional)">
+    If a change spans more than one repo (for example a backend PR plus a frontend PR), add them as **linked PRs**. The review then focuses on cross-stack problems: payload shapes that do not match, a field renamed on one side only, error codes the other side never handles, and races between deploys.
+
+    <Note>
+      With linked PRs, each diff is truncated proportionally so the combined prompt stays manageable. A single PR keeps up to 1500 diff lines; multiple PRs share a budget, with at least 400 lines each.
+    </Note>
+  </Step>
+  <Step title="Start the analysis">
+    Launch the review. Orkestral returns immediately and the work continues in the background, so the surface stays responsive while the agent thinks.
+  </Step>
+  <Step title="Watch the phases">
+    The review streams its progress through phases: **fetch** (pulling the PR and diff), **prompt** (assembling the diff and instructions), **spawn** (starting the CLI), **analyzing** (the agent reading the code), then **parse** (interpreting the response). For Claude the output streams token by token.
+
+    {/* PRINT: review modal showing the live phase indicator */}
+
+    <Tip>
+      Need to stop early? Cancel the review. Orkestral sends `SIGTERM` to the CLI process, escalates to `SIGKILL` after two seconds if needed, and marks the review as cancelled.
+    </Tip>
+  </Step>
+</Steps>
+
+## How the reviewer thinks
+
+Understanding the reviewer's brief helps you trust (and challenge) its output.
+
+<Tabs>
+  <Tab title="What it focuses on">
+    The prompt aims at **real engineering problems**, not codestyle:
+
+    - **Bugs**: race conditions, off-by-one, unhandled null or undefined, stale `useEffect` deps, accidental mutation, inverted conditions, missing cleanup, swallowed errors.
+    - **Security**: XSS, injection, hardcoded secrets, misconfigured CORS or CSRF, missing server-side validation.
+    - **Performance**: N+1 queries, effects rerunning every render, unnecessary renders, heavy imports, memory leaks.
+    - **Architecture and contract**: broken API shapes, duplicated state, severe coupling, side effects in the wrong place.
+    - **Tests**: a critical path (auth, billing, sensitive data) or an obvious edge case left uncovered, named specifically.
+  </Tab>
+  <Tab title="What it stays quiet about">
+    The reviewer is told **not** to comment on things your tooling already handles or that amount to noise:
+
+    - Formatting, spacing, quotes, trailing commas, line length.
+    - Trivial naming nitpicks and obvious explicit type annotations.
+    - Unused or unordered imports.
+    - "Consider extracting this" or "add a comment" with no concrete benefit.
+    - Hypothetical "if you ever need" suggestions.
+
+    It assumes your linter, formatter, and type-checker passed, because a team does not merge a red PR.
+  </Tab>
+  <Tab title="Language">
+    All prose (summary, comments, walkthrough, tests assessment) comes back in your active app language. Established technical terms stay in English (`useEffect`, `race condition`, `null`), but full sentences follow your locale.
+  </Tab>
+</Tabs>
+
+<Info>
+  When a local MCP config is available, the reviewer can call Orkestral tools mid-review, for example creating an issue when it finds a bug or searching your knowledge base to check a convention before commenting. If the MCP config cannot be built, the review still runs, just without those tools.
+</Info>
+
+## Read the findings
+
+Once the review completes, work through it top to bottom.
+
+<Steps>
+  <Step title="Start with the verdict">
+    Read the **summary**, then the **recommendation** and **rating** together:
+
+    - `approve`: rating is 7 or higher with nothing critical.
+    - `request_changes`: there is a critical finding, or the rating is 5 or lower.
+    - `comment`: suggestions worth seeing, but nothing blocking.
+
+    The **risk level** (low, medium, high) and **effort** (small, medium, large) give you a quick sense of how much attention the PR needs.
+  </Step>
+  <Step title="Scan highlights and concerns">
+    **Highlights** call out what the PR does well, specifically. **Concerns** list real technical risks. Use concerns as your checklist of what to verify before merging.
+  </Step>
+  <Step title="Read the tests assessment">
+    This tells you what coverage exists and which critical scenarios are missing. Treat a named gap (for example "no test for the network-error path") as a concrete to-do, not a generic nag.
+  </Step>
+  <Step title="Walk the files">
+    The **walkthrough** has one entry per changed file with a one or two sentence summary and a change kind (`feature`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`). Alongside it, Orkestral shows the **files changed** list with additions, deletions, and status (added, modified, deleted, renamed) parsed straight from the diff.
+  </Step>
+  <Step title="Open the inline comments">
+    Each comment carries:
+
+    - **filePath** and **line** pointing at the exact diff location.
+    - **kind**: bug, suggestion, security, style, performance, or question.
+    - **severity**: critical, warning, or info.
+    - **title** and **message** explaining the problem, the why, and the real impact.
+    - an optional **suggestion** (corrected code) and **codeContext** (a few surrounding lines).
+
+    {/* PRINT: an inline comment showing kind, severity, message and a code suggestion */}
+
+    <Warning>
+      The reviewer is capped at 12 inline comments by design. If a PR has more issues than that, it surfaces the ones that matter most rather than drowning you in nitpicks.
+    </Warning>
+  </Step>
+</Steps>
+
+## Act on a comment
+
+<Steps>
+  <Step title="Apply a suggestion locally">
+    For a comment that includes a suggestion and a target line, apply it to the file in your local workspace. Orkestral replaces the target lines (`lineStart` to `lineEnd`) with the suggested code, writes the file, and marks that comment **resolved**.
+
+    <Note>
+      This needs a workspace with a local path and the file present on disk. A comment with no target line cannot be applied automatically; fix it by hand instead.
+    </Note>
+  </Step>
+  <Step title="Inspect the diff in-app">
+    You can read the PR's diff per file without leaving Orkestral, so you can cross-check a comment against the actual hunk it points to.
+  </Step>
+</Steps>
+
+## Post the review to GitHub
+
+When you are happy with the result, push it back as a **single GitHub review** with inline comments.
+
+<Steps>
+  <Step title="Confirm the review is complete">
+    Only a completed review can be posted. It also needs the PR's head commit SHA, which Orkestral captures during the fetch phase. If that is missing, re-run the analysis.
+  </Step>
+  <Step title="Post it">
+    Orkestral posts every comment that has a target line as an inline comment on the head commit. Comments with a suggestion render as a GitHub `suggestion` block your teammates can apply with one click. Each comment is prefixed with its kind and severity.
+  </Step>
+  <Step title="Check the summary body">
+    The review body opens with a Code review by Orkestral heading, your summary, the risk level, the total comment count, and a breakdown by kind (bugs, security, suggestions, performance, style, questions). The review is posted with the `COMMENT` event, so it does not approve or block the PR on its own.
+
+    {/* PRINT: the posted review on GitHub with inline suggestions */}
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The agent has no adapter configured" icon="triangle-exclamation">
+    Open the reviewer agent's settings, go to **Adapter**, and pick Claude, Codex, or Gemini. Without one, the review cannot run.
+  </Accordion>
+  <Accordion title="The CLI failed (exit code shown)" icon="terminal">
+    The error includes the CLI name and its stderr. Confirm the binary is installed and on your `PATH`, that credentials or an API key are valid, and that the adapter is reachable.
+  </Accordion>
+  <Accordion title="Could not parse the response as JSON" icon="brackets-curly">
+    The reviewer must return a single JSON block with no markdown or prose around it. Orkestral repairs common issues (trailing commas, smart quotes, stray comments) and extracts the first balanced object, but a chatty agent can still break it. Check the reviewer's `AGENTS.md` to make sure it is not adding a preamble.
+  </Accordion>
+  <Accordion title="Could not fetch the PR from GitHub" icon="github">
+    Verify the `owner/repo` and PR number are correct and that your GitHub connection has access to that repository.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Turn a finding into work" icon="list-check">
+    Let the reviewer open issues from bugs it finds, or create them yourself, and track the fixes as epics and issues.
+  </Card>
+  <Card title="Tune your reviewer agent" icon="user-gear">
+    Sharpen the reviewer's `AGENTS.md` with your team's conventions so future reviews land closer to how you actually merge.
+  </Card>
+</CardGroup>

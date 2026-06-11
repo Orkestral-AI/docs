@@ -1,0 +1,166 @@
+---
+title: "Azure DevOps"
+description: "Conecte repositórios e pull requests do Azure DevOps."
+---
+
+A integração com o Azure DevOps permite que você faça login com sua conta corporativa ou de estudante da Microsoft e navegue pelos seus repositórios Git do Azure DevOps de dentro do Orkestral. Depois de conectado, o Orkestral lista as organizações, projetos e repositórios aos quais você tem acesso, para que você possa adicioná-los como fontes para os seus agentes trabalharem.
+
+A autenticação usa o **fluxo de código de dispositivo OAuth** da Microsoft. O Orkestral nunca pede sua senha. Você aprova a conexão no navegador, e o Orkestral armazena os tokens resultantes de forma criptografada na sua máquina.
+
+{/* PRINT: Cartão da integração Azure DevOps nas configurações, mostrando a conta conectada e as organizações */}
+
+## O que ela habilita
+
+<CardGroup cols={2}>
+  <Card title="Faça login com a Microsoft" icon="key">
+    Conecte sua conta do Azure DevOps por meio do fluxo de código de dispositivo, sem nenhum tratamento de senha dentro do aplicativo.
+  </Card>
+  <Card title="Navegue pelos repositórios" icon="folder-tree">
+    Liste repositórios Git em todas as organizações e projetos que sua conta consegue acessar.
+  </Card>
+  <Card title="Tokens criptografados" icon="lock">
+    Os tokens de acesso e de atualização são criptografados em repouso com o keychain do sistema operacional e nunca são expostos ao renderer.
+  </Card>
+  <Card title="Atualização automática" icon="rotate">
+    O Orkestral atualiza o token de acesso em segundo plano enquanto houver um token de atualização disponível.
+  </Card>
+</CardGroup>
+
+## Requisitos
+
+- Uma conta corporativa ou de estudante da Microsoft com acesso a pelo menos uma organização do Azure DevOps.
+- Os repositórios que você quer usar precisam estar no **Azure Repos** (Git). O Orkestral lista apenas repositórios que expõem uma URL de clonagem.
+- Um keychain do sistema operacional funcional para que o Orkestral possa criptografar os tokens. No macOS é o Keychain, no Windows é o Credential Manager, no Linux é um provedor Secret Service. Se a criptografia não estiver disponível, a conexão falha com um erro.
+- Uma conexão com a internet para alcançar `login.microsoftonline.com`, `app.vssps.visualstudio.com` e `dev.azure.com`.
+
+<Note>
+O Orkestral solicita os escopos `user_impersonation` (no recurso do Azure DevOps) e `offline_access`. O escopo `offline_access` é o que permite ao Orkestral obter um token de atualização e manter sua sessão ativa.
+</Note>
+
+## Como conectar
+
+<Steps>
+  <Step title="Abra a integração">
+    Vá até a área de integrações ou configurações e escolha **Azure DevOps**, depois inicie a conexão.
+  </Step>
+  <Step title="Inicie o fluxo de dispositivo">
+    O Orkestral solicita um código de dispositivo à Microsoft e mostra a você um **código de usuário** curto, além de um link de verificação.
+  </Step>
+  <Step title="Aprove no navegador">
+    Abra a URL de verificação (o Orkestral pode abri-la para você), faça login com sua conta da Microsoft e insira o código de usuário. Aprove as permissões solicitadas.
+  </Step>
+  <Step title="Aguarde a confirmação">
+    O Orkestral consulta a Microsoft até você aprovar. Quando o fluxo retorna `authorized`, os detalhes da sua conta e as organizações aparecem no aplicativo.
+  </Step>
+  <Step title="Navegue e adicione repositórios">
+    O Orkestral lista seus repositórios. Escolha os que você quer e adicione-os como fontes para os seus agentes.
+  </Step>
+</Steps>
+
+<Tip>
+O código de usuário expira após alguns minutos. Se ele expirar antes de você concluir, inicie a conexão novamente para obter um código novo.
+</Tip>
+
+## Estados do fluxo de dispositivo
+
+Enquanto você conclui a etapa no navegador, o Orkestral consulta a Microsoft e reage a cada estado que ela retorna.
+
+| Estado | Significado |
+| --- | --- |
+| `pending` | Você ainda não aprovou. O Orkestral continua consultando. |
+| `slow_down` | A Microsoft pede que o Orkestral consulte com menos frequência. O intervalo aumenta automaticamente. |
+| `expired` | O código de usuário expirou. Inicie a conexão novamente. |
+| `denied` | Você recusou a solicitação ou o acesso foi negado. |
+| `authorized` | O login foi bem-sucedido. Sua conta e organizações foram salvas. |
+
+## Opções de configuração
+
+A integração funciona com os padrões internos. As variáveis de ambiente a seguir permitem apontar o Orkestral para um tenant do Microsoft Entra (Azure AD) ou para um registro de aplicativo diferente, o que é útil em configurações de tenant único ou corporativas.
+
+<ParamField path="ORKESTRAL_AZURE_TENANT_ID" type="string" default="common">
+  O tenant do Microsoft Entra usado para a URL de autoridade (`https://login.microsoftonline.com/<tenant>`). Use `common` para login multi-tenant, ou um ID de tenant específico para restringir o login a um único diretório.
+</ParamField>
+
+<ParamField path="ORKESTRAL_AZURE_DEVOPS_CLIENT_ID" type="string" default="ad5bfc00-c17c-4f09-a296-dce587eae0a7">
+  O ID do aplicativo (cliente) usado para o fluxo de código de dispositivo. Substitua-o para usar seu próprio registro de aplicativo.
+</ParamField>
+
+<Warning>
+Estas são variáveis de ambiente lidas pelo processo principal do Orkestral na inicialização. Defina-as antes de iniciar o aplicativo. Se você alterá-las após conectar, desconecte e conecte novamente para que a nova autoridade e o novo ID de cliente entrem em vigor.
+</Warning>
+
+## O que é armazenado
+
+Quando você conecta, o Orkestral salva um único registro de conta do Azure DevOps. Os campos públicos, não secretos, que você pode ver no aplicativo são:
+
+| Campo | Descrição |
+| --- | --- |
+| `displayName` | Seu nome, lido a partir do ID token. |
+| `email` | Seu nome de login (`preferred_username`) ou e-mail. |
+| `tenantId` | O ID do tenant para o qual o token foi emitido. |
+| `scope` | Os escopos OAuth concedidos. |
+| `connectedAt` | Quando a conta foi conectada pela primeira vez. |
+| `expiresAt` | Quando o token de acesso atual expira. |
+| `organizations` | As organizações do Azure DevOps vinculadas à sua conta. |
+
+O token de acesso e o token de atualização são armazenados **criptografados** e nunca retornados à interface. O Orkestral descriptografa o token de acesso apenas quando precisa chamar a API do Azure DevOps.
+
+## Como funciona a listagem de repositórios
+
+Quando você lista repositórios, o Orkestral:
+
+1. Obtém um token de acesso válido, atualizando-o antes caso ele expire em cerca de 90 segundos.
+2. Determina quais organizações consultar. Ele usa uma organização específica se você passar uma, caso contrário usa as organizações salvas na sua conta, caso contrário as descobre a partir do seu perfil.
+3. Para cada organização, lista os projetos e, em seguida, lista os repositórios Git em cada projeto.
+4. Retorna apenas repositórios que têm uma URL de clonagem, ordenados pelo nome completo (`organization/project/repo`).
+
+Cada entrada de repositório inclui sua organização, projeto, branch padrão, URL web, URL SSH, URL de clonagem e tamanho, quando disponível.
+
+<Info>
+A descoberta percorre todas as organizações e projetos aos quais você tem acesso, então a listagem pode levar um momento em contas grandes. Repositórios sem uma URL remota utilizável são ignorados.
+</Info>
+
+## Desconectando
+
+Desconectar exclui a conta do Azure DevOps armazenada, incluindo os tokens criptografados de acesso e de atualização. Após desconectar, você precisa executar o fluxo de dispositivo novamente para reconectar. As fontes que você já adicionou permanecem configuradas, mas o Orkestral não consegue mais buscar dados atualizados para elas até você reconectar.
+
+## Recursos e limites
+
+- O Orkestral lê metadados de repositórios para navegação e adição de fontes. Ele age com suas próprias permissões do Azure DevOps por meio de `user_impersonation`.
+- Apenas repositórios do **Azure Repos (Git)** são listados. Repositórios TFVC e repositórios sem uma URL de clonagem não aparecem.
+- A sessão permanece ativa automaticamente enquanto houver um token de atualização. Se o token de acesso expirar e não existir nenhum token de atualização, você é solicitado a conectar novamente.
+- A criptografia de tokens depende do keychain do sistema operacional. Em ambientes onde ele não está disponível, a conexão e a leitura de tokens falham.
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Criptografia indisponível">
+    O Orkestral não conseguiu acessar o keychain do sistema operacional para criptografar ou descriptografar os tokens. Verifique se o seu keychain ou armazenamento de credenciais está desbloqueado e disponível, depois tente conectar novamente. No Linux, confirme que um provedor Secret Service (como o GNOME Keyring) está em execução.
+  </Accordion>
+  <Accordion title="O código de usuário expirou antes de eu aprovar">
+    O código de dispositivo tem vida curta. Inicie a conexão novamente para obter um novo código, depois aprove-o prontamente no navegador.
+  </Accordion>
+  <Accordion title="Sessão expirada. Conecte novamente.">
+    Seu token de acesso expirou e nenhum token de atualização foi armazenado, ou a atualização falhou. Desconecte e execute o fluxo de dispositivo novamente para obter uma nova sessão.
+  </Accordion>
+  <Accordion title="Nenhuma organização ou repositório aparece">
+    Confirme que sua conta pertence a pelo menos uma organização do Azure DevOps e que os repositórios são baseados em Git. O Orkestral descobre organizações a partir do seu perfil, então certifique-se de que seu perfil esteja acessível. Se você usa uma configuração de tenant único, verifique se `ORKESTRAL_AZURE_TENANT_ID` aponta para o diretório correto.
+  </Accordion>
+  <Accordion title="O login é recusado ou o acesso é negado">
+    O fluxo retornou `denied`. Execute a conexão novamente e aprove todas as permissões solicitadas. Se a sua organização aplica políticas de acesso condicional, pode ser necessário que um administrador autorize o registro do aplicativo.
+  </Accordion>
+  <Accordion title="Um repositório que eu espero está faltando">
+    O Orkestral ignora repositórios que não expõem uma URL de clonagem e lista apenas o Azure Repos (Git). Verifique se o repositório existe em um projeto ao qual você tem acesso e se é um repositório Git.
+  </Accordion>
+</AccordionGroup>
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Fontes" href="/pt/sources" icon="folder">
+    Adicione repositórios conectados como fontes para os seus agentes.
+  </Card>
+  <Card title="Integrações" href="/pt/integrations" icon="plug">
+    Veja os outros provedores que você pode conectar ao Orkestral.
+  </Card>
+</CardGroup>

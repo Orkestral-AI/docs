@@ -1,0 +1,246 @@
+---
+title: "Configurações"
+description: "Configure o Orkestral: provedores, autonomia, aparência e mais."
+---
+
+Configurações é onde você ajusta o Orkestral para você e seu time. Você gerencia seu perfil, escolhe quais provedores e modelos de IA alimentam seus agentes, controla quanto o time pode fazer por conta própria, muda a aparência do app e roda a manutenção de dados. Tudo fica atrás de uma única janela com uma barra lateral de seções agrupadas.
+
+Abra as Configurações de qualquer lugar com `Cmd ,` (ou `Ctrl ,` no Windows e Linux). Pressione novamente para fechar, ou aperte `Esc`. O mesmo atalho funciona como alternância.
+
+{/* PRINT: a janela de Configurações com a barra lateral agrupada à esquerda e um painel aberto à direita */}
+
+<Note>
+A maioria das mudanças salva instantaneamente. Alternâncias, seletores e amostras de cor são aplicados no momento em que você clica. O formulário de perfil em **Geral** é a exceção: edite os campos e depois pressione **Salvar**.
+</Note>
+
+## Como as Configurações são organizadas
+
+A barra lateral agrupa seções por contexto para você encontrar as coisas rápido. O número da versão fica na parte de baixo da barra lateral.
+
+<CardGroup cols={2}>
+  <Card title="Conta" icon="user">
+    Perfil em **Geral**, **Time** (em breve) e **Assinatura** (em breve).
+  </Card>
+  <Card title="Workspace" icon="briefcase">
+    Gerenciamento e autonomia do **Workspace**, além de **Modelos** (seus provedores de IA).
+  </Card>
+  <Card title="App" icon="sliders">
+    **Sistema**, **Aparência**, **Áudio**, **Atalhos**, **Privacidade** (em breve) e **Dados**.
+  </Card>
+  <Card title="Ajuda" icon="life-ring">
+    Links de **Suporte** e, somente em workspaces locais, ferramentas de desenvolvedor em **Avançado**.
+  </Card>
+</CardGroup>
+
+<Info>
+Seções marcadas como **Em breve** mantêm suas preferências, mas ainda não têm um backend por trás delas. **Avançado** aparece somente quando seu workspace ativo roda em modo local.
+</Info>
+
+## Geral
+
+Este é seu perfil e o bloco "sobre" do app.
+
+<Steps>
+  <Step title="Defina sua identidade">
+    Preencha **Nome** e **Email**. O nome é como os agentes se dirigem a você no chat.
+  </Step>
+  <Step title="Adicione apelidos">
+    Use **Apelidos** para outros nomes pelos quais as pessoas te chamam (separados por vírgula). Os agentes reconhecem esses nomes ao ler seus repos e mensagens.
+  </Step>
+  <Step title="Salve">
+    Pressione **Salvar**. O botão fica desabilitado até seu perfil terminar de carregar.
+  </Step>
+  <Step title="Escolha um comportamento de fuso horário">
+    Ative **Usar fuso horário do dispositivo** para seguir sua máquina, ou abra **Configurações de data e hora** para ajustar o relógio do sistema operacional.
+  </Step>
+  <Step title="Verifique atualizações">
+    O bloco **Sobre** mostra sua versão e verifica os GitHub Releases. Se existir uma versão mais nova, você recebe um link clicável para ela; caso contrário, confirma que você está atualizado. **Sair** fecha o app.
+  </Step>
+</Steps>
+
+## Workspace
+
+A seção Workspace gerencia os workspaces que você criou e define quão autônomo é o time.
+
+Um **seletor de escopo** no topo permite inspecionar ou gerenciar qualquer workspace não arquivado sem trocar aquele em que você está trabalhando ativamente.
+
+<AccordionGroup>
+  <Accordion title="Card do workspace e estatísticas ao vivo" icon="chart-simple">
+    O card mostra o nome, a organização, a missão, o selo do plano (**Team** ou **Local**), a data de criação e uma contagem ao vivo de agentes, fontes, issues e páginas da base de conhecimento. Abaixo, você vê cada fonte conectada (repo do GitHub ou pasta local) com seu papel e a marca de principal.
+  </Accordion>
+  <Accordion title="Autonomia" icon="gauge-high">
+    O controle deslizante de **Autonomia** é uma configuração de todo o workspace que reside no orquestrador CEO. Tem três níveis: **Baixa**, **Média** e **Alta**. Uma autonomia mais alta permite que o time dê mais passos antes de pausar para te perguntar. Ela é definida aqui, e não por agente, porque o orquestrador conduz todo o time.
+  </Accordion>
+  <Accordion title="Arquivar um workspace" icon="box-archive">
+    Arquivar oculta um workspace do alternador, mas mantém todos os seus dados. Workspaces arquivados são listados abaixo com uma ação **Restaurar**.
+  </Accordion>
+  <Accordion title="Excluir um workspace" icon="trash">
+    A exclusão é permanente e pede confirmação. Se você excluir o workspace ativo, o Orkestral muda para outro ou, se nenhum restar, abre o assistente de onboarding para criar um novo workspace.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Excluir é irreversível. Remove o workspace e seus dados para sempre. Prefira arquivar caso queira recuperá-lo depois.
+</Warning>
+
+## Modelos
+
+Esta é sua seção de provedores. Ela lista os adaptadores de IA reais que o Orkestral descobriu e, para cada um, os modelos que ele de fato expõe. Nada aqui é fixo no código: os chips de modelo vêm da própria descoberta de cada provedor.
+
+{/* PRINT: o painel Modelos mostrando cards de provedores com chips de modelo e a Forge marcada como Local incluída */}
+
+<AccordionGroup>
+  <Accordion title="Cards de provedores" icon="microchip">
+    Cada provedor mostra seu nome, descrição e uma linha de modelos disponíveis. Os selos indicam o que um provedor é: **Local, incluído** para a Forge embutida, **Recomendado**, **Executor** para modelos somente de execução e **Em breve** para provedores que ainda não estão conectados.
+  </Accordion>
+  <Accordion title="A Forge" icon="hammer">
+    O modelo local embutido, a Forge (`orkestral_local`), é marcado como **Local, incluído**. Ele roda na sua máquina sem custo de API e é o motor que aplica mudanças de código.
+  </Accordion>
+</AccordionGroup>
+
+### Roteamento inteligente
+
+Abaixo dos provedores, você controla como o trabalho se divide entre modelos premium de planejamento e a Forge local.
+
+<Tabs>
+  <Tab title="Alternâncias principais">
+    - **Permitir fallback premium** deixa o roteamento recorrer a um modelo premium quando o caminho local não consegue dar conta de uma tarefa.
+    - **Habilitado** liga ou desliga o roteamento inteligente.
+    - **Preservar contexto da CLI** mantém o contexto do seu terminal ao rotear.
+    - **Exigir aprovação para local** faz o time pausar para sua autorização antes de rodar trabalho localmente.
+  </Tab>
+  <Tab title="Modo de roteamento">
+    Escolha com que agressividade o trabalho migra para o modelo local:
+    - **Observar** observa sem agir.
+    - **Perguntar** confere com você antes de rotear.
+    - **Assistência local** usa ajuda local junto com o planejamento premium.
+    - **Local primeiro** prefere a Forge local sempre que possível.
+  </Tab>
+  <Tab title="Risco local máximo">
+    **Risco local máximo** limita quais tarefas o modelo local pode assumir: **Baixo**, **Médio** ou **Alto**. Tarefas acima do limite permanecem com os modelos premium.
+  </Tab>
+</Tabs>
+
+<Tip>
+Comece com **Local primeiro** e um limite de risco **Médio** para manter o custo perto de zero enquanto os modelos premium ficam reservados para o planejamento. Leia mais em [Roteamento híbrido de modelos](/pt/hybrid-routing) e [A Forge](/pt/forge).
+</Tip>
+
+## Sistema
+
+Sistema cobre o comportamento do sistema operacional e as notificações, dividido em dois grupos.
+
+<CardGroup cols={2}>
+  <Card title="Geral" icon="desktop">
+    **Iniciar com o sistema** abre o Orkestral quando você faz login. **Formato de hora** alterna entre 12h e 24h. **Mostrar app em** controla se o app fica no dock, na barra de status, ou em ambos.
+  </Card>
+  <Card title="Notificações" icon="bell">
+    **Notificações** liga os alertas da área de trabalho (na primeira vez, pede permissão ao sistema operacional). **Som de notificação** toca um som a cada alerta. **Notificações da caixa de entrada** controla os alertas de atividade na caixa de entrada.
+  </Card>
+</CardGroup>
+
+## Aparência
+
+Aparência tem duas abas: a aparência geral e o tema de código usado no realce e nos diffs.
+
+<Steps>
+  <Step title="Escolha um tema">
+    Escolha **Escuro**, **Claro** ou **Sistema** para seguir seu sistema operacional.
+  </Step>
+  <Step title="Defina o idioma">
+    Escolha **Português (Brasil)**, **Inglês** ou **Sistema** para seguir o idioma do seu SO. A interface é bilíngue.
+  </Step>
+  <Step title="Recolora um workspace">
+    A cor de destaque é por workspace. Use o seletor de escopo para escolher qual workspace recolorir, depois clique em uma amostra de cor. Recolorir um workspace diferente do ativo não muda a cor da sessão atual.
+  </Step>
+  <Step title="Ajuste densidade e tamanho da fonte">
+    Defina **Densidade** como **Confortável** ou **Compacta**, e **Tamanho da fonte** como **Pequeno**, **Médio** ou **Grande**.
+  </Step>
+  <Step title="Escolha um tema de código">
+    Vá para a aba **Tema** e escolha entre os cards de pré-visualização ao vivo. Cada card mostra o realce de sintaxe real mais um diff de exemplo nas cores daquele tema.
+  </Step>
+</Steps>
+
+<Note>
+Tema, idioma, densidade e tamanho da fonte são globais. Somente a cor de destaque segue o seletor de escopo do workspace.
+</Note>
+
+## Áudio
+
+Áudio escolhe o microfone usado para a ditadura por voz e o dispositivo de saída.
+
+Os nomes dos dispositivos só aparecem depois que você concede permissão de microfone, então o painel mostra primeiro um pedido de permissão. Clique no botão para solicitar acesso, depois escolha seus dispositivos de **Entrada** e **Saída**. Cada um recorre ao **Padrão do sistema**. Se sua plataforma não suporta a seleção de saída, esse controle fica oculto.
+
+## Atalhos
+
+Atalhos é uma referência somente leitura de cada atalho de teclado que o app de fato registra, agrupados por **Navegação**, **Chat** e **Geral**. A lista é gerada a partir do registro de atalhos ao vivo, então ela sempre corresponde ao que funciona.
+
+## Privacidade
+
+<Info>
+Privacidade está marcada como **Em breve**. As três alternâncias de preferência persistem de verdade, mas o Orkestral ainda não coleta telemetria nem roda um mecanismo de mascaramento. Trate-as como preferências registradas que o futuro vai honrar. As ações de dados abaixo são reais e têm efeito imediato.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Preferências" icon="shield-halved">
+    **Telemetria local**, **Mascarar segredos** e **Bloquear arquivos sensíveis** são preferências armazenadas. Nada é enviado a lugar nenhum hoje.
+  </Accordion>
+  <Accordion title="Limpar cache" icon="eraser">
+    Limpa o cache de navegação do app imediatamente.
+  </Accordion>
+  <Accordion title="Limpar histórico de chat" icon="trash">
+    Restrito ao workspace que você escolher. Após confirmar, exclui as sessões e mensagens de chat daquele workspace e informa quantas foram removidas.
+  </Accordion>
+</AccordionGroup>
+
+## Dados
+
+Dados é seu hub de manutenção e armazenamento. Um bloco em destaque mostra o tamanho total do banco de dados e o caminho em disco. Um seletor de escopo filtra as contagens para um workspace.
+
+<AccordionGroup>
+  <Accordion title="Contagens" icon="database">
+    Duas grades de blocos mostram contagens do workspace (agentes, sessões, mensagens, issues) e contagens da base de conhecimento (páginas, chunks, embeddings, eventos de trace).
+  </Accordion>
+  <Accordion title="Jobs de embedding" icon="wand-magic-sparkles">
+    Quando um job de embedding da base de conhecimento está na fila ou em execução, você vê seu status e progresso, com um botão para cancelá-lo.
+  </Accordion>
+  <Accordion title="Limpeza sugerida" icon="broom">
+    O Orkestral pré-visualiza os dados seguros para remover do workspace selecionado e estima o espaço que você recuperaria. Revise as sugestões e depois confirme para rodar a limpeza.
+  </Accordion>
+  <Accordion title="Manutenção" icon="screwdriver-wrench">
+    **Exportar para JSON** grava uma exportação completa e informa o caminho. **Abrir pasta** revela o diretório de dados no seu gerenciador de arquivos. **Limpar cache** apaga o cache do app.
+  </Accordion>
+</AccordionGroup>
+
+## Suporte
+
+Suporte reúne apenas links e ações reais. Mostra sua versão, depois abre o repositório do GitHub, um formulário de nova issue, as notas de versão, a visão de **Logs** dentro do app e a pasta de dados.
+
+## Avançado
+
+<Warning>
+Avançado aparece somente em workspaces locais e contém ações de desenvolvedor e destrutivas. **Refazer onboarding** redefine o estado do onboarding e pede confirmação antes de rodar.
+</Warning>
+
+## Time e Assinatura
+
+Essas duas seções são placeholders honestos para recursos que dependem do Orkestral Cloud, que ainda não existe.
+
+- **Time** lista o único humano real (você) como proprietário. Os agentes de IA são gerenciados na área de Agentes, não aqui. Convidar colegas humanos fica desabilitado até o Cloud chegar.
+- **Assinatura** mostra seu plano real e apresenta o Orkestral Cloud como um nível **Em breve**. Não há preços para comprar nem faturas.
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Conectar um provedor" icon="plug" href="/pt/providers">
+    Adicione chaves de API para que os modelos premium possam planejar para seu time.
+  </Card>
+  <Card title="Ajustar o roteamento" icon="route" href="/pt/hybrid-routing">
+    Equilibre o planejamento premium com a Forge local gratuita.
+  </Card>
+  <Card title="Definir a autonomia" icon="gauge-high" href="/pt/autonomy">
+    Decida até onde o time vai antes de te perguntar.
+  </Card>
+  <Card title="Fazer backup dos seus dados" icon="download" href="/pt/data-export">
+    Exporte para JSON e descubra onde seus dados ficam em disco.
+  </Card>
+</CardGroup>

@@ -1,0 +1,180 @@
+---
+title: "Connect a repository"
+description: "Step-by-step: add a repo or folder and let Orkestral map it."
+---
+
+A source is any codebase you want the team to work on: a GitHub repository, an Azure DevOps repository, or a local folder on your machine. Once you connect a source to a workspace, Orkestral reads it, maps it, and gives every agent (CEO, Tech Lead, Code Reviewer, and the specialists) full context to plan and execute work.
+
+This guide walks you through every way to add a source, explains what mapping does, and shows how Orkestral stays aware of git the whole time.
+
+<Info>
+Sources belong to a **workspace**. Make sure the workspace you want is active before you start. The dialog reads the active workspace automatically.
+</Info>
+
+## What you can connect
+
+<CardGroup cols={3}>
+  <Card title="GitHub repository" icon="github">
+    Pick from the repos your GitHub account can see. Orkestral clones it locally so agents have the real files.
+  </Card>
+  <Card title="Azure DevOps repository" icon="microsoft">
+    Connect your Azure DevOps account once, then choose any repo your account can access.
+  </Card>
+  <Card title="Local folder" icon="folder">
+    Point Orkestral at a folder already on your disk. It scans for git repos inside and lets you add several at once.
+  </Card>
+</CardGroup>
+
+## Open the add source dialog
+
+<Steps>
+  <Step title="Make sure the right workspace is active">
+    The source you add lands in whatever workspace is active. Switch workspaces from the sidebar if needed. Switching workspaces also changes the accent color, which is a quick visual confirmation you are in the right place.
+  </Step>
+  <Step title="Trigger Add source">
+    Open the **Add source** dialog from the sidebar or wherever your workspace exposes it. The dialog is global, so you can open it from anywhere in the app.
+
+    {/* PRINT: the Add source dialog with the GitHub, Azure, and Folder tabs */}
+  </Step>
+  <Step title="Pick a tab">
+    Choose **GitHub**, **Azure**, or **Folder** at the top of the dialog. The rest of this guide has one section per tab.
+  </Step>
+</Steps>
+
+## Connect a GitHub repository
+
+<Steps>
+  <Step title="Open the GitHub tab">
+    The dialog loads the list of repositories your GitHub account can access. If the list is empty or errors out, your GitHub connection is missing or expired, so reconnect GitHub first.
+  </Step>
+  <Step title="Search and select a repo">
+    Use the search box to filter by full name (for example `your-org/your-repo`). Click a repo to select it. The list shows up to 50 matches, so narrow the search if you do not see yours.
+  </Step>
+  <Step title="Set the label and role">
+    - **Label** is the friendly name shown across the app. It defaults to the repo name, and you can change it.
+    - **Role** tells the team how to treat this source (for example Frontend or Backend). Roles use the standard role set. Leaving it empty is fine.
+  </Step>
+  <Step title="Decide on analysis">
+    Leave **Analyze after adding** checked to let Orkestral map the code and propose a team right away. See [What mapping does](#what-mapping-does) below.
+  </Step>
+  <Step title="Add the source">
+    Click **Add**. Orkestral clones the repo locally and registers it in the workspace. The first source you add becomes the **primary** source automatically.
+  </Step>
+</Steps>
+
+<Note>
+Private repos clone over HTTPS using an ephemeral auth header. The token is used only for the network call and is never written into `.git/config`, so the stored remote URL stays clean.
+</Note>
+
+## Connect an Azure DevOps repository
+
+<Steps>
+  <Step title="Connect your Azure account (first time only)">
+    If no Azure account is linked yet, the tab shows a **Connect** button. Click it to start a device-code sign-in. Orkestral opens the verification page in your browser. Enter the code, approve access, and the dialog detects the approval automatically.
+  </Step>
+  <Step title="Search and select a repo">
+    Once connected, the tab lists the repositories your Azure account can reach. Filter by full name and click the one you want. Each row shows the remote URL so you can confirm you picked the right project.
+  </Step>
+  <Step title="Set the label and role">
+    Same as GitHub: the **Label** defaults to the repo name and the **Role** is optional.
+  </Step>
+  <Step title="Add the source">
+    Click **Add**. Orkestral registers the Azure repo just like a GitHub one, and the first source in the workspace becomes primary.
+  </Step>
+</Steps>
+
+<Tip>
+If the sign-in window sits too long, the device flow expires and you will see an error. Just click **Connect** again to restart it.
+</Tip>
+
+## Connect a local folder
+
+The folder tab is the most flexible option, because Orkestral scans what you point it at and helps you add nested repos in one pass.
+
+<Steps>
+  <Step title="Choose a folder">
+    Type or paste an absolute path, or click **Choose** to open the native folder picker. The label defaults to the folder name once you pick one.
+  </Step>
+  <Step title="Set an initial label and role">
+    Fill in a **Label** and an optional **Role** for the top folder. You can still adjust these per item in the next step if a scan finds nested repos.
+  </Step>
+  <Step title="Let Orkestral scan">
+    Click **Add** to scan the folder. Two things can happen:
+
+    <Tabs>
+      <Tab title="Single source">
+        If the folder is itself a git repo, or it contains no git repos inside, Orkestral adds it as a single source and closes the dialog.
+      </Tab>
+      <Tab title="Repos found inside">
+        If the folder holds one or more git repos, Orkestral shows a selection list: the parent folder plus every repo it found, all pre-checked.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Review the selection (when repos are found)">
+    Each row shows the path and an icon: a branch icon for a git repo, a folder icon with a **local folder** badge for the parent. For every checked item you can edit its **Label** and **Role** independently. Uncheck anything you do not want.
+  </Step>
+  <Step title="Add the selected items">
+    Click **Add selected**. Orkestral creates each checked item as its own source. The first one becomes primary if the workspace had no sources yet, and the team proposal (if enabled) runs once at the end rather than once per repo.
+  </Step>
+</Steps>
+
+<Warning>
+If the multi-add fails partway through, some sources may already exist. Orkestral deduplicates by path, so re-submitting will not create duplicates. The dialog stays open so you can retry the rest.
+</Warning>
+
+## What mapping does
+
+Mapping (also called analysis or indexing) is what turns a raw codebase into context the team can reason about. When **Analyze after adding** is checked, two things run after the source is created.
+
+<AccordionGroup>
+  <Accordion title="Knowledge analysis" icon="brain">
+    Orkestral reads the source and builds an understanding of its structure, stack, and conventions. This is what lets a premium model PLAN accurately and what lets the FORGE (the bundled local model) EXECUTE edits that fit your codebase. Knowledge coverage is tracked per workspace so you can see what has been mapped.
+  </Accordion>
+  <Accordion title="Hiring plan" icon="users">
+    After mapping, Orkestral proposes a team tailored to what it found, so you can hire the specialists the codebase actually needs. When you add several folders at once, this proposal runs a single time on the last item, so you are not flooded with one team proposal per repo.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+You can leave **Analyze after adding** unchecked if you only want to register the source now and map it later. Mapping is what gives agents their context, so run it before you expect high-quality plans.
+</Tip>
+
+## Git awareness
+
+For any source that is a git repo, Orkestral shells out to the `git` CLI already on your machine. That means it behaves exactly like your terminal and works the same on macOS, Linux, and Windows. Here is what it tracks and does.
+
+<CardGroup cols={2}>
+  <Card title="Status" icon="circle-info">
+    Current branch, upstream, how many commits you are ahead or behind, and every changed file (staged, unstaged, and untracked). New files inside a new folder each show up individually.
+  </Card>
+  <Card title="Diffs" icon="code-compare">
+    Per-file diffs with generous context, including untracked files rendered as fresh additions so nothing is invisible in the review panel.
+  </Card>
+  <Card title="Branches" icon="code-branch">
+    List local and remote branches with their last commit, check out a branch, or create a new one from any base.
+  </Card>
+  <Card title="Commit and sync" icon="arrows-rotate">
+    Stage, unstage, discard, commit, then push, pull, or fetch. Network operations on private HTTPS repos use the same ephemeral auth header pattern as cloning.
+  </Card>
+</CardGroup>
+
+<Note>
+Errors are translated into plain guidance. A rejected push tells you to pull first, an up-to-date push tells you there is nothing to send, and an auth failure points you at configuring your credentials.
+</Note>
+
+## After you connect
+
+<CardGroup cols={2}>
+  <Card title="Brief the CEO" icon="comments">
+    Open a chat and describe what you want. The CEO orchestrator reads the mapped source, plans, and delegates to specialists.
+  </Card>
+  <Card title="Track the work" icon="list-check">
+    Plans become issues and epics you can follow as the team executes changes locally through the Fast Apply engine.
+  </Card>
+  <Card title="Add more sources" icon="plus">
+    A workspace can hold many sources. Repeat this flow to connect every repo and folder the team should see.
+  </Card>
+  <Card title="Set roles deliberately" icon="user-tag">
+    Roles shape how agents reason about each source. Revisit them as your project grows so the right specialist owns the right code.
+  </Card>
+</CardGroup>

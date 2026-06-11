@@ -1,0 +1,159 @@
+---
+title: "Updates"
+description: "How Orkestral keeps itself up to date."
+---
+
+Orkestral ships new versions through your operating system in two different ways. On Windows and Linux, the app updates itself silently in the background and installs the new version when you restart. On macOS, the app checks for a new version and offers it to you, but you install it by hand. This page explains both paths, what happens behind the scenes, and what you need to do.
+
+<Note>
+Updates are best-effort by design. If you are offline, hit a rate limit, or the check fails for any reason, Orkestral stays silent and keeps running. An update problem never blocks your work or breaks the launch.
+</Note>
+
+## Two update paths
+
+Your update experience depends on your platform. The reason is code signing: seamless install on macOS needs an Apple Developer ID, so until that is in place the Mac uses a manual check while Windows and Linux get the full background updater.
+
+<CardGroup cols={2}>
+  <Card title="Windows and Linux" icon="rotate">
+    Seamless background updates. The app downloads the new version while you work and installs it on the next restart. You only confirm the restart.
+  </Card>
+  <Card title="macOS" icon="apple">
+    Manual updates. The app tells you a newer version exists and points you to the download. You replace the app yourself.
+  </Card>
+</CardGroup>
+
+## How seamless updates work (Windows and Linux)
+
+On a packaged Windows or Linux build, Orkestral wires up an automatic updater at launch. From that point on it manages everything for you.
+
+<Steps>
+  <Step title="The app checks at launch">
+    Right after Orkestral starts, it asks the release feed whether a newer version is available. This check runs only in the installed (packaged) app, never in development.
+  </Step>
+  <Step title="It downloads in the background">
+    If a newer version exists, the updater downloads it automatically while you keep working. There is no progress dialog to babysit and nothing to click. The download runs quietly.
+  </Step>
+  <Step title="It re-checks every four hours">
+    As long as the app stays open, Orkestral checks again for newer versions every four hours. If a new build lands while your session is long-running, it gets picked up without a restart of the check loop.
+  </Step>
+  <Step title="You see a restart banner">
+    Once a version finishes downloading, Orkestral shows a banner telling you the update is ready. The banner carries the new version number so you know what you are about to install.
+  </Step>
+  <Step title="You restart to install">
+    Click the restart action in the banner. Orkestral closes, applies the downloaded update, and reopens on the new version. If you ignore the banner, the update installs automatically the next time you quit the app.
+  </Step>
+</Steps>
+
+{/* PRINT: the restart banner showing the new version number and the restart action */}
+
+<Info>
+Two behaviors are always on for the background updater: it auto-downloads new versions, and it auto-installs on quit. So even if you never click the banner, you end up on the new version the next time you close Orkestral normally.
+</Info>
+
+### What you control
+
+<AccordionGroup>
+  <Accordion title="Do I have to download anything by hand?" icon="download">
+    No. On Windows and Linux the download is automatic and runs in the background. You only decide when to restart.
+  </Accordion>
+  <Accordion title="What if I just leave the banner alone?" icon="clock">
+    The update still installs the next time you quit Orkestral, because auto-install on quit is enabled. Restarting from the banner is simply the faster path.
+  </Accordion>
+  <Accordion title="Will an update interrupt my work?" icon="shield-halved">
+    No. The download happens quietly and nothing installs until you restart or quit. Your session is never cut off mid-task by an update.
+  </Accordion>
+  <Accordion title="What happens if the updater fails?" icon="triangle-exclamation">
+    Errors are caught and ignored. The updater logs a warning internally and the app continues as normal. You will simply not get the update until a later check succeeds.
+  </Accordion>
+</AccordionGroup>
+
+## How manual updates work (macOS)
+
+On macOS, Orkestral does not install updates for you. Instead it checks whether a newer version has been published and, if so, offers it. You then download and install it yourself.
+
+<Steps>
+  <Step title="Orkestral checks the latest release">
+    The app queries the latest published release and compares its version to the version you are running. Draft and pre-release builds are ignored, so you only ever see stable releases.
+  </Step>
+  <Step title="It compares versions">
+    Orkestral compares `major.minor.patch` numbers. The update is offered only when the published version is strictly newer than yours. A `v` prefix on the tag (for example `v1.2.3`) is handled automatically.
+  </Step>
+  <Step title="It picks the right download">
+    When an update exists, Orkestral selects the `.dmg` that matches your Mac architecture (Apple Silicon `arm64` or Intel `x64`). If no architecture-specific file is found, it falls back to any available `.dmg`, and if there is no disk image at all it falls back to the release page.
+  </Step>
+  <Step title="You download and install">
+    Open the offered download. Mount the `.dmg` and drag Orkestral into your **Applications** folder, replacing the old version. The release notes and publish date are shown so you know what changed.
+  </Step>
+</Steps>
+
+{/* PRINT: the macOS update prompt with the new version, release notes, and download action */}
+
+<Warning>
+On macOS you replace the app by hand. Quit Orkestral before dragging the new build into **Applications**, then reopen it from there. This manual path exists because seamless install on macOS requires Apple code signing.
+</Warning>
+
+## What gets checked
+
+Both paths read from the project's public release feed on GitHub. The manual macOS check looks at the latest release and reports back a small set of fields.
+
+<Tabs>
+  <Tab title="Version info">
+    - **Current version**: the build you are running right now.
+    - **Latest version**: the newest stable release tag, with any `v` prefix stripped.
+    - **Has update**: true only when the latest version is strictly newer than the current one.
+  </Tab>
+  <Tab title="Release details">
+    - **Notes**: the release body, so you can read what changed before updating.
+    - **Download URL**: the architecture-matched `.dmg`, or the release page as a fallback.
+    - **Published at**: when the release went live.
+  </Tab>
+  <Tab title="What is skipped">
+    - Drafts and pre-releases are ignored.
+    - A failed, timed-out, or rate-limited check returns "no update" silently.
+    - Checks never run in development, only in the packaged app.
+  </Tab>
+</Tabs>
+
+## Version comparison rules
+
+Orkestral compares versions numerically, segment by segment, across major, minor, and patch.
+
+<AccordionGroup>
+  <Accordion title="How tags are read" icon="tag">
+    A tag like `v1.2.3` or `1.2.3-beta` is broken into its numeric `major`, `minor`, and `patch` parts. A leading `v` is removed and any suffix after the patch number is dropped for the comparison.
+  </Accordion>
+  <Accordion title="When an update is offered" icon="arrow-up">
+    Only when the published version is strictly greater than yours. Equal versions are never offered, and a lower published version is never treated as an update.
+  </Accordion>
+  <Accordion title="Why drafts and pre-releases are skipped" icon="flask">
+    They are not finished, stable builds. Skipping them means you are only ever pointed at releases meant for everyone.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="I never see an update" icon="magnifying-glass">
+    You may already be on the latest version, or the check may have failed quietly because you were offline or rate-limited. Try again later. The check also runs only in the installed app, so a development build will not show updates.
+  </Accordion>
+  <Accordion title="The background updater is not running" icon="ban">
+    Background updates are Windows and Linux only, and only in the packaged app. On macOS, expect the manual prompt instead. In development there is no updater at all.
+  </Accordion>
+  <Accordion title="The restart banner does not appear" icon="window-restore">
+    The banner shows up only after a new version finishes downloading. If there is no newer release, or the download has not completed yet, no banner appears. The update will still install on your next quit.
+  </Accordion>
+  <Accordion title="I want the new version on macOS right now" icon="bolt">
+    Download the offered `.dmg`, quit Orkestral, drag it into **Applications** to replace the old app, then relaunch. That is the full manual update on macOS.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Keep the app open" icon="hourglass-half">
+    On Windows and Linux, leaving Orkestral open lets it re-check every four hours and download newer builds without you lifting a finger.
+  </Card>
+  <Card title="Restart when ready" icon="power-off">
+    When the restart banner appears, restart at a natural break. The update applies instantly and you reopen on the latest version.
+  </Card>
+</CardGroup>

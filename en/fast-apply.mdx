@@ -1,0 +1,191 @@
+---
+title: "Fast Apply"
+description: "The deterministic engine that merges edits into your files."
+---
+
+Fast Apply is the local engine that turns an AI edit into a real change on disk. The premium models plan and the bundled local model (the Forge) describes the change, but Fast Apply is what actually merges that change into your file. It runs entirely on your machine, costs nothing in API tokens, and follows strict rules so it never writes something it is not sure about.
+
+This page explains how Fast Apply parses edits, how it locates the right spot in your file, why it refuses ambiguous edits, and how it pairs with the Forge to keep code changes cheap and safe.
+
+<CardGroup cols={2}>
+  <Card title="Deterministic by design" icon="lock">
+    The app applies the edit, never the model. The same input always produces the same output.
+  </Card>
+  <Card title="Local and free" icon="microchip">
+    The merge runs in the Electron main process with no external call by default.
+  </Card>
+  <Card title="Never rewrites whole files" icon="shield-halved">
+    Only the matched spans change. Everything else in your file is preserved byte for byte.
+  </Card>
+  <Card title="Fails loud, never guesses" icon="triangle-exclamation">
+    If a match is ambiguous or missing, the edit is rejected with a clear reason.
+  </Card>
+</CardGroup>
+
+## Why a deterministic engine
+
+Small local models are great at describing a change but unreliable at reproducing long stretches of code verbatim. If you let the model rewrite an entire file, it tends to drop comments, reorder imports, or quietly mutate code far from the edit. Fast Apply removes that risk by making the model responsible only for the **text of the change**, while the app is responsible for **where and how** that text lands.
+
+<Note>
+The model only produces the edit text. The applier (`parseEditBlocks`, `applyEditBlocks`, and `mergeLazyEdit` in `src/main/services/smart-exec/morph.ts`) is what mutates your file. This split is what makes every apply reproducible and reviewable.
+</Note>
+
+## The two edit formats
+
+Fast Apply understands two shapes of edit. Both keep the model honest by forcing it to anchor on lines that actually exist in your file.
+
+<Tabs>
+  <Tab title="Search and replace blocks">
+    A block names the exact lines to find and the lines to put in their place:
+
+    ```text
+    <<<<<<< SEARCH
+    <existing lines, exact>
+    =======
+    <new lines>
+    >>>>>>> REPLACE
+    ```
+
+    Rules:
+    - Several blocks per file are allowed and applied in order.
+    - An empty **SEARCH** means insert or create: the **REPLACE** is prepended to the file (or becomes the whole file if it was empty).
+    - An empty **REPLACE** means delete: the matched **SEARCH** lines are removed.
+    - Each block must match exactly once. More than one match is rejected as ambiguous.
+  </Tab>
+  <Tab title="Lazy edits">
+    Instead of repeating long code verbatim, the model emits only the changed snippet and marks untouched code with an ellipsis comment:
+
+    ```text
+    function totals(items) {
+      // ... existing code ...
+      const tax = subtotal * 0.1;
+      return subtotal + tax;
+    }
+    ```
+
+    Each snippet must start and end with a real, unchanged **anchor line** that exists in your file. The model only needs to get two lines right per snippet; the app fills in everything between the anchors from your original file.
+  </Tab>
+</Tabs>
+
+<Tip>
+The lazy format is the one the Forge uses most. It keeps the model's output short, which is exactly where small models are most accurate, and it lets the app preserve every line the model did not mention.
+</Tip>
+
+## How a search and replace merge works
+
+When Fast Apply processes a search and replace block, it walks through tiers from strictest to most tolerant and stops at the first tier that produces a single, unambiguous match.
+
+<Steps>
+  <Step title="Parse the blocks">
+    `parseEditBlocks` scans the model output for `SEARCH`, `=======`, and `REPLACE` fences. Prose around the blocks is ignored, stray markdown code fences are stripped, and truncated blocks (missing a divider or end marker) are discarded rather than half-applied.
+  </Step>
+  <Step title="Try an exact match">
+    The engine counts occurrences of the SEARCH text in the file. Exactly one occurrence is replaced in place. Zero or more than one moves to the next decision.
+  </Step>
+  <Step title="Reject ambiguous matches">
+    If the SEARCH text appears more than once, the edit is rejected with a reason like `SEARCH matches 3x (ambiguous), needs more context`. Fast Apply will not pick one of several spots for you.
+  </Step>
+  <Step title="Try a whitespace-normalized match">
+    If there was no exact hit, the engine compares the SEARCH against line windows of the same size with trailing and internal whitespace normalized. It applies the change only when exactly one window is equivalent.
+  </Step>
+  <Step title="Try a safe anchored fuzzy match">
+    As a last resort it scores each same-size window for similarity. It applies only when exactly one window scores at or above the similarity threshold. This catches near-misses from spaces or quotes without ever guessing.
+  </Step>
+  <Step title="Fail clearly if nothing fits">
+    If no tier yields a single match, the block fails with a precise reason. The orchestrator can then repair the edit or escalate to a premium model instead of corrupting your file.
+  </Step>
+</Steps>
+
+<Warning>
+The fuzzy tier uses a fixed similarity threshold of `0.92` and only fires for a single qualifying window. Zero or multiple windows above the threshold means rejection. This bar is deliberately high so the engine can absorb whitespace and quote drift but can never quietly write the wrong content.
+</Warning>
+
+## How a lazy merge works
+
+Lazy edits are merged by `mergeLazyEdit`. The update is split into snippets at each ellipsis marker, and each snippet is stitched back into your file using its anchor lines.
+
+<Steps>
+  <Step title="Segment the update">
+    The update is split into contiguous snippets wherever an `... existing code ...` marker appears. The marker is recognized across many comment styles, so `//`, `#`, `--`, `/* */`, `<!-- -->`, and `;` all work.
+  </Step>
+  <Step title="Pick the anchors">
+    For each snippet, the first and last non-blank lines become the start and end anchors. Blank edge lines are skipped because they would match any empty line.
+  </Step>
+  <Step title="Locate the anchors in your file">
+    `anchorPositions` searches for each anchor from strictest to most tolerant: exact line, trimmed line, then whitespace-normalized line. If those miss, it tries a structural key for common JS and TS declarations (so `export default function foo` can still anchor to `export function foo` when that name is unique), then a single high-similarity fuzzy line. Short lines like `}` or `)` are never fuzzy-matched.
+  </Step>
+  <Step title="Choose the best span">
+    When several anchor pairs are possible, the engine picks the span whose length is closest to the snippet length. This avoids the classic bug of closing on the first nested `}` instead of the function's real closing brace.
+  </Step>
+  <Step title="Preserve everything outside the span">
+    The original lines before each snippet (the head and the gaps between snippets) and after the last snippet (the tail) are copied through unchanged. Only the matched spans are replaced.
+  </Step>
+  <Step title="Guard against catastrophic shrinkage">
+    After merging, if a non-trivial file (more than 30 lines) lost more than 60 percent of its lines, the merge is rejected as a suspect anchor rather than writing a mutilated file.
+  </Step>
+</Steps>
+
+<Info>
+In a lazy merge the real anchor lines from your file are kept, not the model's reformatted versions. So even when the model adjusts spacing on an anchor, your file's exact line survives the merge.
+</Info>
+
+## Why ambiguity is rejected
+
+The whole engine is built on one promise: if it is not sure, it does not write. That promise shows up in several places.
+
+<AccordionGroup>
+  <Accordion title="Multiple matches mean stop, not pick" icon="clone">
+    When a SEARCH or anchor matches more than once, the engine refuses rather than choosing. A wrong choice would edit the wrong region and pass review unnoticed. Rejection forces a more specific edit or an escalation.
+  </Accordion>
+  <Accordion title="Tiers go strict to loose, and stop early" icon="layer-group">
+    Each matcher tries exact first, then trimmed, then normalized. The first tier that finds any match wins, so an exact match is never diluted by looser matches lower down.
+  </Accordion>
+  <Accordion title="Fuzzy is anchored and capped" icon="ruler-combined">
+    Similarity matching only applies with a single window above a high threshold. It exists to absorb whitespace and quote noise, not to invent content.
+  </Accordion>
+  <Accordion title="Clear failure reasons" icon="message">
+    Every rejection carries a human-readable reason: ambiguous match, anchor not found, or suspicious shrinkage. That reason is what lets the orchestrator decide to repair or escalate.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: a rejected Fast Apply edit showing the failure reason in the run panel */}
+
+## How Fast Apply pairs with the Forge
+
+The Forge is the bundled local model (Qwen2.5-Coder) that executes code changes. Fast Apply is its hands. The Forge writes a lazy edit; Fast Apply merges it deterministically; only if the merge cannot find its anchors does the work move up a tier.
+
+<Steps>
+  <Step title="A premium model plans">
+    A premium orchestrator reads your repo and decides what should change, then delegates the concrete edit to the Forge.
+  </Step>
+  <Step title="The Forge emits an edit">
+    The Forge produces a short lazy edit (or search and replace blocks), keeping only a couple of anchor lines around each change.
+  </Step>
+  <Step title="Fast Apply merges locally">
+    The deterministic applier merges the edit into your file at zero API cost. Most edits resolve here.
+  </Step>
+  <Step title="Escalate only on a miss">
+    If the local merge cannot anchor the edit, the work escalates so a premium model can produce a cleaner edit, rather than the engine guessing.
+  </Step>
+</Steps>
+
+<Note>
+There is an optional hosted fallback (`morphFastApply`, the morphllm.com API) that can merge a lazy edit before premium escalation. It is off by default and only activates when a `MORPH_API_KEY` is present in the environment. It is not exposed in the UI, because Orkestral is local-first.
+</Note>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Meet the Forge" icon="hammer" href="/en/forge">
+    Learn how the bundled local model executes code changes at zero API cost.
+  </Card>
+  <Card title="Review changes" icon="code-compare" href="/en/review-changes">
+    See how merged edits surface as diffs you can approve before they hit your repo.
+  </Card>
+  <Card title="Configure tools" icon="screwdriver-wrench" href="/en/tools">
+    Manage Fast Apply behavior and optional providers from the Tools area.
+  </Card>
+  <Card title="How orchestration works" icon="sitemap" href="/en/orchestration">
+    Understand how planning, delegation, and execution fit together.
+  </Card>
+</CardGroup>

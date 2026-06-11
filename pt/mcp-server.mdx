@@ -1,0 +1,220 @@
+---
+title: "Servidor MCP"
+description: "Exponha o Orkestral via Model Context Protocol."
+---
+
+O servidor MCP do Orkestral é um pacote independente (`@orkestral/mcp`) que expõe seu workspace do Orkestral via **Model Context Protocol (MCP)**. Você o registra em um cliente MCP como o **Claude Code**, e o cliente ganha ferramentas para ler e editar sua **base de conhecimento**, além de ler suas **issues**, **fontes** e a visão geral do **workspace**.
+
+O servidor conversa com o **mesmo banco de dados local** que o app desktop usa (`~/.orkestral/instances/default/db/orkestral.db`, em modo WAL). Você não precisa do app aberto: ambos os processos compartilham o arquivo SQLite com segurança graças ao WAL e a um busy timeout.
+
+O pacote também traz uma CLI `orkestral` e uma API REST local opcional que reutilizam o mesmo core e as mesmas ferramentas.
+
+<CardGroup cols={2}>
+  <Card title="Base de conhecimento" icon="book" href="/pt/knowledge-base">
+    A KB que este servidor lê e edita.
+  </Card>
+  <Card title="Workspaces" icon="folder" href="/pt/workspaces">
+    Cada sessão MCP aponta para um workspace.
+  </Card>
+</CardGroup>
+
+## O que é
+
+O servidor é uma fina camada de transporte sobre o core compartilhado do Orkestral. Ele empacota o schema, os repositórios e o registro único de ferramentas da KB (`kb-mcp-tools`) do app via esbuild, então há **uma única fonte da verdade**: apenas o transporte difere entre o servidor embarcado do app desktop e este processo independente.
+
+<Info>
+O pacote existe separadamente porque o `better-sqlite3` do app desktop é compilado para a **ABI do Electron**. Um processo Node simples (o que `claude mcp add -- npx ...` executa) não consegue carregá-lo. Por isso este pacote mantém seu próprio `node_modules` com `better-sqlite3` compilado para a **ABI do Node**.
+</Info>
+
+## Requisitos
+
+- **Node.js 20 ou posterior** (`engines.node` é `>=20`).
+- Um banco de dados Orkestral existente em `~/.orkestral/instances/default/db/orkestral.db`, criado ao executar o app desktop pelo menos uma vez e criar um workspace.
+- Pelo menos um **workspace** nesse banco de dados. Use `orkestral workspaces` (ou a ferramenta `list_workspaces`) para encontrar os ids dos workspaces.
+- Um cliente MCP que fale stdio, como o **Claude Code**.
+
+<Warning>
+O servidor independente reutiliza módulos nativos que precisam corresponder à sua plataforma local e à ABI do Node. Se você instalar a partir de um clone, execute `npm install` para que o `better-sqlite3` seja compilado para a sua versão do Node antes de fazer o build.
+</Warning>
+
+## Configuração
+
+<Steps>
+  <Step title="Faça o build do pacote (instalação local)">
+    A partir de um clone do pacote:
+
+    ```bash
+    cd orkestral-mcp
+    npm install     # compiles better-sqlite3 for the Node ABI
+    npm run build   # esbuild → dist/index.js (MCP) + dist/cli.js (CLI)
+    ```
+  </Step>
+  <Step title="Encontre o id do seu workspace">
+    ```bash
+    orkestral workspaces
+    ```
+
+    Isso lista cada workspace como `id` e `name`. Copie o id que você quer que o servidor aponte.
+
+    {/* PRINT: saída do terminal de `orkestral workspaces` */}
+  </Step>
+  <Step title="Registre o servidor no Claude Code">
+    Aponte o Claude Code para o entry compilado, passando o id do workspace:
+
+    ```bash
+    # local (after build):
+    claude mcp add orkestral -- node /path/to/orkestral-mcp/dist/index.js --workspace <id>
+
+    # via npx (after the package is published to NPM):
+    claude mcp add orkestral -- npx -y -p @orkestral/mcp orkestral mcp --workspace <id>
+    ```
+
+    Sem `--workspace`, o servidor resolve o alvo por conta própria **se houver exatamente um workspace** no banco de dados.
+  </Step>
+  <Step title="Confirme que as ferramentas estão disponíveis">
+    No seu cliente MCP, liste as ferramentas disponíveis. Você deve ver `list_workspaces`, as ferramentas `kb_*` e as ferramentas de leitura do workspace descritas abaixo.
+  </Step>
+</Steps>
+
+## Opções de configuração
+
+Você configura o servidor por meio de flags de comando ou variáveis de ambiente passadas no momento do registro.
+
+<ParamField path="--workspace, -w <id>" type="string">
+  Workspace alvo, por **id ou name** (a correspondência por nome não diferencia maiúsculas de minúsculas). Se omitido, o servidor usa o único workspace quando há exatamente um. Com múltiplos workspaces e sem a flag, as chamadas falham até você registrar novamente com um workspace.
+</ParamField>
+
+<ParamField path="ORKESTRAL_WORKSPACE" type="env var">
+  Alternativa a `--workspace`. O servidor lê esta variável de ambiente quando nenhuma flag `--workspace` está presente.
+</ParamField>
+
+<ParamField path="--status <s>" type="string">
+  Filtro exclusivo da CLI para `orkestral issues`. Um de `backlog`, `todo`, `in_progress`, `in_review`, `blocked`, `done`, `cancelled`.
+</ParamField>
+
+<ParamField path="--limit <n>" type="number">
+  Limite de resultados exclusivo da CLI para comandos de listagem (busca na KB e issues).
+</ParamField>
+
+<ParamField path="--port <n>" type="number" default="3100">
+  Porta para `orkestral serve` (a API REST local). O servidor faz bind apenas em `127.0.0.1`.
+</ParamField>
+
+O caminho do banco de dados é fixo: o servidor sempre abre `~/.orkestral/instances/default/db/orkestral.db`. Não há flag para apontá-lo para outro lugar.
+
+## Transporte
+
+O servidor MCP fala **JSON-RPC 2.0, delimitado por nova linha, via stdio**. Ele implementa `initialize`, `notifications/initialized`, `ping`, `tools/list` e `tools/call`. A versão de protocolo reportada por padrão é `2025-06-18`, e ele ecoa o `protocolVersion` do cliente quando um é fornecido.
+
+<Warning>
+O `stdout` é **exclusivamente** o canal do protocolo. Todos os logs internos (incluindo mensagens de abertura do banco de dados) vão para o `stderr`. Não escreva mais nada no `stdout`, ou você corromperá o stream. O servidor já redireciona `console.log` para o `stderr` para proteger o canal.
+</Warning>
+
+Os resultados das ferramentas voltam como um único bloco de conteúdo `text` contendo JSON formatado. Erros de ferramentas são retornados no resultado com `isError: true`, em vez de como erros JSON-RPC.
+
+## Ferramentas disponíveis
+
+O servidor expõe **20 ferramentas**. As ferramentas da base de conhecimento vêm do registro compartilhado; o restante são ferramentas independentes de descoberta e leitura.
+
+<Tabs>
+  <Tab title="Base de conhecimento (leitura)">
+    | Ferramenta | Finalidade |
+    | --- | --- |
+    | `kb_search` | Busca BM25 em toda a base de conhecimento. |
+    | `kb_get_page` | Lê uma página por id ou slug. |
+    | `kb_get_page_tree` | A árvore de páginas do workspace. |
+    | `kb_get_backlinks` | Páginas que apontam para uma dada página. |
+  </Tab>
+  <Tab title="Base de conhecimento (escrita)">
+    | Ferramenta | Finalidade |
+    | --- | --- |
+    | `kb_create_page` | Cria uma página. |
+    | `kb_update_page` | Atualiza uma página (title, content, archived, pinned). |
+    | `kb_move_page` | Re-aninha uma página na árvore. |
+    | `kb_delete_page` | Exclui uma página. |
+    | `kb_link_pages` / `kb_unlink_pages` | Vincula ou desvincula páginas. |
+    | `kb_create_entity` / `kb_update_entity` / `kb_delete_entity` | Gerencia entidades. |
+    | `kb_link_entities` / `kb_unlink_entities` | Vincula ou desvincula entidades. |
+  </Tab>
+  <Tab title="Workspace (leitura)">
+    | Ferramenta | Finalidade |
+    | --- | --- |
+    | `list_workspaces` | Lista workspaces (id + name). Não precisa de um workspace alvo. |
+    | `list_issues` | Lista issues, da atualização mais recente para a mais antiga, com filtro `status` e `limit` opcionais. |
+    | `get_issue` | Lê uma issue por `issue_key` numérico, com comentários e sub-issues. |
+    | `list_sources` | Lista repositórios e pastas anexados ao workspace. |
+    | `get_workspace_info` | Nome do workspace e metas ativas. |
+  </Tab>
+</Tabs>
+
+<Note>
+Issues e fontes são **somente leitura** no servidor independente. Criar uma issue dispara a execução de agentes, que é responsabilidade do app desktop, então o servidor não expõe ferramentas de escrita para isso.
+</Note>
+
+## CLI
+
+A CLI `orkestral` empacotada acessa o mesmo banco de dados compartilhado diretamente. É útil para verificações rápidas e para iniciar o servidor.
+
+| Comando | Descrição |
+| --- | --- |
+| `orkestral workspaces` | Lista workspaces (id + name). |
+| `orkestral kb search <terms...>` | Busca BM25 na KB. |
+| `orkestral kb tree` | Árvore de páginas. |
+| `orkestral kb get <id\|slug>` | Lê uma página. |
+| `orkestral issues [--status <s>]` | Lista issues. |
+| `orkestral issue <key>` | Lê uma issue por número. |
+| `orkestral sources` | Lista repositórios e pastas. |
+| `orkestral info` | Visão geral do workspace mais metas. |
+| `orkestral mcp` | Executa o servidor MCP stdio. |
+| `orkestral serve [--port 3100]` | Executa a API REST local. |
+
+Assim como o servidor, a CLI escreve os resultados no `stdout` e os logs no `stderr`, então você pode redirecionar a saída com segurança.
+
+## API REST
+
+`orkestral serve` expõe o mesmo core e as mesmas ferramentas via HTTP em `127.0.0.1` (apenas localhost). Escolha o workspace por requisição com `?workspace=`, o cabeçalho `x-orkestral-workspace`, ou recorra ao padrão.
+
+```
+GET    /workspaces
+GET    /kb/search?q=&limit=     GET  /kb/tree           GET /kb/page/:idOrSlug
+POST   /kb/page                 PATCH /kb/page/:idOrSlug DELETE /kb/page/:idOrSlug
+GET    /issues?status=&limit=   GET  /issues/:key
+GET    /sources                 GET  /info
+```
+
+`GET /` e `GET /health` retornam um pequeno objeto de status. Rotas desconhecidas retornam `404`; erros de ferramentas retornam `400` com uma mensagem `error`.
+
+## Capacidades e limites
+
+- **Banco de dados compartilhado**: leituras e escritas chegam no mesmo arquivo SQLite que o app desktop. As mudanças são visíveis nos dois processos.
+- **Autocontido**: o pacote publicado empacota o core do app, com `better-sqlite3` e `drizzle-orm` como dependências de runtime, então `npx -y @orkestral/mcp` funciona após a publicação.
+- **Um workspace por processo**: cada instância de servidor registrada aponta para um único workspace resolvido (exceto `list_workspaces`, que funciona sem um).
+- **Sem escrita de issues ou fontes**: esses fluxos pertencem ao app desktop.
+- **Sem acesso remoto**: a API REST faz bind apenas em localhost; não há listener de rede para o transporte MCP (ele é stdio).
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Chamadas de ferramentas falham com 'workspace not defined'">
+    O servidor não conseguiu resolver um único workspace. Registre novamente com `--workspace <id>` (ou defina `ORKESTRAL_WORKSPACE`). Execute `orkestral workspaces` ou chame `list_workspaces` para obter os ids. Isso acontece quando o banco de dados tem zero ou múltiplos workspaces e nenhuma flag foi fornecida.
+  </Accordion>
+  <Accordion title="'Workspace not found' para o id ou name que passei">
+    A referência não correspondeu a nenhum id de workspace e nenhum nome correspondeu (sem diferenciar maiúsculas de minúsculas). O erro lista os workspaces disponíveis como `name (id)`. Copie um id exato de `orkestral workspaces`.
+  </Accordion>
+  <Accordion title="O better-sqlite3 falha ao carregar ou o servidor quebra ao iniciar">
+    O módulo nativo precisa corresponder à sua ABI do Node. Execute `npm install` e depois `npm run build` a partir do pacote com a mesma versão do Node com a qual você inicia o servidor. Confirme que o Node é `20` ou posterior.
+  </Accordion>
+  <Accordion title="Nenhum banco de dados encontrado">
+    O servidor abre `~/.orkestral/instances/default/db/orkestral.db`. Abra o app desktop uma vez e crie um workspace para que o banco de dados e o schema existam.
+  </Accordion>
+  <Accordion title="O cliente MCP mostra saída corrompida ou erros de protocolo">
+    Algo escreveu no `stdout` fora do canal JSON-RPC. Certifique-se de iniciar o servidor pelo entry `dist/index.js` (ou `orkestral mcp`) e não redirecione saída extra para ele. Logs internos pertencem ao `stderr`.
+  </Accordion>
+  <Accordion title="As requisições REST atingem o workspace errado">
+    Passe `?workspace=<id>` ou o cabeçalho `x-orkestral-workspace` por requisição. Sem nenhum dos dois, o servidor usa o padrão resolvido na inicialização do `serve`.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Inicie o servidor com `node dist/index.js --workspace <id>` diretamente em um terminal para observar a linha de inicialização no `stderr`. Ela reporta o workspace resolvido (ou o motivo pelo qual não conseguiu resolver um) antes de qualquer cliente se conectar.
+</Tip>

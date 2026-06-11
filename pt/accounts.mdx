@@ -1,0 +1,171 @@
+---
+title: "Contas e Cloud"
+description: "Faça login para sincronizar seu perfil entre desktop e web."
+---
+
+O Orkestral roda local-first na sua máquina, então você pode usá-lo plenamente sem uma conta. Fazer login no Orkestral Cloud conecta o app desktop à sua conta web para que seu nome e e-mail fluam automaticamente para o app. Esta página explica como o login e o cadastro funcionam, como o callback traz seu perfil de volta para o app desktop e exatamente o que permanece local versus o que fica na nuvem.
+
+<CardGroup cols={2}>
+  <Card title="Local-first por padrão" icon="house">
+    Seus workspaces, fontes, issues e chats ficam em `~/.orkestral` no disco. Nenhuma conta é necessária para trabalhar.
+  </Card>
+  <Card title="A nuvem conecta seu perfil" icon="cloud">
+    Fazer login traz o e-mail e o nome da sua conta para o app, para que saudações, configurações e prompts reflitam quem você é.
+  </Card>
+</CardGroup>
+
+## O que é local versus nuvem
+
+<Info>
+  O app desktop nunca recebe seus tokens de acesso ou de atualização na camada de interface. Apenas seu e-mail e nome passam para a interface. Os tokens permanecem em segundo plano, criptografados em repouso.
+</Info>
+
+<Tabs>
+  <Tab title="Armazenado localmente">
+    - Todos os workspaces, fontes (repositórios e pastas), issues, epics e metas.
+    - Seu histórico de chat com os agentes.
+    - Seu perfil local (e-mail e nome) em **Settings, General**.
+    - Tokens de sessão da nuvem, armazenados criptografados no disco através do armazenamento seguro do sistema operacional.
+  </Tab>
+  <Tab title="Vem da nuvem">
+    - A identidade com a qual você faz login: o e-mail da sua conta (sempre) e seu nome de exibição (quando sua conta web tem um).
+    - A criação da conta e o tratamento da senha, que acontecem inteiramente no seu navegador no site do Orkestral Cloud.
+  </Tab>
+</Tabs>
+
+Quando você faz login, o Orkestral lê sua identidade da sessão assinada, salva a sessão criptografada e sincroniza seu perfil local para corresponder. Seu nome é opcional: se sua conta web ainda não tem um nome, seu nome local existente é mantido.
+
+## Como o login funciona
+
+O Orkestral usa o padrão de login de app nativo descrito na RFC 8252. Em vez de incorporar um formulário de login, o app abre seu navegador real, você se autentica lá, e o resultado é entregue de volta ao app desktop em execução.
+
+Existem dois caminhos de retorno. O app prefere o caminho loopback porque ele funciona da mesma forma em desenvolvimento e produção. Se o listener loopback não responder, o site recorre a um deep link.
+
+<Steps>
+  <Step title="Você inicia o login pelo app">
+    O app abre um pequeno listener local em `127.0.0.1` (loopback) e então abre `https://orkestral.pro/login?next=desktop` no seu navegador padrão.
+  </Step>
+  <Step title="Você se autentica na web">
+    Você faz login ou se cadastra no site do Orkestral Cloud. Todo o tratamento de credenciais permanece no navegador.
+  </Step>
+  <Step title="A web entrega os tokens de volta">
+    O site primeiro envia sua sessão para o listener loopback. Se ele não responder, recorre ao deep link `orkestral://auth?...` (apenas app empacotado).
+  </Step>
+  <Step title="O app verifica e sincroniza">
+    O app decodifica a sessão para ler seu id de usuário, e-mail e nome. Ele salva a sessão criptografada, sincroniza seu perfil local, foca a janela principal e atualiza a interface.
+  </Step>
+</Steps>
+
+{/* PRINT: o botão de login do Cloud em Settings abrindo o navegador */}
+
+### O callback loopback
+
+O caminho loopback é a rota primária e funciona tanto em desenvolvimento quanto em produção.
+
+<AccordionGroup>
+  <Accordion title="Um listener local em uma porta fixa" icon="server">
+    Quando você inicia o login, o app sobe um listener HTTP vinculado a `127.0.0.1` em uma porta fixa (`38427` por padrão). O site é construído para enviar sua sessão para esse endereço exato, então o navegador e o app se encontram no mesmo canal loopback.
+  </Accordion>
+  <Accordion title="Apenas o caminho /auth é aceito" icon="route">
+    O listener responde a requisições em `/auth` e lê `access_token` e `refresh_token` da query string. Qualquer outro caminho retorna uma resposta de não encontrado.
+  </Accordion>
+  <Accordion title="CORS para que o navegador possa entregar" icon="globe">
+    Como a requisição viaja da origem segura do Cloud para `127.0.0.1`, o listener envia um cabeçalho permissivo de origem cruzada para que seu navegador tenha permissão de entregar a resposta e o site saiba que o app recebeu.
+  </Accordion>
+  <Accordion title="Ele se fecha sozinho" icon="clock">
+    O listener fica aberto por até cinco minutos enquanto aguarda seu navegador. Clicar em login novamente renova essa janela. Assim que uma sessão válida chega, o listener é desligado imediatamente.
+  </Accordion>
+</AccordionGroup>
+
+### O fallback de deep link
+
+Se o listener loopback não conseguir responder (por exemplo, em um app empacotado onde o listener não foi vinculado), o site recorre ao protocolo personalizado `orkestral://auth?...`.
+
+<AccordionGroup>
+  <Accordion title="O protocolo é registrado para o app empacotado" icon="link">
+    O app empacotado se registra como o handler do esquema `orkestral://` para que o sistema operacional possa rotear o deep link de volta ao app em execução.
+  </Accordion>
+  <Accordion title="Por que o dev no macOS pula o registro" icon="apple">
+    No macOS em desenvolvimento, o app não registra o protocolo. Fazer isso apontaria o esquema para o binário genérico do Electron dentro de `node_modules`, e o sistema operacional lançaria um Electron vazio em vez do seu app em execução. Em desenvolvimento, o caminho loopback trata o retorno, e o deep link é reservado para o app empacotado.
+  </Accordion>
+  <Accordion title="Windows e Linux em desenvolvimento" icon="windows">
+    No Windows e no Linux durante o desenvolvimento, o deep link é registrado contra o binário do Electron mais o caminho do seu projeto, e o link é detectado a partir dos argumentos de inicialização.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Um deep link ou callback loopback só é aceito quando carrega tanto `access_token` quanto `refresh_token`. Um callback sem algum dos tokens é ignorado, e você permanece desconectado.
+</Warning>
+
+## O que acontece depois que você faz login
+
+Assim que a sessão é verificada, três coisas acontecem no app.
+
+<CardGroup cols={3}>
+  <Card title="Sessão salva" icon="lock">
+    Seu id de conta, e-mail, nome e os dois tokens são armazenados criptografados no disco para que a sessão sobreviva a reinicializações.
+  </Card>
+  <Card title="Perfil sincronizado" icon="user-pen">
+    Seu perfil local é atualizado com seu e-mail (sempre) e seu nome (quando presente), para que o app reflita sua conta sem precisar redigitar.
+  </Card>
+  <Card title="Interface atualizada" icon="bell">
+    A janela principal vem para a frente e a interface é atualizada para mostrar você como conectado.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Depois de fazer login, abra **Settings, General** para confirmar seu e-mail e nome. Seu nome é o que os agentes usam em saudações e prompts, então defina-o aqui se sua conta web não tiver um.
+</Tip>
+
+## Cadastre-se para uma nova conta
+
+Você não cria uma conta dentro do app desktop. O cadastro acontece no site durante o mesmo fluxo.
+
+<Steps>
+  <Step title="Inicie o login pelo app">
+    Clique na ação de login do Cloud. O navegador abre a página de login do Orkestral Cloud.
+  </Step>
+  <Step title="Escolha criar uma conta">
+    Na página web, alterne para o cadastro e crie sua conta lá.
+  </Step>
+  <Step title="Volte para o app">
+    Depois que sua conta é criada e você está conectado na web, a sessão é entregue de volta através do loopback ou do deep link, e o app desktop assume sua nova identidade.
+  </Step>
+</Steps>
+
+<Note>
+  Como o cadastro roda no seu navegador, você tem a experiência web completa para a criação da conta, incluindo quaisquer etapas de verificação, antes que o app sequer veja sua identidade.
+</Note>
+
+## Sair
+
+Sair limpa a sessão armazenada no app e marca o app como desconectado na interface. Seus dados locais permanecem intactos: workspaces, fontes, issues e chats continuam todos no disco em `~/.orkestral`. O nome e o e-mail do seu perfil local em **Settings, General** também permanecem como estão.
+
+<Warning>
+  Sair remove apenas a sessão local. Isso não desconecta você do site do Orkestral Cloud no seu navegador. Saia lá separadamente se você estiver em uma máquina compartilhada.
+</Warning>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="O navegador abriu mas o app não atualizou" icon="triangle-exclamation">
+    O listener loopback aguarda até cinco minutos. Se muito tempo passou, volte ao app e inicie o login novamente para reabrir o listener, depois tente de novo no navegador.
+  </Accordion>
+  <Accordion title="O login foi concluído na web mas nada aconteceu no app" icon="rotate">
+    O callback só é concluído quando carrega ambos os tokens. Inicie o login novamente pelo app para que um listener novo esteja pronto, depois conclua o login na web na mesma sessão.
+  </Accordion>
+  <Accordion title="Uma janela do Electron em branco abriu em vez do app" icon="ghost">
+    Este é o caso do deep link em desenvolvimento no macOS. Nessa configuração, o caminho loopback é o que retorna sua sessão. Certifique-se de ter iniciado o login pelo app em execução para que o listener loopback esteja ativo.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Configure seu perfil" icon="id-card" href="/pt/settings">
+    Confirme seu nome e e-mail em Settings para que os agentes se dirijam a você corretamente.
+  </Card>
+  <Card title="Crie um workspace" icon="folder-plus" href="/pt/workspaces">
+    Comece a organizar seus repositórios e pastas em um workspace.
+  </Card>
+</CardGroup>

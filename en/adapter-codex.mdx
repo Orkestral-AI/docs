@@ -1,0 +1,165 @@
+---
+title: "Codex adapter"
+description: "Use the Codex CLI as a planning provider."
+---
+
+The Codex adapter lets Orkestral drive the OpenAI **Codex CLI** as a planning provider. When you hire an agent backed by Codex, that agent uses the `codex` binary on your machine to reason, plan, and propose work. The premium model plans; the bundled local Forge executes the actual code changes at no API cost.
+
+This adapter is **recommended** and runs entirely against your local `codex` install. Orkestral never embeds your OpenAI key: it shells out to the CLI you already authenticated.
+
+<Info>
+The internal adapter type is `codex_local` and it appears as **Codex** in the onboarding grid. See [Adapters overview](/en/adapters) for how providers and the Forge fit together.
+</Info>
+
+## Requirements
+
+<CardGroup cols={2}>
+  <Card title="Codex CLI" icon="terminal">
+    The `codex` binary must be installed and discoverable on your `PATH`.
+  </Card>
+  <Card title="Authentication" icon="key">
+    A logged in Codex session or an `OPENAI_API_KEY` in your environment.
+  </Card>
+</CardGroup>
+
+Install the CLI with:
+
+```bash
+npm i -g @openai/codex
+```
+
+Then authenticate using one of:
+
+```bash
+codex login
+```
+
+or export a key before launching Orkestral:
+
+```bash
+export OPENAI_API_KEY=sk-...
+```
+
+<Note>
+Orkestral reads your Codex configuration from `CODEX_HOME` when set, otherwise from `~/.codex`. The model list is sourced from `~/.codex/models_cache.json`, a cache the CLI itself maintains.
+</Note>
+
+## How Orkestral runs Codex
+
+Orkestral invokes the CLI in headless exec mode. During the environment test it runs a probe equivalent to:
+
+```bash
+codex exec --skip-git-repo-check --yolo -
+```
+
+with a short prompt piped on stdin. The reasoning effort and web search options you configure are translated into CLI flags at run time (see [Configuration](#configuration)). Orkestral closes stdin automatically and parses the response, so you do not pass these flags yourself.
+
+## Set up the adapter
+
+<Steps>
+  <Step title="Install and authenticate the CLI">
+    Confirm the binary works in a terminal before opening Orkestral:
+
+    ```bash
+    codex --version
+    ```
+
+    If this fails, fix your install or `PATH` first.
+  </Step>
+  <Step title="Open the Codex adapter in Orkestral">
+    Go to the adapters grid (during onboarding or in settings) and select **Codex**.
+
+    {/* PRINT: Codex card in the adapters grid */}
+  </Step>
+  <Step title="Run the environment test">
+    Use **Test environment**. Orkestral verifies that `codex` is on the `PATH`, that `--version` responds, and that the agent answers a sample prompt. Review the result of each check.
+
+    {/* PRINT: Test environment results for Codex */}
+  </Step>
+  <Step title="Pick a model">
+    Choose a model from the list. Models come from your real Codex cache when available, so the list reflects what your account can actually access.
+  </Step>
+  <Step title="Configure options and save">
+    Set reasoning effort, web search, and an optional command override, then save. The adapter is now available when hiring agents.
+  </Step>
+</Steps>
+
+## Configuration
+
+The Codex adapter exposes three options. Set them in the adapter configuration panel.
+
+<ParamField path="modelReasoningEffort" type="select" default="medium">
+  How hard the model reasons before answering. Passed to the CLI as `-c model_reasoning_effort=<value>`. Allowed values: `minimal`, `low`, `medium`, `high`, `xhigh`. Higher effort can improve plan quality but costs more time and tokens.
+</ParamField>
+
+<ParamField path="search" type="toggle" default={false}>
+  Enables web search by adding the `--search` flag to the Codex invocation. Turn this on when planning needs current external information.
+</ParamField>
+
+<ParamField path="command" type="text" default="codex">
+  Override the command or path used to launch the CLI. Leave empty to use `codex` from your `PATH`. Set an absolute path here if your binary lives outside the default location.
+</ParamField>
+
+### Reasoning effort levels
+
+| Value | Label | When to use |
+|-------|-------|-------------|
+| `minimal` | Minimal | Fastest, cheapest, lightweight tasks. |
+| `low` | Low | Simple planning with light reasoning. |
+| `medium` | Medium | Default balance of speed and depth. |
+| `high` | High | Harder problems that need deeper analysis. |
+| `xhigh` | Very high | Maximum reasoning for the hardest plans. |
+
+## Models
+
+The model selector always includes a **Default** entry that uses whatever model your Codex CLI is configured to use. Beyond that:
+
+- If `~/.codex/models_cache.json` exists, Orkestral lists the models your account actually has access to. Internal models (those not marked for listing) are filtered out.
+- If no cache is present, Orkestral falls back to a static, newest first list that includes entries such as GPT-5.4, GPT-5.3 Codex, GPT-5, GPT-5 Mini, the OpenAI o-series, and Codex Mini.
+
+<Tip>
+To refresh the model list, run any `codex` command so the CLI updates its cache, then reopen the adapter in Orkestral.
+</Tip>
+
+## Environment test checks
+
+When you run **Test environment**, Orkestral reports these checks:
+
+| Check | Meaning |
+|-------|---------|
+| `codex` on PATH | The binary was found. A failure here stops the test. |
+| CLI version | `codex --version` responded successfully. |
+| Agent response | A headless probe returned an expected answer, or a warning if authentication or the response looks off. |
+
+An authentication warning appears when the probe output mentions login, missing key, or unauthorized access. The test still completes, but you should authenticate before relying on the adapter.
+
+## Capabilities and limits
+
+- Plans and reasons through the Codex CLI; code execution is handled by the Forge, not by this adapter.
+- Reflects your real account access through the CLI model cache, with a static fallback.
+- Runs locally and uses the credentials already present in your shell or Codex config.
+- Does not store or transmit your OpenAI key through Orkestral; it relies on the CLI.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="CLI codex not found on PATH">
+    Orkestral could not locate the binary. Install it with `npm i -g @openai/codex` or follow the official guide, then confirm `codex --version` works in the same shell Orkestral launches from. If you use a version manager, ensure the binary is on the `PATH` your desktop session inherits, or set an absolute path in the **command** override.
+  </Accordion>
+  <Accordion title="Not authenticated warning">
+    The probe saw a login, unauthorized, or API key message. Run `codex login` (or `codex auth`), or export `OPENAI_API_KEY` before launching Orkestral, then test again.
+  </Accordion>
+  <Accordion title="Version check failed">
+    `codex --version` did not respond. The install may be broken or partially upgraded. Reinstall the CLI and verify it runs in a terminal.
+  </Accordion>
+  <Accordion title="Probe timed out">
+    The sample prompt did not return in time. This is often transient. Test again. If it persists, check your network and that your Codex account is active.
+  </Accordion>
+  <Accordion title="Model list looks wrong or stale">
+    The list comes from `~/.codex/models_cache.json` (or `CODEX_HOME`). Run any `codex` command to refresh the cache, then reopen the adapter. If the cache is missing, Orkestral shows its static fallback list instead.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+The environment probe runs Codex with `--yolo`, which skips its interactive approval prompts so the test can run unattended. This is used only for the short headless check.
+</Warning>

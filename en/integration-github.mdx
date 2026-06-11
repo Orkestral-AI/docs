@@ -1,0 +1,167 @@
+---
+title: "GitHub"
+description: "Connect GitHub for repositories, pull requests and reviews."
+---
+
+The GitHub integration connects your GitHub account to Orkestral so your team of agents can clone repositories, open pull requests, list and read PRs, and post code reviews with inline comments. You connect once with a secure device login. Orkestral stores the access token encrypted on your machine and never writes it in plain text to disk.
+
+<Info>
+GitHub is a local-first integration. Your token lives in `~/.orkestral`, encrypted by your operating system keychain. No Orkestral cloud service sees it.
+</Info>
+
+## What it enables
+
+<CardGroup cols={2}>
+  <Card title="Repositories" icon="folder-git">
+    List repositories you own, collaborate on, or access through an organization, then clone them as sources.
+  </Card>
+  <Card title="Pull requests" icon="git-pull-request">
+    List open and recent pull requests for a repository, and create new pull requests from a branch.
+  </Card>
+  <Card title="Code review" icon="comments">
+    Read a pull request diff and post a review with a summary and inline comments on specific lines.
+  </Card>
+  <Card title="Secure auth" icon="lock">
+    Device Flow login with no client secret. The token is encrypted at rest and stripped from logs and error messages.
+  </Card>
+</CardGroup>
+
+## Requirements
+
+- A GitHub account with access to the repositories you want to work on.
+- An operating system keychain available to Electron `safeStorage`. On macOS, Windows, and most Linux desktops this is present by default. If it is missing, connecting fails with an encryption error.
+- `git` installed and on your `PATH`. Orkestral shells out to `git clone` when cloning a repository.
+- Network access to `github.com` and `api.github.com`.
+
+The default OAuth App requests these scopes:
+
+| Scope | Why it is needed |
+| --- | --- |
+| `repo` | Read and write access to your repositories, including private ones, for cloning, listing PRs, creating PRs, and posting reviews. |
+| `read:user` | Read your profile (login, display name, avatar) to label the connected account. |
+
+## How to connect
+
+Orkestral uses the GitHub OAuth Device Flow. You authorize Orkestral on `github.com` by entering a short code, so no password or secret ever passes through the app.
+
+<Steps>
+  <Step title="Start the connection">
+    Open the GitHub integration in settings and choose to connect. Orkestral requests a device code and shows you a **user code** plus a verification link.
+
+    {/* PRINT: GitHub connect panel showing the user code */}
+  </Step>
+  <Step title="Authorize on GitHub">
+    Orkestral opens your browser to the verification page. Enter the **user code**, then approve the requested scopes for your account.
+  </Step>
+  <Step title="Wait for confirmation">
+    Orkestral polls GitHub in the background. When you approve, it fetches your profile, encrypts the token, and stores the account. The panel switches to show your login, display name, and avatar.
+  </Step>
+</Steps>
+
+<Note>
+The device code expires after a fixed window (GitHub returns the timeout when the flow starts). If it expires before you approve, start the connection again to get a fresh code.
+</Note>
+
+## Cloning a repository
+
+When you clone a repository as a source, Orkestral runs `git clone` with the stored token injected only for that single command:
+
+- The token is passed through an in-memory `http.extraHeader` (`Authorization: Basic` with `x-access-token`), so it is never written to the cloned repository `.git/config`.
+- `GIT_TERMINAL_PROMPT=0` is set, so git never blocks on an interactive password prompt.
+- Clone progress is streamed back to the UI.
+- Any credentials are scrubbed from error output before it is shown to you.
+
+<ParamField path="branch" type="string">
+Optional branch to check out. When omitted, git clones the repository default branch.
+</ParamField>
+
+<ParamField path="depth" type="number">
+Optional clone depth. When set to a positive number, Orkestral runs a shallow clone (`--depth`) for speed. You can fetch full history later if you need it. When omitted, the clone is full.
+</ParamField>
+
+## Pull requests and reviews
+
+Once connected, agents and the review tooling can use these capabilities against any repository you can access:
+
+| Capability | Behavior |
+| --- | --- |
+| List repositories | Returns repositories with `owner`, `collaborator`, and `organization_member` affiliation, sorted by most recently pushed (up to 500). |
+| Default branch | Resolves a repository default branch (for example `main` or `dev`) to use as a PR base. |
+| List pull requests | Returns open and recently closed PRs, sorted by most recently updated, paginated automatically (up to 1000). |
+| Read PR diff | Fetches a unified diff for a pull request, used by code review. |
+| Create pull request | Opens a PR from a `head` branch into a `base` branch, with optional body and draft flag. |
+| Post review | Creates one GitHub review that groups a summary plus inline comments on specific files and lines. |
+
+### Review comments and events
+
+A posted review carries a top-level summary body and zero or more inline comments. Each inline comment targets a file path, a line, and a side of the diff.
+
+<ParamField path="side" type="'LEFT' | 'RIGHT'" default="RIGHT">
+Which side of the diff the comment attaches to. `RIGHT` is the new version of the file; `LEFT` is the old version.
+</ParamField>
+
+<ParamField path="event" type="'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'" default="COMMENT">
+The review verdict GitHub records. `COMMENT` leaves feedback without a verdict, `APPROVE` approves the PR, and `REQUEST_CHANGES` blocks it.
+</ParamField>
+
+<ParamField path="draft" type="boolean" default="false">
+When creating a pull request, opens it as a draft instead of a ready-for-review PR.
+</ParamField>
+
+## Capabilities and limits
+
+- Repository listing returns at most 500 repositories (5 pages of 100). If you have more, the most recently pushed ones come first.
+- Pull request listing returns at most 1000 PRs (10 pages of 100), newest activity first.
+- Cloning is shallow only when you pass a depth; otherwise it pulls full history.
+- The token is encrypted with the OS keychain. If the keychain is unavailable, both connecting and any token-using action fail with a clear encryption error.
+- Orkestral talks to the GitHub REST API pinned to version `2022-11-28`.
+
+<Warning>
+Disconnecting an account deletes its stored token. Cloning, listing, creating PRs, and posting reviews all stop working until you reconnect.
+</Warning>
+
+## Configuration
+
+<ParamField path="ORKESTRAL_GITHUB_CLIENT_ID" type="string">
+Environment variable that overrides the bundled OAuth App client ID. Set it when you want to run the Device Flow against your own GitHub OAuth App (useful for development). Your app must have **Enable Device Flow** turned on.
+</ParamField>
+
+To review or revoke Orkestral access from GitHub, open the OAuth application settings page for the connected app. Orkestral can open this page for you; it links to `github.com/settings/connections/applications/<client id>`.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Device Flow is not enabled on this OAuth App">
+    This happens with a custom client ID whose OAuth App does not allow Device Flow. Go to `github.com/settings/applications`, open the app, tick **Enable Device Flow**, and save. The default Orkestral client ID already has it enabled.
+  </Accordion>
+  <Accordion title="Invalid or unknown client ID">
+    GitHub rejected the client ID (`incorrect_client_credentials` or `invalid_client`). Check `ORKESTRAL_GITHUB_CLIENT_ID`. The OAuth App must exist and the ID must match exactly. Unset the variable to fall back to the bundled app.
+  </Accordion>
+  <Accordion title="The code expired before I approved it">
+    The device code timed out. Start the connection again to get a fresh **user code**, then approve it promptly on GitHub.
+  </Accordion>
+  <Accordion title="I approved but it says access denied">
+    You declined the authorization on GitHub, or approved a different account. Restart the connection and approve with the correct account.
+  </Accordion>
+  <Accordion title="Encryption not available">
+    Your operating system did not expose a usable keychain, so Orkestral cannot encrypt or decrypt the token. This is common on minimal Linux setups without a secret service. Install or unlock a keychain (for example GNOME Keyring), then reconnect.
+  </Accordion>
+  <Accordion title="git clone fails">
+    Confirm `git` is installed and on your `PATH`, that you still have access to the repository, and that your token has not been revoked. Error output is sanitized to hide credentials, so the tail of the git message tells you the real cause (for example a missing branch or a permission error). If the token was revoked, reconnect the account.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+If pull request or review calls start failing with authorization errors after working before, your token was likely revoked on GitHub. Disconnect and reconnect the account to mint a fresh one.
+</Tip>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Adapters" icon="plug" href="/en/adapters">
+    The providers that power your agents, including the local Forge.
+  </Card>
+  <Card title="Sources" icon="folder-tree" href="/en/sources">
+    Add repositories and folders for your team to work on.
+  </Card>
+</CardGroup>

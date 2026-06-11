@@ -1,0 +1,193 @@
+---
+title: "Run your first task"
+description: "Step-by-step: from a chat request to reviewed, completed work."
+---
+
+This guide walks you through one full task in Orkestral, end to end. You write a request in chat, the CEO plans and delegates, the Forge executes the code locally, a reviewer validates the work, and you get a final report back in the same conversation. By the end you will recognize every stage and know where to look when you want to steer it.
+
+<Note>
+The CEO orchestrator is the agent that owns your chat session. It reads your repos, plans, and delegates to specialists. It never writes code itself. The bundled local model, the **Forge**, does the actual editing at no API cost.
+</Note>
+
+## How the flow works
+
+Here is the shape of a task before you dive into the steps. Keep this picture in mind.
+
+<CardGroup cols={2}>
+  <Card title="You ask" icon="comment">
+    A plain-language request in chat. Orkestral detects whether you want planning, a bug fix, or just an answer.
+  </Card>
+  <Card title="The CEO plans" icon="sitemap">
+    For non-trivial work the CEO creates an **epic** plus focused **sub-issues**, splitting frontend and backend, each assigned to the right specialist.
+  </Card>
+  <Card title="The Forge executes" icon="hammer">
+    The assigned specialist runs locally through the Forge, applies a diff, and captures a **Code changes** summary you can review.
+  </Card>
+  <Card title="Review and report" icon="circle-check">
+    The work climbs the review chain (Code Reviewer, then managers). When the plan finishes, the CEO posts a consolidated report back in your chat.
+  </Card>
+</CardGroup>
+
+## Run the task
+
+<Steps>
+  <Step title="Open a chat with your CEO" icon="comments">
+    Open the workspace where your repos (sources) are connected and start a chat session. The session belongs to the CEO orchestrator by default.
+
+    Confirm the **scope** at the bottom of the composer. Scope **All** gives the agent every source in the workspace. You can narrow it to specific sources so the agent only sees the directories you select. The first selected source becomes the working directory.
+
+    {/* PRINT: chat composer with the scope selector showing All vs specific sources */}
+
+    <Tip>
+    Want a specific teammate to handle the turn instead of the CEO? Start your message with an `@mention`, for example `@Code Reviewer check the auth flow`. The mentioned specialist executes the turn directly and answers in the chat, rather than the CEO delegating it.
+    </Tip>
+  </Step>
+
+  <Step title="Write a clear request" icon="pen">
+    State the outcome you want in plain language. You do not need to format it or split it into tasks yourself, that is the CEO's job. Good requests name the goal and, when helpful, one file or area.
+
+    <Tabs>
+      <Tab title="Planning request">
+        ```text
+        Build a settings page where users can change their email
+        and toggle dark mode. Wire it to the existing API.
+        ```
+        Orkestral detects planning intent and the CEO will decompose this into an epic with frontend and backend sub-issues.
+      </Tab>
+      <Tab title="Bug fix">
+        ```text
+        Login fails with a 500 when the password has a trailing
+        space. Find and fix it.
+        ```
+        Detected as a bug investigation. The CEO grounds in the real files before proposing the fix.
+      </Tab>
+      <Tab title="Pure question">
+        ```text
+        How does our session refresh logic work today?
+        ```
+        Detected as a question. You get a grounded answer in the chat, no issues created.
+      </Tab>
+    </Tabs>
+
+    You can attach images (for example a screenshot of a broken screen) to the message. Orkestral saves them so the agent can read them by path.
+
+    <Info>
+    Orkestral mirrors your language. If you write in Portuguese, the reply, issue titles, and report come back in Portuguese. If you write in English, everything stays in English.
+    </Info>
+  </Step>
+
+  <Step title="Watch the plan appear" icon="list-check">
+    As the CEO responds, you see it work live: a thinking phase, tool calls (searching the knowledge base, reading real files, listing existing issues), then the written plan.
+
+    For anything non-trivial, the CEO creates an **epic** first, then **sub-issues** under it. It deliberately splits work by area: a separate frontend sub-issue and a separate backend sub-issue, each assigned to the matching specialist. It also checks existing issues first so new work attaches to a related epic instead of creating orphans.
+
+    {/* PRINT: a CEO chat reply showing the created epic and its sub-issues as links */}
+
+    <Note>
+    Issue descriptions stay lean (the goal plus maybe one file). The depth lives in the breakdown, not in long descriptions. If you ask the CEO to "go deeper" or "add more screens" later, it attaches new sub-issues to the existing epic.
+    </Note>
+  </Step>
+
+  <Step title="Approve the work to execute" icon="circle-play">
+    Whether a sub-issue starts on its own depends on its status when it is created.
+
+    <AccordionGroup>
+      <Accordion title="Starts automatically" icon="bolt">
+        A sub-issue runs immediately when it is created with status **todo**, carries the `auto-exec` label, or is a source analysis marked for auto execution. The CEO uses this for plans it is confident about, so the team starts working without waiting on you.
+      </Accordion>
+      <Accordion title="Waits for you" icon="hand">
+        A sub-issue created as **backlog** does not auto-start. Open it on the **Issues** board and start it when you are ready. This is your approval gate for work you want to review before it runs.
+      </Accordion>
+    </AccordionGroup>
+
+    A sub-issue only runs once it has an assignee on a supported adapter and no open blocking dependencies. If issue B is blocked by issue A, B waits until A is done, then the sequencer starts it. Issues in the same repo never run at the same time, so they cannot collide on files. Issues in different repos can run in parallel.
+
+    {/* PRINT: the Issues board with one sub-issue moving from todo to in progress */}
+  </Step>
+
+  <Step title="Let the Forge execute locally" icon="hammer">
+    When a sub-issue runs, the assigned specialist works through the **Forge** (the bundled local model). The Forge generates a diff with `llama.cpp`, and Orkestral applies and validates it. This costs nothing in API tokens and keeps your premium session untouched.
+
+    You watch the same live feedback as in chat: a streaming message, a phase indicator, tool calls, and a stop button. The Forge stays serialized (one Forge run at a time) so it never overloads your machine, while up to three runs across different repos can proceed together.
+
+    <Warning>
+    Some tasks escalate from the Forge to a premium model: high-risk changes, a workspace with hybrid routing configured to skip local, or a local attempt that did not resolve cleanly. When that happens you see it noted in the run trace. The work still completes, just through a premium adapter instead of fully local.
+    </Warning>
+
+    When the run finishes, Orkestral captures a **Code changes** summary: the files touched with added and removed line counts, plus a transactional snapshot so you can undo it.
+
+    {/* PRINT: the Code changes panel listing files with +/- line counts */}
+  </Step>
+
+  <Step title="Review and validation" icon="user-check">
+    The specialist does not close its own issue. After a successful run the work climbs a validation chain so nothing ships unchecked.
+
+    <Steps>
+      <Step title="Code Reviewer validates code">
+        If the run actually changed code, the **Code Reviewer** validates it (unless the Code Reviewer was the one who did the work). Pure investigation that touched no code skips this.
+      </Step>
+      <Step title="Managers validate up the chain">
+        Above the reviewer, the work can rise to the manager the agent reports to (for example a Tech Lead), up to a depth cap. If a reviewer requests changes, the issue goes back to the executor to fix, then comes back for another pass, up to an attempts cap before it asks for you.
+      </Step>
+      <Step title="Required approvers gate the close">
+        If the issue has explicit required approvers, every one of them must approve before it can be marked **done**. A rejection sends it back to **blocked**; a pending approver holds it in **in review**.
+      </Step>
+    </Steps>
+
+    Each review step reports back into your chat: who is reviewing, when changes are requested, and when the work is approved. You never have to guess what is happening behind the board.
+
+    {/* PRINT: chat messages showing "sent for review", "changes requested", and "approved" lines */}
+
+    <Tip>
+    The amount of self-finishing versus mandatory review is governed by your workspace **autonomy level** (low, medium, or high). Higher autonomy lets the team finish more on its own; the Code Reviewer still always validates real code changes.
+    </Tip>
+  </Step>
+
+  <Step title="Read the final report" icon="flag-checkered">
+    When every sub-issue in the epic reaches a terminal state (done, blocked, or cancelled), the CEO consolidates the results and posts one friendly report back in the same chat session that started the task. A single top-level issue closes the loop the same way.
+
+    The report opens with an overall status line, lists what was done per issue (each marked done or needs attention), highlights anything for you to decide or approve, and closes with next steps. It is written for a glance, not a technical dump.
+
+    {/* PRINT: the CEO's consolidated completion report in chat */}
+
+    <Info>
+    The report is posted once per plan and survives a reload, because it is saved to the session. Even a blocked or cancelled ending closes the loop, so the chat never goes silent on you.
+    </Info>
+  </Step>
+</Steps>
+
+## Stopping, steering, and re-running
+
+You stay in control at every stage.
+
+<AccordionGroup>
+  <Accordion title="Stop a run" icon="stop">
+    Use the stop button on a live run. A manual stop pauses cleanly and preserves whatever the agent already produced, without a red error. A queued run that has not started yet is cancelled and its issue returns to **todo** so you can re-run it later.
+  </Accordion>
+  <Accordion title="Steer mid-flight" icon="arrows-turn-right">
+    If a run is active in a session, your next message can queue or steer the conversation rather than starting a parallel run. This keeps one coherent thread per session.
+  </Accordion>
+  <Accordion title="Re-run a blocked issue" icon="rotate">
+    A blocked issue carries a comment explaining why. Address the feedback, then start it again from the **Issues** board. The review chain picks up from there.
+  </Accordion>
+  <Accordion title="Undo code changes" icon="clock-rotate-left">
+    Because each Forge run captures a transactional snapshot, you can undo a set of file changes from the **Code changes** summary if you do not want to keep them.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Understand the team" icon="users" href="/en/agents">
+    Learn how the CEO, Tech Lead, Code Reviewer, and specialists divide work.
+  </Card>
+  <Card title="Tune autonomy" icon="sliders" href="/en/workspace-settings">
+    Set how much your team finishes on its own versus sends up for review.
+  </Card>
+  <Card title="Work the board" icon="table-columns" href="/en/issues">
+    Manage epics, sub-issues, dependencies, and approvers directly.
+  </Card>
+  <Card title="The Forge" icon="microchip" href="/en/forge">
+    See how local execution and premium escalation work under the hood.
+  </Card>
+</CardGroup>

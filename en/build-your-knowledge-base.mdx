@@ -1,0 +1,213 @@
+---
+title: "Build your knowledge base"
+description: "Step-by-step: generate and grow a workspace knowledge base."
+---
+
+The knowledge base (KB) is the shared memory of a workspace. Orkestral scans your repositories, writes structured pages about them, links those pages together, and indexes everything for fast retrieval. Your agents read this KB before they plan or touch code, so the better your KB, the sharper their work.
+
+This guide walks you through generating a KB from your sources, watching the analysis run, browsing the result (pages, wikilinks, and the graph), and understanding how agents consume it.
+
+<CardGroup cols={2}>
+  <Card title="Generated from your repos" icon="folder-tree">
+    A deterministic scan maps files, languages, dependencies, entrypoints, and risks. An AI pass writes deep architecture pages on top.
+  </Card>
+  <Card title="Hybrid search" icon="magnifying-glass">
+    Pages are indexed with lexical search (BM25) plus local embeddings, then merged into one ranked result for agents and for you.
+  </Card>
+  <Card title="Linked and visual" icon="diagram-project">
+    Wikilinks and entity relations connect pages into a navigable graph you can explore in the galaxy view.
+  </Card>
+  <Card title="Local and free" icon="lock">
+    Scanning and indexing run on your machine. The repository overview can be written by the bundled local model at zero API cost.
+  </Card>
+</CardGroup>
+
+## How it works
+
+When you analyze a source, Orkestral runs a pipeline. Understanding the phases helps you read the progress and know what to expect.
+
+<Steps>
+  <Step title="Walk the repository">
+    Orkestral walks the source folder, skipping noise like `node_modules`, `.git`, `dist`, `build`, `coverage`, and other build or vendor directories. It keeps documentation files (`.md`, `.mdx`, `.markdown`), code files (`.ts`, `.tsx`, `.js`, `.py`, `.go`, `.rs`, `.java`, and more), and key config files (`package.json`, `tsconfig.json`, `Dockerfile`). Files over 256 KB are skipped, and the scan stops at 800 files to keep the UI responsive.
+  </Step>
+  <Step title="Extract entities">
+    Dependencies from `package.json` become `tech` entities (runtime and dev). Imports parsed from a sample of code files add more external libraries as entities. These feed the graph even before any AI runs.
+  </Step>
+  <Step title="Write the base overview">
+    A root page titled `Repo: <name>` is created. Its overview can be written by the bundled local model (the Forge) from the in-memory inventory of languages, top directories, and docs. If the local route is unavailable or returns nothing, a deterministic summary is used instead.
+  </Step>
+  <Step title="Create deterministic coverage pages">
+    Seven coverage pages are created as children of the root: a structural map, dependencies and scripts, entrypoints, a code inventory, contracts and integrations, tests and quality, and reading risks. These exist immediately, even if the AI pass fails later.
+  </Step>
+  <Step title="Run the deep AI analysis">
+    An orchestrator agent (Claude or Codex) is spawned with your repo as its working directory and the Orkestral MCP tools attached. It reads the important files and writes rich pages: Overview, Architecture, Tech Stack, Dependencies, Directory Structure, Main Flows, Pain Points and Risks, Conventions, and Setup. It links pages with wikilinks as it goes.
+  </Step>
+  <Step title="Snapshot and index">
+    Chunks are rebuilt, a binary snapshot is written to disk, and an embedding job is queued. Search indexing and embeddings make the pages retrievable.
+  </Step>
+</Steps>
+
+<Note>
+If the AI pass succeeds and writes a rich tree (at least four of its own pages), the shallow deterministic coverage pages are archived (not deleted) so the KB shows the richer analysis. If the AI pass fails, the deterministic pages stay visible so you always have a usable base.
+</Note>
+
+## Before you start
+
+<AccordionGroup>
+  <Accordion title="A source with a valid local path" icon="folder">
+    Analysis reads files from disk, so the source must have a local path that exists. If a source points only to a remote repo, clone it first. See [Connect your repos](/en/connect-your-repos).
+  </Accordion>
+  <Accordion title="An executable agent for the deep pass" icon="robot">
+    The deep AI analysis needs a runnable agent in the workspace (a `claude_local` or `codex_local` adapter). Orkestral prefers the orchestrator (CEO). Without one, the scan still produces the deterministic base, but you get no AI-written architecture pages. See [Hire your team](/en/hire-your-team).
+  </Accordion>
+  <Accordion title="The Forge for a local overview (optional)" icon="microchip">
+    When the bundled local model is available and routing allows it, the repository overview is written locally at zero API cost. This is optional: a deterministic overview is used as a fallback.
+  </Accordion>
+</AccordionGroup>
+
+## Generate the knowledge base
+
+<Steps>
+  <Step title="Open the knowledge base">
+    Go to the **Knowledge** area of your workspace. If you have never run an analysis, you see an empty state inviting you to generate the KB from a source.
+
+    {/* PRINT: empty knowledge base with the generate call to action */}
+  </Step>
+  <Step title="Pick a source to analyze">
+    Choose the source (repository or folder) you want to map. Orkestral creates the `Repo: <name>` root page right away and starts the job in the background, so the UI stays responsive.
+
+    <Tip>
+    Analyze your most important source first. You can analyze more sources later, and each one becomes its own planet in the graph.
+    </Tip>
+  </Step>
+  <Step title="Watch the phases">
+    Progress streams live. You see the current phase (`walk`, `coverage-pages`, `ai-analysis`, `snapshot`) and a running count of pages, entities, and files. During the AI pass, the tool calls the agent makes are surfaced as progress, so you can see it reading and writing pages.
+
+    {/* PRINT: analysis running with phase label and live counters */}
+  </Step>
+  <Step title="Cancel if needed">
+    You can cancel a running job at any time. The job stops, its status becomes cancelled, and anything already written (the root page, entities, coverage pages) stays in place.
+  </Step>
+  <Step title="Review the result">
+    When the job completes, the root page and its children are populated. If the AI pass had a problem, the job finishes with a warning and the deterministic base remains, so you still have coverage.
+  </Step>
+</Steps>
+
+<Warning>
+Re-analyzing a source clears the old auto-generated pages for that source (except the root) before writing fresh ones. Pages you wrote by hand are a different kind and are not touched, but do not rely on edits made to auto-generated pages surviving a re-analysis.
+</Warning>
+
+## Browse pages, wikilinks, and the graph
+
+Once the KB exists, there are three ways to move through it.
+
+<Tabs>
+  <Tab title="Pages">
+    Pages are organized as a tree. The `Repo: <name>` page is the root, with children for architecture, stack, flows, risks, and the rest. Open any page to read its markdown. Each page shows its **backlinks**: the other pages that point to it, so you can trace what references a concept.
+
+    {/* PRINT: a page open with its content and a backlinks panel */}
+  </Tab>
+  <Tab title="Wikilinks">
+    Inside page content, `[[Title of another page]]` is a wikilink. Orkestral resolves these to real pages automatically, so clicking one jumps you to the target. Agents create wikilinks while writing, which is how the tree connects: an architecture page links to a flow page, a flow page links to a tech entity, and so on. Wikilinks can also cross sources, connecting a frontend page to the backend API page it calls.
+  </Tab>
+  <Tab title="Graph">
+    The galaxy view renders the whole KB as nodes and edges. Pages and entities are nodes; wikilinks, the parent-to-child hierarchy, and entity relations are edges. Root repo pages appear as planets, child pages orbit them, and entities (such as npm dependencies) appear as small stars. Node size reflects how connected a node is.
+
+    {/* PRINT: galaxy graph with planets, child pages, and entity stars */}
+  </Tab>
+</Tabs>
+
+### Reading the graph stats
+
+The graph view includes a heads-up display summarizing the KB. These numbers come straight from the graph snapshot.
+
+<AccordionGroup>
+  <Accordion title="Pages, entities, and chunks" icon="layer-group">
+    Total pages and total entities (including orphan entities like dependencies that the graph hides to avoid clutter but still counts as knowledge). Chunks are the indexed segments of your pages, the units that search and embeddings operate on.
+  </Accordion>
+  <Accordion title="Top hubs and constellations" icon="star">
+    Top hubs are the most connected nodes, the pages and entities everything points at. Constellations are clusters of two or more entities connected by relations, a quick read on how tightly your knowledge links together.
+  </Accordion>
+  <Accordion title="Growth and recently added" icon="chart-line">
+    Weekly growth counts pages created per day over the last seven days, and recently added highlights pages from the past week. Use these to see your KB expanding as you analyze more sources and write more pages.
+  </Accordion>
+</AccordionGroup>
+
+## Grow your knowledge base
+
+A KB is not a one-time export. It grows as you add sources, write pages, and re-analyze.
+
+<Steps>
+  <Step title="Analyze more sources">
+    Repeat the generation flow for each repository in the workspace. Multiple sources share one graph, and the AI is told about sibling sources so it can link across them (for example, a frontend calling a backend API).
+  </Step>
+  <Step title="Write and edit pages by hand">
+    Create your own pages for tribal knowledge the scan cannot infer: deployment runbooks, on-call notes, product decisions. Every page you create or update is reindexed for lexical search and queued for embeddings, so your manual notes are searchable alongside the generated ones.
+  </Step>
+  <Step title="Link as you write">
+    Use `[[Page title]]` wikilinks in your content to weave new pages into the existing tree. Good linking turns scattered notes into a navigable web and strengthens the graph.
+  </Step>
+  <Step title="Rebuild snapshots after big changes">
+    After a batch of edits, trigger a rebuild to refresh chunks, the binary snapshot on disk, and the embeddings. This keeps retrieval current with the latest content.
+  </Step>
+  <Step title="Re-analyze when a repo changes a lot">
+    When a source evolves significantly, run the analysis again. Orkestral refreshes the auto-generated pages and re-queues embeddings so the KB reflects the new state of the code.
+  </Step>
+</Steps>
+
+## How agents use it
+
+The KB is built for your agents first. Here is how they reach into it.
+
+<CardGroup cols={2}>
+  <Card title="Hybrid retrieval" icon="magnifying-glass-chart">
+    When an agent (or you) searches, Orkestral runs a lexical BM25 pass and a local-embedding semantic pass, then merges them into one ranked list. Lexical catches exact terms and identifiers; embeddings catch meaning even when the words differ.
+  </Card>
+  <Card title="Read before they plan" icon="book-open-reader">
+    The orchestrator reads relevant KB pages before planning and delegating, so specialists inherit architecture, conventions, and risks instead of rediscovering them.
+  </Card>
+  <Card title="Write through MCP tools" icon="screwdriver-wrench">
+    During analysis, the agent uses `kb_create_page` and related MCP tools to materialize pages and links. The same tools let agents extend the KB during normal work.
+  </Card>
+  <Card title="Binary snapshot for bulk reads" icon="database">
+    An aggregated snapshot is written to disk so an agent can process the whole base from one ordered file instead of many round trips.
+  </Card>
+</CardGroup>
+
+<Info>
+The deterministic coverage pages exist specifically so agents always have a baseline (structure, dependencies, entrypoints, risks) even when the deep AI pass is unavailable. Honest risk pages help agents avoid fragile areas before they edit them.
+</Info>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The job finished with an AI warning" icon="triangle-exclamation">
+    The deterministic base was created but the AI pass failed. Confirm you have an executable agent in the workspace and that its CLI (`claude` or `codex`) is on your `PATH`, then re-analyze. The deterministic pages remain usable in the meantime.
+  </Accordion>
+  <Accordion title="The source has no valid local path" icon="folder-xmark">
+    Analysis reads files from disk. If the source is not cloned locally, clone it first, then run the analysis again.
+  </Accordion>
+  <Accordion title="The graph looks empty or sparse" icon="circle-nodes">
+    Sparse graphs usually mean few wikilinks. Encourage linking in the pages you write, and re-analyze so the AI pass can connect concepts and create entity relations.
+  </Accordion>
+  <Accordion title="Some files were not analyzed" icon="file-circle-question">
+    The scan caps at 800 files and skips files over 256 KB. The reading-risks page flags when the cap was hit. For very large repos, focus the KB on the most important sources and folders.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Connect more repos" icon="plug" href="/en/connect-your-repos">
+    Add the rest of your workspace sources so the graph spans your whole system.
+  </Card>
+  <Card title="Hire your team" icon="users" href="/en/hire-your-team">
+    Make sure an orchestrator and specialists are in place to power the deep AI analysis.
+  </Card>
+  <Card title="Run your first task" icon="play" href="/en/your-first-task">
+    Put the KB to work: ask the team to plan and execute against your newly mapped codebase.
+  </Card>
+  <Card title="Explore the graph" icon="diagram-project" href="/en/build-your-knowledge-base">
+    Open the galaxy view to see how your pages and entities connect.
+  </Card>
+</CardGroup>

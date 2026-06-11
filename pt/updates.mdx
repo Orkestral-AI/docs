@@ -1,0 +1,159 @@
+---
+title: "Atualizações"
+description: "Como o Orkestral se mantém atualizado."
+---
+
+O Orkestral entrega novas versões através do seu sistema operacional de duas maneiras diferentes. No Windows e no Linux, o app se atualiza silenciosamente em segundo plano e instala a nova versão quando você reinicia. No macOS, o app verifica se há uma nova versão e a oferece a você, mas você a instala manualmente. Esta página explica os dois caminhos, o que acontece nos bastidores e o que você precisa fazer.
+
+<Note>
+As atualizações são best-effort por design. Se você estiver offline, atingir um limite de taxa ou a verificação falhar por qualquer motivo, o Orkestral permanece em silêncio e continua funcionando. Um problema de atualização nunca bloqueia o seu trabalho nem quebra a inicialização.
+</Note>
+
+## Dois caminhos de atualização
+
+Sua experiência de atualização depende da sua plataforma. O motivo é a assinatura de código: a instalação contínua no macOS precisa de um Apple Developer ID, então, até que isso esteja em vigor, o Mac usa uma verificação manual enquanto o Windows e o Linux recebem o atualizador completo em segundo plano.
+
+<CardGroup cols={2}>
+  <Card title="Windows e Linux" icon="rotate">
+    Atualizações contínuas em segundo plano. O app baixa a nova versão enquanto você trabalha e a instala na próxima reinicialização. Você só confirma a reinicialização.
+  </Card>
+  <Card title="macOS" icon="apple">
+    Atualizações manuais. O app avisa que existe uma versão mais nova e aponta o caminho para o download. Você mesmo substitui o app.
+  </Card>
+</CardGroup>
+
+## Como funcionam as atualizações contínuas (Windows e Linux)
+
+Em um build empacotado de Windows ou Linux, o Orkestral configura um atualizador automático na inicialização. A partir daí, ele gerencia tudo para você.
+
+<Steps>
+  <Step title="O app verifica na inicialização">
+    Logo após o Orkestral iniciar, ele pergunta ao feed de releases se há uma versão mais nova disponível. Essa verificação roda apenas no app instalado (empacotado), nunca em desenvolvimento.
+  </Step>
+  <Step title="Ele baixa em segundo plano">
+    Se existir uma versão mais nova, o atualizador a baixa automaticamente enquanto você continua trabalhando. Não há diálogo de progresso para acompanhar e nada para clicar. O download roda silenciosamente.
+  </Step>
+  <Step title="Ele verifica novamente a cada quatro horas">
+    Enquanto o app permanecer aberto, o Orkestral verifica novamente se há versões mais novas a cada quatro horas. Se um novo build surgir durante uma sessão de longa duração, ele é capturado sem reiniciar o loop de verificação.
+  </Step>
+  <Step title="Você vê um banner de reinicialização">
+    Assim que uma versão termina de baixar, o Orkestral exibe um banner avisando que a atualização está pronta. O banner traz o número da nova versão para que você saiba o que está prestes a instalar.
+  </Step>
+  <Step title="Você reinicia para instalar">
+    Clique na ação de reinicialização no banner. O Orkestral fecha, aplica a atualização baixada e reabre na nova versão. Se você ignorar o banner, a atualização será instalada automaticamente na próxima vez que você fechar o app.
+  </Step>
+</Steps>
+
+{/* PRINT: o banner de reinicialização mostrando o número da nova versão e a ação de reiniciar */}
+
+<Info>
+Dois comportamentos estão sempre ativos no atualizador em segundo plano: ele baixa automaticamente novas versões e as instala automaticamente ao fechar. Então, mesmo que você nunca clique no banner, você acaba na nova versão na próxima vez que fechar o Orkestral normalmente.
+</Info>
+
+### O que você controla
+
+<AccordionGroup>
+  <Accordion title="Preciso baixar algo manualmente?" icon="download">
+    Não. No Windows e no Linux, o download é automático e roda em segundo plano. Você só decide quando reiniciar.
+  </Accordion>
+  <Accordion title="E se eu simplesmente deixar o banner em paz?" icon="clock">
+    A atualização ainda será instalada na próxima vez que você fechar o Orkestral, porque a instalação automática ao fechar está ativada. Reiniciar pelo banner é simplesmente o caminho mais rápido.
+  </Accordion>
+  <Accordion title="Uma atualização vai interromper meu trabalho?" icon="shield-halved">
+    Não. O download acontece silenciosamente e nada é instalado até você reiniciar ou fechar. Sua sessão nunca é cortada no meio de uma tarefa por uma atualização.
+  </Accordion>
+  <Accordion title="O que acontece se o atualizador falhar?" icon="triangle-exclamation">
+    Os erros são capturados e ignorados. O atualizador registra um aviso internamente e o app continua normalmente. Você simplesmente não receberá a atualização até que uma verificação posterior tenha sucesso.
+  </Accordion>
+</AccordionGroup>
+
+## Como funcionam as atualizações manuais (macOS)
+
+No macOS, o Orkestral não instala atualizações para você. Em vez disso, ele verifica se uma versão mais nova foi publicada e, se houver, a oferece. Você então a baixa e instala por conta própria.
+
+<Steps>
+  <Step title="O Orkestral verifica a release mais recente">
+    O app consulta a release publicada mais recente e compara sua versão com a versão que você está executando. Builds de rascunho e pré-lançamento são ignorados, então você só vê releases estáveis.
+  </Step>
+  <Step title="Ele compara as versões">
+    O Orkestral compara os números `major.minor.patch`. A atualização só é oferecida quando a versão publicada é estritamente mais nova que a sua. Um prefixo `v` na tag (por exemplo `v1.2.3`) é tratado automaticamente.
+  </Step>
+  <Step title="Ele escolhe o download certo">
+    Quando existe uma atualização, o Orkestral seleciona o `.dmg` que corresponde à arquitetura do seu Mac (Apple Silicon `arm64` ou Intel `x64`). Se nenhum arquivo específico da arquitetura for encontrado, ele recorre a qualquer `.dmg` disponível e, se não houver imagem de disco alguma, recorre à página da release.
+  </Step>
+  <Step title="Você baixa e instala">
+    Abra o download oferecido. Monte o `.dmg` e arraste o Orkestral para a sua pasta **Aplicativos**, substituindo a versão antiga. As notas de versão e a data de publicação são exibidas para que você saiba o que mudou.
+  </Step>
+</Steps>
+
+{/* PRINT: o prompt de atualização do macOS com a nova versão, as notas de versão e a ação de download */}
+
+<Warning>
+No macOS, você substitui o app manualmente. Feche o Orkestral antes de arrastar o novo build para **Aplicativos** e depois reabra-o de lá. Esse caminho manual existe porque a instalação contínua no macOS exige a assinatura de código da Apple.
+</Warning>
+
+## O que é verificado
+
+Ambos os caminhos leem do feed público de releases do projeto no GitHub. A verificação manual do macOS olha para a release mais recente e retorna um pequeno conjunto de campos.
+
+<Tabs>
+  <Tab title="Informações de versão">
+    - **Versão atual**: o build que você está executando neste momento.
+    - **Versão mais recente**: a tag de release estável mais nova, com qualquer prefixo `v` removido.
+    - **Tem atualização**: verdadeiro apenas quando a versão mais recente é estritamente mais nova que a atual.
+  </Tab>
+  <Tab title="Detalhes da release">
+    - **Notas**: o corpo da release, para que você possa ler o que mudou antes de atualizar.
+    - **URL de download**: o `.dmg` correspondente à arquitetura ou a página da release como alternativa.
+    - **Publicado em**: quando a release entrou no ar.
+  </Tab>
+  <Tab title="O que é ignorado">
+    - Rascunhos e pré-lançamentos são ignorados.
+    - Uma verificação que falha, expira ou atinge o limite de taxa retorna "sem atualização" silenciosamente.
+    - As verificações nunca rodam em desenvolvimento, apenas no app empacotado.
+  </Tab>
+</Tabs>
+
+## Regras de comparação de versões
+
+O Orkestral compara as versões numericamente, segmento por segmento, entre major, minor e patch.
+
+<AccordionGroup>
+  <Accordion title="Como as tags são lidas" icon="tag">
+    Uma tag como `v1.2.3` ou `1.2.3-beta` é dividida em suas partes numéricas `major`, `minor` e `patch`. Um `v` inicial é removido e qualquer sufixo após o número do patch é descartado para a comparação.
+  </Accordion>
+  <Accordion title="Quando uma atualização é oferecida" icon="arrow-up">
+    Apenas quando a versão publicada é estritamente maior que a sua. Versões iguais nunca são oferecidas e uma versão publicada mais baixa nunca é tratada como atualização.
+  </Accordion>
+  <Accordion title="Por que rascunhos e pré-lançamentos são ignorados" icon="flask">
+    Eles não são builds finalizados e estáveis. Ignorá-los significa que você só será apontado para releases destinadas a todos.
+  </Accordion>
+</AccordionGroup>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Nunca vejo uma atualização" icon="magnifying-glass">
+    Pode ser que você já esteja na versão mais recente, ou a verificação pode ter falhado silenciosamente porque você estava offline ou com limite de taxa atingido. Tente novamente mais tarde. A verificação também roda apenas no app instalado, então um build de desenvolvimento não mostrará atualizações.
+  </Accordion>
+  <Accordion title="O atualizador em segundo plano não está rodando" icon="ban">
+    As atualizações em segundo plano são exclusivas do Windows e do Linux, e apenas no app empacotado. No macOS, espere o prompt manual. Em desenvolvimento não há atualizador algum.
+  </Accordion>
+  <Accordion title="O banner de reinicialização não aparece" icon="window-restore">
+    O banner aparece somente depois que uma nova versão termina de baixar. Se não houver release mais nova, ou se o download ainda não tiver concluído, nenhum banner aparece. A atualização ainda será instalada na próxima vez que você fechar.
+  </Accordion>
+  <Accordion title="Quero a nova versão no macOS agora mesmo" icon="bolt">
+    Baixe o `.dmg` oferecido, feche o Orkestral, arraste-o para **Aplicativos** para substituir o app antigo e depois reabra. Essa é a atualização manual completa no macOS.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Mantenha o app aberto" icon="hourglass-half">
+    No Windows e no Linux, deixar o Orkestral aberto permite que ele verifique novamente a cada quatro horas e baixe builds mais novos sem que você precise mover um dedo.
+  </Card>
+  <Card title="Reinicie quando estiver pronto" icon="power-off">
+    Quando o banner de reinicialização aparecer, reinicie em uma pausa natural. A atualização é aplicada instantaneamente e você reabre na versão mais recente.
+  </Card>
+</CardGroup>

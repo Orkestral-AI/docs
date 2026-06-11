@@ -1,0 +1,153 @@
+---
+title: "Conectar um servidor MCP"
+description: "Passo a passo: estenda o time com um servidor Model Context Protocol."
+---
+
+Um servidor MCP dá novos poderes aos seus agentes. MCP (Model Context Protocol) é um padrão aberto que expõe ferramentas, dados e ações para modelos de IA. Quando você conecta um no Orkestral, todo modelo para o qual você o habilita pode chamar essas ferramentas enquanto trabalha no seu código. Por exemplo, conecte o **Playwright** e seus agentes podem controlar um navegador real para clicar, preencher formulários e ler páginas.
+
+Esta página orienta você na conexão de um servidor MCP a partir da tela de **MCPs**, na escolha de quais modelos podem usá-lo e na importação de servidores que você já configurou em outras CLIs.
+
+<Note>
+O Orkestral gerencia servidores MCP por workspace. Troque de workspace e você troca quais servidores estão conectados. Todas as credenciais que você insere permanecem na sua máquina.
+</Note>
+
+## O que o MCP adiciona ao seu time
+
+<CardGroup cols={2}>
+  <Card title="Novas ferramentas para os agentes" icon="screwdriver-wrench">
+    Cada servidor publica um conjunto de ferramentas. Controle de navegador, busca na web, acesso a banco de dados, APIs de arquivos e muito mais ficam disponíveis para chamada durante uma tarefa.
+  </Card>
+  <Card title="Controle por modelo" icon="sliders">
+    Você decide quais modelos recebem um servidor. Dê acesso ao navegador para o modelo do seu agente de QA e mantenha-o desligado nos demais.
+  </Card>
+  <Card title="Traga suas próprias credenciais" icon="key">
+    Servidores que precisam de uma chave de API pedem a chave na instalação. As chaves são armazenadas localmente e nunca saem da sua máquina.
+  </Card>
+  <Card title="Reaproveite configurações existentes" icon="terminal">
+    O Orkestral detecta servidores MCP que você já configurou no Claude Code, Codex, Gemini e Cursor para que você possa importá-los em um clique.
+  </Card>
+</CardGroup>
+
+## Abra a tela de MCPs
+
+A tela de MCPs tem duas abas. **Marketplace** é onde você navega e instala servidores. **Installed** é onde você gerencia o que está conectado e importa servidores detectados nas suas outras CLIs.
+
+{/* PRINT: Tela de MCPs com as abas Marketplace e Installed */}
+
+<Steps>
+  <Step title="Escolha um workspace ativo">
+    Abra o Orkestral e verifique se há um workspace selecionado. A tela de MCPs precisa de um workspace ativo, porque os servidores são conectados por workspace. Sem nenhum selecionado, a tela pede que você escolha um primeiro.
+  </Step>
+  <Step title="Vá para MCPs">
+    Abra a entrada **MCPs** na navegação. Você cai na aba **Marketplace** por padrão. A aba **Installed** exibe um pequeno selo com o número de servidores atualmente conectados neste workspace.
+  </Step>
+</Steps>
+
+## Instale um servidor pelo marketplace
+
+A busca do marketplace acessa um registro ao vivo, então você pode encontrar servidores além dos destaques selecionados. O exemplo abaixo usa o Playwright, mas os passos são os mesmos para qualquer servidor.
+
+<Steps>
+  <Step title="Busque pelo servidor">
+    Na aba **Marketplace**, digite na caixa de busca no topo (por exemplo, `playwright`). Os resultados são atualizados conforme você digita. Use os chips de categoria abaixo da caixa de busca para refinar a lista, ou navegue pelos destaques **Featured** quando a caixa estiver vazia.
+  </Step>
+  <Step title="Abra os detalhes do servidor">
+    Clique em um card para abrir seu diálogo de detalhes. Lá você vê a descrição, o autor, a categoria, a contagem de estrelas, links para o repositório e a homepage, e o README completo quando há um disponível.
+  </Step>
+  <Step title="Insira credenciais se solicitado">
+    Se o servidor precisar de uma chave de API ou token, uma seção **Credentials** aparece com um campo por valor. Os campos obrigatórios precisam ser preenchidos antes de você poder instalar. Muitos servidores incluem um link **Get credential** que abre a página do provedor onde você gera a chave.
+
+    <Tip>
+    Os campos de credenciais são mascarados por padrão e armazenados localmente junto com o servidor. Campos opcionais são identificados como tais e podem ser deixados em branco.
+    </Tip>
+  </Step>
+  <Step title="Escolha quais modelos podem usá-lo">
+    Em **Enable on models**, escolha os modelos que recebem este servidor. O escopo padrão é todo modelo (`*`). Restrinja a um modelo específico quando apenas uma parte do seu time precisar das ferramentas.
+  </Step>
+  <Step title="Instale">
+    Clique em **Install**. Se um servidor não precisar de credenciais, você pode instalá-lo direto do card com um clique, com escopo para todos os modelos. Um toast confirma que o servidor está conectado, e o card agora exibe um selo **Installed**.
+  </Step>
+</Steps>
+
+<Warning>
+O botão **Install** permanece desabilitado enquanto qualquer credencial obrigatória estiver vazia. O rodapé lembra você de preencher os campos que faltam. Preencha-os e instale.
+</Warning>
+
+## Importe um servidor das suas CLIs
+
+Se você já usa servidores MCP em outra ferramenta, não precisa configurá-los novamente. O Orkestral lê os arquivos de configuração conhecidos (apenas leitura) e lista o que encontra para que você importe com um clique.
+
+<AccordionGroup>
+  <Accordion title="Quais CLIs são detectadas" icon="terminal">
+    O Orkestral procura servidores configurados em:
+
+    - **Claude Code**: `~/.claude.json` (servidores globais mais servidores por projeto)
+    - **Codex**: `~/.codex/config.toml` (as seções `[mcp_servers.*]`)
+    - **Gemini**: `~/.gemini/settings.json`
+    - **Cursor**: `~/.cursor/mcp.json`
+
+    A detecção é apenas leitura. O Orkestral nunca edita esses arquivos. Ele apenas lista os servidores para que você possa trazê-los para o workspace.
+  </Accordion>
+  <Accordion title="O que é importado" icon="download">
+    Ambos os estilos de transporte são reconhecidos: servidores baseados em comando (`stdio`, com seus `command`, `args` e `env`) e servidores baseados em URL (`http` ou `sse`, com sua `url` e `headers`). O servidor importado mantém o mesmo nome que tinha na CLI de origem.
+  </Accordion>
+</AccordionGroup>
+
+<Steps>
+  <Step title="Abra a aba Installed">
+    Na tela de MCPs, mude para a aba **Installed**.
+  </Step>
+  <Step title="Encontre a seção Detected in CLIs">
+    Abaixo dos servidores gerenciados pelo Orkestral, uma seção **Detected in CLIs** lista todos os servidores encontrados nas suas outras ferramentas. Cada linha mostra o nome do servidor, um selo da CLI de origem e o comando ou a URL que ele executa.
+  </Step>
+  <Step title="Importe o servidor">
+    Clique em **Import** em uma linha. O servidor é adicionado ao workspace e habilitado para todos os modelos. Um toast confirma a importação e a linha passa para o estado **Imported** para que você não o adicione duas vezes.
+  </Step>
+</Steps>
+
+{/* PRINT: Seção Detected in CLIs com um botão Import */}
+
+## Gerencie um servidor conectado
+
+Tudo o que você instala ou importa aparece em **Managed by Orkestral** na aba **Installed**. Cada linha mostra o escopo de modelos e se as credenciais estão definidas.
+
+<Steps>
+  <Step title="Abra o servidor">
+    Clique na linha de um servidor para abrir seu diálogo de detalhes com uma ação **Manage**.
+  </Step>
+  <Step title="Atualize credenciais ou escopo">
+    Altere valores de credenciais ou ajuste em quais modelos o servidor roda, depois clique em **Save changes**. As credenciais existentes exibem um placeholder mascarado, então você pode deixar um campo intocado para manter o valor atual.
+  </Step>
+  <Step title="Remova o servidor">
+    Clique em **Remove** para desconectar o servidor do workspace. Isso afeta apenas o Orkestral. Servidores detectados nas suas CLIs permanecem intocados.
+  </Step>
+</Steps>
+
+<Info>
+O selo numérico na aba **Installed** conta apenas os servidores gerenciados pelo Orkestral no workspace ativo, não os detectados nas suas CLIs.
+</Info>
+
+## Dicas e solução de problemas
+
+<AccordionGroup>
+  <Accordion title="Um servidor que configurei em uma CLI não é detectado" icon="magnifying-glass">
+    Confirme que o arquivo de configuração existe no caminho esperado e usa o formato `mcpServers` (ou `[mcp_servers.*]` no caso do Codex). A detecção ignora entradas que não têm nem um `command` nem uma `url`. Reabra a aba **Installed** para atualizar a lista.
+  </Accordion>
+  <Accordion title="Meus agentes não estão usando as ferramentas do servidor" icon="robot">
+    Verifique o escopo de modelos. Um servidor só alcança os modelos para os quais você o habilitou. Abra o servidor, confirme que os modelos certos estão selecionados em **Enable on models** e salve.
+  </Accordion>
+  <Accordion title="Onde minhas credenciais ficam armazenadas" icon="lock">
+    As credenciais que você insere são mantidas localmente junto com o servidor conectado, nos dados do seu workspace. Elas não são enviadas para nenhum lugar exceto para o servidor para o qual você as conectou.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Adicione uma skill" icon="book" href="/pt/install-a-skill">
+    Combine ferramentas MCP com skills reutilizáveis que ensinam seus agentes como e quando usá-las.
+  </Card>
+  <Card title="Contrate seu time" icon="users" href="/pt/hire-your-team">
+    Traga os especialistas que vão colocar essas ferramentas para trabalhar na sua base de código.
+  </Card>
+</CardGroup>

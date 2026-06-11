@@ -1,0 +1,275 @@
+---
+title: "Sentry"
+description: "Turn Sentry issues into agent work automatically."
+---
+
+Connect your Sentry organization to Orkestral and your production errors stop living in a separate tab. You see live issues inside the app, open any one of them to inspect the stack trace and breadcrumbs, and hand the whole thing to your agent team with a single click. With automations on, new errors become agent work on their own, with no clicking at all.
+
+This page covers the three pieces of the integration: connecting Sentry, browsing and reading issues, and the automation rules that turn errors into work while you sleep.
+
+<CardGroup cols={3}>
+  <Card title="Connect" icon="plug">
+    Link your Sentry organization once from Integrations.
+  </Card>
+  <Card title="Browse and analyze" icon="bug">
+    Read issues with full context and send any one to an agent.
+  </Card>
+  <Card title="Automate" icon="bolt">
+    Rules that propose or auto-start work when errors match.
+  </Card>
+</CardGroup>
+
+## How it works
+
+Orkestral talks to the Sentry API for your organization. Once connected, it pulls your most recent issues (up to 50 at a time) and shows them on the **Sentry** page in the sidebar. Each issue keeps its real metadata: level, project, occurrence count, affected users, first and last seen, and a permalink back to Sentry.
+
+When you analyze an issue, Orkestral packages the error context (title, culprit, exception, stack trace, breadcrumbs, request, tags) and opens a chat session with your team. The **CEO** orchestrator reads that context, plans, and delegates to the right specialist. Premium models plan; the local FORGE executes code changes at $0 API cost.
+
+Automations apply the same idea without you watching. A rule matches incoming errors by level and project, then either proposes work for your review or starts the analysis automatically.
+
+<Note>
+The Sentry page only renders data after you connect an account. Until then you see a prompt to go connect. Everything below assumes a workspace is active.
+</Note>
+
+## Connect Sentry
+
+<Steps>
+  <Step title="Open Integrations">
+    Go to **Integrations** in the sidebar. The Sentry page links straight there with a **Connect** button when no account is linked yet.
+  </Step>
+  <Step title="Authorize your organization">
+    Follow the Sentry connection flow and grant Orkestral access to your organization. You connect one organization per workspace.
+  </Step>
+  <Step title="Confirm the connection">
+    Return to the **Sentry** page. The subtitle now shows your organization slug and the project (or **all projects** when no single project is selected). Issues start loading automatically.
+  </Step>
+</Steps>
+
+{/* PRINT: Sentry page header showing the connected organization slug in the subtitle */}
+
+<Tip>
+The connection lives per workspace. If you switch workspaces, each one has its own Sentry account, issues, rules, and run history.
+</Tip>
+
+## Browse issues
+
+Once connected, the **Sentry** page lists your recent issues newest-first. Each row shows the severity bar and badge, the project, the short ID, the title, the culprit (the code location Sentry blames), occurrence count, affected users, and how long ago it was last seen.
+
+### Filter and search
+
+A filter bar appears as soon as there is at least one issue.
+
+<CardGroup cols={3}>
+  <Card title="Search" icon="magnifying-glass">
+    Free-text match across the title, culprit, and short ID.
+  </Card>
+  <Card title="Project" icon="folder">
+    Narrow to a single Sentry project, or keep **all projects**.
+  </Card>
+  <Card title="Level" icon="signal">
+    Filter by severity: fatal, error, warning, info, or debug.
+  </Card>
+</CardGroup>
+
+The counter on the right shows how many issues match out of the total loaded. Filtering happens locally on the loaded set, so it is instant.
+
+### Severity colors
+
+<AccordionGroup>
+  <Accordion title="Fatal and error" icon="circle-exclamation">
+    Red bar and badge. The highest-attention issues, crashes, and unhandled exceptions.
+  </Accordion>
+  <Accordion title="Warning" icon="triangle-exclamation">
+    Yellow. Recoverable problems worth a look.
+  </Accordion>
+  <Accordion title="Info" icon="circle-info">
+    Blue. Informational events that reached Sentry.
+  </Accordion>
+  <Accordion title="Debug" icon="bug">
+    Muted gray. Low-priority diagnostic events.
+  </Accordion>
+</AccordionGroup>
+
+### Refresh and auto-refresh
+
+Click **Refresh** in the header to pull the latest issues on demand. When auto-refresh is on, the header shows a green dot with the interval (for example **auto on, every 5 min**) and the list re-fetches by itself. You set the interval from the automations page (see below). The default is every 5 minutes.
+
+<Info>
+Opening the Sentry page clears the unread badge on the sidebar item, so the badge reflects errors you have not looked at yet.
+</Info>
+
+## Read an issue in detail
+
+Click any row to open the issue detail page. This is where you get the full picture before deciding what to do.
+
+<Tabs>
+  <Tab title="Main column">
+    - **Message**: the raw error message, preformatted.
+    - **Exception**: the exception type and value, highlighted in red.
+    - **Stack trace**: every frame with file and line. In-app frames are accented and pulled forward; library frames are dimmed and tagged **lib** so you focus on your own code.
+    - **Request**: the HTTP method and URL when the error came from a request.
+    - **Breadcrumbs**: the timeline of events leading up to the error, each with its category, message, and time.
+  </Tab>
+  <Tab title="Side panel">
+    - Occurrence and affected-user counts as stat cards.
+    - Metadata: level, project, platform, first seen, last seen (hover for the exact timestamp).
+    - **Tags**: the key/value pairs Sentry attached to the event, such as environment, release, or browser.
+  </Tab>
+</Tabs>
+
+{/* PRINT: Issue detail page with the stack trace, in-app frames highlighted, and the side panel of tags */}
+
+From the header you can:
+
+<CardGroup cols={2}>
+  <Card title="Open in Sentry" icon="arrow-up-right-from-square">
+    Jump to the issue's permalink in Sentry in your browser.
+  </Card>
+  <Card title="Analyze" icon="sparkles">
+    Hand the issue to your agent team and open the resulting chat session.
+  </Card>
+</CardGroup>
+
+## Analyze an issue with your team
+
+**Analyze** is the bridge from error to work. You can trigger it from the issue list (the button on each row) or from the issue detail header.
+
+<Steps>
+  <Step title="Click Analyze">
+    Orkestral collects the full error context and opens a chat session with your team. You land in that session automatically.
+  </Step>
+  <Step title="Let the CEO plan and delegate">
+    The CEO orchestrator reads the stack trace and breadcrumbs, then routes the work to the right specialist (Backend, Frontend, and so on) and uses the FORGE to apply local code changes.
+  </Step>
+  <Step title="Reopen the analysis any time">
+    Once an issue has been analyzed, its button changes to **View analysis** (green). Click it from either the list or the detail page to jump back to that exact session instead of starting over.
+  </Step>
+</Steps>
+
+<Warning>
+Analyze starts real work in a chat session. If you only want to read the error, use **Open in Sentry** or just review the detail page instead.
+</Warning>
+
+## Automate: turn errors into work
+
+Open **Automations** from the button in the Sentry header. This is where you stop clicking **Analyze** by hand. Rules watch incoming issues and act on the ones that match.
+
+### The dashboard at a glance
+
+The top of the page shows four stats so you know the system is alive:
+
+<CardGroup cols={2}>
+  <Card title="Active rules" icon="toggle-on">
+    How many of your rules are enabled, out of the total.
+  </Card>
+  <Card title="Monitored" icon="eye">
+    How many issues are currently in view for matching.
+  </Card>
+  <Card title="Runs" icon="list-check">
+    How many times automations have fired.
+  </Card>
+  <Card title="Last run" icon="clock">
+    When the most recent automation fired, or **never**.
+  </Card>
+</CardGroup>
+
+### Set the auto-refresh interval
+
+At the top right, pick how often Orkestral checks Sentry for new issues: **off**, or every **1**, **5**, **15**, **30**, or **60** minutes. This is the same interval shown on the Sentry page. Set it to **off** to pause polling entirely (you can still refresh by hand).
+
+### Create a rule
+
+<Steps>
+  <Step title="Click New rule">
+    Use **New rule** in the header (or the button in the empty state when you have no rules yet).
+  </Step>
+  <Step title="Name it">
+    Give the rule a clear name, for example `Fatal errors in checkout`. A name is required.
+  </Step>
+  <Step title="Set the minimum level">
+    Choose the lowest severity that should trigger the rule: **fatal**, **error**, **warning**, or **info**. The rule matches that level and anything more severe (shown as `error+` and so on).
+  </Step>
+  <Step title="Scope to a project">
+    Pick a single Sentry project, or leave it on **any project** to match across all of them.
+  </Step>
+  <Step title="Choose the agent">
+    Assign the work to a specific agent, or leave it on **CEO (default)** so the orchestrator decides who handles it.
+  </Step>
+  <Step title="Pick the mode">
+    Choose **propose** or **auto** (explained below), then **Save**.
+  </Step>
+</Steps>
+
+{/* PRINT: Rule editor dialog with name, minimum level, project, agent, and mode fields */}
+
+### Propose vs auto
+
+The mode decides how much the rule does on its own.
+
+<CardGroup cols={2}>
+  <Card title="Propose" icon="inbox">
+    The rule surfaces a matching error as proposed work for you to review. Nothing starts until you approve. Safer default. Shown with a blue badge.
+  </Card>
+  <Card title="Auto" icon="sparkles">
+    The rule starts the analysis automatically, opening a session with no clicks. Fastest path from error to fix. Shown with a purple badge.
+  </Card>
+</CardGroup>
+
+<Warning>
+**Auto** mode kicks off agent work without you in the loop. Start narrow: scope it to one project and a high minimum level (such as `fatal`), confirm the runs look right, then widen.
+</Warning>
+
+### Manage your rules
+
+Each rule row shows a toggle, its name, the mode badge, and a one-line summary like `error+ · checkout-api · Backend`.
+
+<CardGroup cols={3}>
+  <Card title="Enable or disable" icon="toggle-on">
+    Flip the switch to turn a rule on or off without deleting it.
+  </Card>
+  <Card title="Edit" icon="pencil">
+    Reopen the editor to change any field.
+  </Card>
+  <Card title="Delete" icon="trash">
+    Remove the rule after a confirmation prompt.
+  </Card>
+</CardGroup>
+
+### Review the run history
+
+The **Runs** section lists what automations have done, newest first. Each entry tells you the outcome at a glance:
+
+<AccordionGroup>
+  <Accordion title="Analyzed" icon="sparkles">
+    Purple icon. The rule started an analysis. Click the run to jump straight into that chat session.
+  </Accordion>
+  <Accordion title="Proposed" icon="circle-check">
+    Green icon. The rule surfaced the issue for your review. Click the run to open the issue detail page.
+  </Accordion>
+  <Accordion title="Error" icon="circle-xmark">
+    Red icon. The run failed. Click it to open the related issue and look closer.
+  </Accordion>
+</AccordionGroup>
+
+Each run also shows which rule fired (as a small badge), the issue title or short ID, and how long ago it ran.
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Start with one rule" icon="flag">
+    Create a single **propose** rule at level `error` for your busiest project, then watch the run history for a day.
+  </Card>
+  <Card title="Tune the interval" icon="gauge">
+    If errors are rare, raise the refresh interval to save API calls. If they are time-critical, drop it to every minute.
+  </Card>
+  <Card title="Graduate to auto" icon="rocket">
+    Once propose runs look trustworthy, switch the rule to **auto** so fixes start without you.
+  </Card>
+  <Card title="Read before you ship" icon="book-open">
+    Open analyzed sessions and review the plan and the FORGE's changes before merging.
+  </Card>
+</CardGroup>
+
+<Note>
+Sentry pairs well with the rest of Orkestral. Analyzed issues become normal chat sessions, so the same review and tracking you use for planned work applies to errors too.
+</Note>

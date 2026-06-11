@@ -1,0 +1,213 @@
+---
+title: "Monte sua base de conhecimento"
+description: "Passo a passo: gere e cultive a base de conhecimento do workspace."
+---
+
+A base de conhecimento (KB) é a memória compartilhada de um workspace. A Orkestral varre seus repositórios, escreve páginas estruturadas sobre eles, conecta essas páginas entre si e indexa tudo para recuperação rápida. Seus agentes leem essa KB antes de planejar ou tocar no código, então quanto melhor a sua KB, mais afiado o trabalho deles.
+
+Este guia mostra como gerar uma KB a partir das suas fontes, acompanhar a análise rodando, navegar pelo resultado (páginas, wikilinks e o grafo) e entender como os agentes a consomem.
+
+<CardGroup cols={2}>
+  <Card title="Gerada a partir dos seus repos" icon="folder-tree">
+    Uma varredura determinística mapeia arquivos, linguagens, dependências, pontos de entrada e riscos. Uma passagem de IA escreve páginas profundas de arquitetura por cima.
+  </Card>
+  <Card title="Busca híbrida" icon="magnifying-glass">
+    As páginas são indexadas com busca lexical (BM25) mais embeddings locais, depois mescladas em um único resultado ranqueado para os agentes e para você.
+  </Card>
+  <Card title="Conectada e visual" icon="diagram-project">
+    Wikilinks e relações entre entidades conectam as páginas em um grafo navegável que você pode explorar na visão galáxia.
+  </Card>
+  <Card title="Local e gratuita" icon="lock">
+    A varredura e a indexação rodam na sua máquina. A visão geral do repositório pode ser escrita pelo modelo local embutido sem nenhum custo de API.
+  </Card>
+</CardGroup>
+
+## Como funciona
+
+Quando você analisa uma fonte, a Orkestral executa um pipeline. Entender as fases ajuda você a ler o progresso e saber o que esperar.
+
+<Steps>
+  <Step title="Percorrer o repositório">
+    A Orkestral percorre a pasta da fonte, pulando ruído como `node_modules`, `.git`, `dist`, `build`, `coverage` e outros diretórios de build ou vendor. Ela mantém arquivos de documentação (`.md`, `.mdx`, `.markdown`), arquivos de código (`.ts`, `.tsx`, `.js`, `.py`, `.go`, `.rs`, `.java` e mais) e arquivos de configuração importantes (`package.json`, `tsconfig.json`, `Dockerfile`). Arquivos acima de 256 KB são pulados, e a varredura para em 800 arquivos para manter a UI responsiva.
+  </Step>
+  <Step title="Extrair entidades">
+    Dependências do `package.json` viram entidades `tech` (runtime e dev). Imports interpretados de uma amostra de arquivos de código adicionam mais bibliotecas externas como entidades. Isso alimenta o grafo antes mesmo de qualquer IA rodar.
+  </Step>
+  <Step title="Escrever a visão geral da base">
+    Uma página raiz intitulada `Repo: <name>` é criada. Sua visão geral pode ser escrita pelo modelo local embutido (a Forge) a partir do inventário em memória de linguagens, principais diretórios e docs. Se a rota local estiver indisponível ou não retornar nada, um resumo determinístico é usado no lugar.
+  </Step>
+  <Step title="Criar páginas de cobertura determinísticas">
+    Sete páginas de cobertura são criadas como filhas da raiz: um mapa estrutural, dependências e scripts, pontos de entrada, um inventário de código, contratos e integrações, testes e qualidade, e riscos de leitura. Elas existem imediatamente, mesmo que a passagem de IA falhe depois.
+  </Step>
+  <Step title="Rodar a análise profunda de IA">
+    Um agente orquestrador (Claude ou Codex) é iniciado com o seu repo como diretório de trabalho e as ferramentas MCP da Orkestral anexadas. Ele lê os arquivos importantes e escreve páginas ricas: Visão Geral, Arquitetura, Stack Tecnológica, Dependências, Estrutura de Diretórios, Fluxos Principais, Pontos de Dor e Riscos, Convenções e Setup. Ele conecta páginas com wikilinks conforme avança.
+  </Step>
+  <Step title="Snapshot e indexação">
+    Os chunks são reconstruídos, um snapshot binário é gravado em disco e um job de embedding é enfileirado. A indexação de busca e os embeddings tornam as páginas recuperáveis.
+  </Step>
+</Steps>
+
+<Note>
+Se a passagem de IA tiver sucesso e escrever uma árvore rica (pelo menos quatro páginas próprias), as páginas rasas de cobertura determinística são arquivadas (não deletadas) para que a KB exiba a análise mais rica. Se a passagem de IA falhar, as páginas determinísticas permanecem visíveis para que você sempre tenha uma base utilizável.
+</Note>
+
+## Antes de começar
+
+<AccordionGroup>
+  <Accordion title="Uma fonte com um caminho local válido" icon="folder">
+    A análise lê arquivos do disco, então a fonte precisa ter um caminho local que exista. Se uma fonte aponta apenas para um repo remoto, clone-o primeiro. Veja [Conecte seus repos](/pt/connect-your-repos).
+  </Accordion>
+  <Accordion title="Um agente executável para a passagem profunda" icon="robot">
+    A análise profunda de IA precisa de um agente executável no workspace (um adaptador `claude_local` ou `codex_local`). A Orkestral prefere o orquestrador (CEO). Sem um, a varredura ainda produz a base determinística, mas você não obtém páginas de arquitetura escritas por IA. Veja [Contrate seu time](/pt/hire-your-team).
+  </Accordion>
+  <Accordion title="A Forge para uma visão geral local (opcional)" icon="microchip">
+    Quando o modelo local embutido está disponível e o roteamento permite, a visão geral do repositório é escrita localmente sem nenhum custo de API. Isso é opcional: uma visão geral determinística é usada como fallback.
+  </Accordion>
+</AccordionGroup>
+
+## Gere a base de conhecimento
+
+<Steps>
+  <Step title="Abra a base de conhecimento">
+    Vá para a área **Conhecimento** do seu workspace. Se você nunca rodou uma análise, verá um estado vazio convidando você a gerar a KB a partir de uma fonte.
+
+    {/* PRINT: base de conhecimento vazia com a chamada para ação de gerar */}
+  </Step>
+  <Step title="Escolha uma fonte para analisar">
+    Escolha a fonte (repositório ou pasta) que você quer mapear. A Orkestral cria a página raiz `Repo: <name>` imediatamente e inicia o job em segundo plano, então a UI permanece responsiva.
+
+    <Tip>
+    Analise sua fonte mais importante primeiro. Você pode analisar mais fontes depois, e cada uma vira seu próprio planeta no grafo.
+    </Tip>
+  </Step>
+  <Step title="Acompanhe as fases">
+    O progresso é transmitido ao vivo. Você vê a fase atual (`walk`, `coverage-pages`, `ai-analysis`, `snapshot`) e uma contagem em tempo real de páginas, entidades e arquivos. Durante a passagem de IA, as chamadas de ferramentas que o agente faz aparecem como progresso, então você pode vê-lo lendo e escrevendo páginas.
+
+    {/* PRINT: análise rodando com rótulo de fase e contadores ao vivo */}
+  </Step>
+  <Step title="Cancele se necessário">
+    Você pode cancelar um job em execução a qualquer momento. O job para, seu status vira cancelado, e tudo que já foi escrito (a página raiz, entidades, páginas de cobertura) permanece no lugar.
+  </Step>
+  <Step title="Revise o resultado">
+    Quando o job é concluído, a página raiz e suas filhas são preenchidas. Se a passagem de IA teve algum problema, o job termina com um aviso e a base determinística permanece, então você ainda tem cobertura.
+  </Step>
+</Steps>
+
+<Warning>
+Reanalisar uma fonte limpa as páginas autogeradas antigas dessa fonte (exceto a raiz) antes de escrever novas. As páginas que você escreveu à mão são de outro tipo e não são tocadas, mas não conte com a sobrevivência de edições feitas em páginas autogeradas após uma reanálise.
+</Warning>
+
+## Navegue por páginas, wikilinks e o grafo
+
+Uma vez que a KB existe, há três formas de se mover por ela.
+
+<Tabs>
+  <Tab title="Páginas">
+    As páginas são organizadas como uma árvore. A página `Repo: <name>` é a raiz, com filhas para arquitetura, stack, fluxos, riscos e o resto. Abra qualquer página para ler seu markdown. Cada página mostra seus **backlinks**: as outras páginas que apontam para ela, para que você possa rastrear o que referencia um conceito.
+
+    {/* PRINT: uma página aberta com seu conteúdo e um painel de backlinks */}
+  </Tab>
+  <Tab title="Wikilinks">
+    Dentro do conteúdo de uma página, `[[Título de outra página]]` é um wikilink. A Orkestral resolve esses links para páginas reais automaticamente, então clicar em um leva você ao destino. Os agentes criam wikilinks enquanto escrevem, que é como a árvore se conecta: uma página de arquitetura linka para uma página de fluxo, uma página de fluxo linka para uma entidade tech, e assim por diante. Wikilinks também podem cruzar fontes, conectando uma página de frontend à página da API de backend que ela chama.
+  </Tab>
+  <Tab title="Grafo">
+    A visão galáxia renderiza toda a KB como nós e arestas. Páginas e entidades são nós; wikilinks, a hierarquia pai-para-filho e as relações entre entidades são arestas. Páginas raiz de repo aparecem como planetas, páginas filhas orbitam ao redor delas, e entidades (como dependências npm) aparecem como pequenas estrelas. O tamanho do nó reflete o quão conectado um nó está.
+
+    {/* PRINT: grafo galáxia com planetas, páginas filhas e estrelas de entidades */}
+  </Tab>
+</Tabs>
+
+### Lendo as estatísticas do grafo
+
+A visão de grafo inclui um painel de informações resumindo a KB. Esses números vêm diretamente do snapshot do grafo.
+
+<AccordionGroup>
+  <Accordion title="Páginas, entidades e chunks" icon="layer-group">
+    Total de páginas e total de entidades (incluindo entidades órfãs como dependências que o grafo esconde para evitar poluição, mas que ainda contam como conhecimento). Chunks são os segmentos indexados das suas páginas, as unidades sobre as quais a busca e os embeddings operam.
+  </Accordion>
+  <Accordion title="Principais hubs e constelações" icon="star">
+    Os principais hubs são os nós mais conectados, as páginas e entidades para as quais tudo aponta. Constelações são agrupamentos de duas ou mais entidades conectadas por relações, uma leitura rápida de quão fortemente seu conhecimento se conecta.
+  </Accordion>
+  <Accordion title="Crescimento e adicionados recentemente" icon="chart-line">
+    O crescimento semanal conta páginas criadas por dia ao longo dos últimos sete dias, e adicionados recentemente destaca páginas da última semana. Use isso para ver sua KB expandindo conforme você analisa mais fontes e escreve mais páginas.
+  </Accordion>
+</AccordionGroup>
+
+## Cultive sua base de conhecimento
+
+Uma KB não é uma exportação única. Ela cresce conforme você adiciona fontes, escreve páginas e reanalisa.
+
+<Steps>
+  <Step title="Analise mais fontes">
+    Repita o fluxo de geração para cada repositório no workspace. Múltiplas fontes compartilham um grafo, e a IA é informada sobre fontes irmãs para que possa linkar entre elas (por exemplo, um frontend chamando uma API de backend).
+  </Step>
+  <Step title="Escreva e edite páginas à mão">
+    Crie suas próprias páginas para conhecimento tribal que a varredura não consegue inferir: runbooks de deploy, notas de plantão, decisões de produto. Cada página que você cria ou atualiza é reindexada para busca lexical e enfileirada para embeddings, então suas notas manuais ficam pesquisáveis junto com as geradas.
+  </Step>
+  <Step title="Linke conforme escreve">
+    Use wikilinks `[[Título da página]]` no seu conteúdo para entrelaçar novas páginas na árvore existente. Bons links transformam notas espalhadas em uma teia navegável e fortalecem o grafo.
+  </Step>
+  <Step title="Reconstrua snapshots após grandes mudanças">
+    Depois de um lote de edições, dispare uma reconstrução para atualizar chunks, o snapshot binário em disco e os embeddings. Isso mantém a recuperação atualizada com o conteúdo mais recente.
+  </Step>
+  <Step title="Reanalise quando um repo muda muito">
+    Quando uma fonte evolui significativamente, rode a análise novamente. A Orkestral atualiza as páginas autogeradas e reenfileira os embeddings para que a KB reflita o novo estado do código.
+  </Step>
+</Steps>
+
+## Como os agentes a usam
+
+A KB é feita primeiro para seus agentes. Veja como eles a acessam.
+
+<CardGroup cols={2}>
+  <Card title="Recuperação híbrida" icon="magnifying-glass-chart">
+    Quando um agente (ou você) busca, a Orkestral roda uma passagem lexical BM25 e uma passagem semântica de embedding local, depois as mescla em uma única lista ranqueada. A lexical captura termos e identificadores exatos; os embeddings capturam o significado mesmo quando as palavras diferem.
+  </Card>
+  <Card title="Lê antes de planejar" icon="book-open-reader">
+    O orquestrador lê as páginas relevantes da KB antes de planejar e delegar, para que os especialistas herdem arquitetura, convenções e riscos em vez de redescobri-los.
+  </Card>
+  <Card title="Escreve via ferramentas MCP" icon="screwdriver-wrench">
+    Durante a análise, o agente usa `kb_create_page` e ferramentas MCP relacionadas para materializar páginas e links. As mesmas ferramentas permitem que os agentes estendam a KB durante o trabalho normal.
+  </Card>
+  <Card title="Snapshot binário para leituras em massa" icon="database">
+    Um snapshot agregado é gravado em disco para que um agente possa processar toda a base a partir de um único arquivo ordenado em vez de muitas idas e voltas.
+  </Card>
+</CardGroup>
+
+<Info>
+As páginas de cobertura determinística existem especificamente para que os agentes sempre tenham uma linha de base (estrutura, dependências, pontos de entrada, riscos) mesmo quando a passagem profunda de IA está indisponível. Páginas de risco honestas ajudam os agentes a evitar áreas frágeis antes de editá-las.
+</Info>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="O job terminou com um aviso de IA" icon="triangle-exclamation">
+    A base determinística foi criada, mas a passagem de IA falhou. Confirme que você tem um agente executável no workspace e que sua CLI (`claude` ou `codex`) está no seu `PATH`, depois reanalise. As páginas determinísticas permanecem utilizáveis enquanto isso.
+  </Accordion>
+  <Accordion title="A fonte não tem um caminho local válido" icon="folder-xmark">
+    A análise lê arquivos do disco. Se a fonte não está clonada localmente, clone-a primeiro, depois rode a análise novamente.
+  </Accordion>
+  <Accordion title="O grafo parece vazio ou esparso" icon="circle-nodes">
+    Grafos esparsos geralmente significam poucos wikilinks. Incentive a criação de links nas páginas que você escreve, e reanalise para que a passagem de IA possa conectar conceitos e criar relações entre entidades.
+  </Accordion>
+  <Accordion title="Alguns arquivos não foram analisados" icon="file-circle-question">
+    A varredura tem limite de 800 arquivos e pula arquivos acima de 256 KB. A página de riscos de leitura sinaliza quando o limite foi atingido. Para repos muito grandes, foque a KB nas fontes e pastas mais importantes.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Conecte mais repos" icon="plug" href="/pt/connect-your-repos">
+    Adicione o restante das fontes do seu workspace para que o grafo abranja todo o seu sistema.
+  </Card>
+  <Card title="Contrate seu time" icon="users" href="/pt/hire-your-team">
+    Garanta que um orquestrador e especialistas estejam no lugar para alimentar a análise profunda de IA.
+  </Card>
+  <Card title="Rode sua primeira tarefa" icon="play" href="/pt/your-first-task">
+    Coloque a KB para trabalhar: peça ao time para planejar e executar sobre seu código recém-mapeado.
+  </Card>
+  <Card title="Explore o grafo" icon="diagram-project" href="/pt/build-your-knowledge-base">
+    Abra a visão galáxia para ver como suas páginas e entidades se conectam.
+  </Card>
+</CardGroup>

@@ -1,0 +1,166 @@
+---
+title: "Azure DevOps"
+description: "Connect Azure DevOps repositories and pull requests."
+---
+
+The Azure DevOps integration lets you sign in with your Microsoft work or school account and browse your Azure DevOps Git repositories from inside Orkestral. Once connected, Orkestral lists the organizations, projects, and repositories you can access so you can add them as sources for your agents to work on.
+
+Authentication uses the Microsoft **OAuth device code flow**. Orkestral never asks for your password. You approve the connection in a browser, and Orkestral stores the resulting tokens encrypted on your machine.
+
+{/* PRINT: Azure DevOps integration card in settings, showing connected account and organizations */}
+
+## What it enables
+
+<CardGroup cols={2}>
+  <Card title="Sign in with Microsoft" icon="key">
+    Connect your Azure DevOps account through the device code flow, with no password handling inside the app.
+  </Card>
+  <Card title="Browse repositories" icon="folder-tree">
+    List Git repositories across every organization and project your account can reach.
+  </Card>
+  <Card title="Encrypted tokens" icon="lock">
+    Access and refresh tokens are encrypted at rest with the operating system keychain and never exposed to the renderer.
+  </Card>
+  <Card title="Automatic refresh" icon="rotate">
+    Orkestral refreshes the access token in the background while a refresh token is available.
+  </Card>
+</CardGroup>
+
+## Requirements
+
+- A Microsoft work or school account with access to at least one Azure DevOps organization.
+- The repositories you want to use must live in **Azure Repos** (Git). Orkestral only lists repos that expose a clone URL.
+- A working operating system keychain so Orkestral can encrypt tokens. On macOS this is the Keychain, on Windows the Credential Manager, on Linux a Secret Service provider. If encryption is unavailable, the connection fails with an error.
+- An internet connection to reach `login.microsoftonline.com`, `app.vssps.visualstudio.com`, and `dev.azure.com`.
+
+<Note>
+Orkestral requests the scopes `user_impersonation` (on the Azure DevOps resource) and `offline_access`. The `offline_access` scope is what lets Orkestral obtain a refresh token and keep your session alive.
+</Note>
+
+## How to connect
+
+<Steps>
+  <Step title="Open the integration">
+    Go to the integrations or settings area and choose **Azure DevOps**, then start the connection.
+  </Step>
+  <Step title="Start the device flow">
+    Orkestral requests a device code from Microsoft and shows you a short **user code** plus a verification link.
+  </Step>
+  <Step title="Approve in the browser">
+    Open the verification URL (Orkestral can open it for you), sign in with your Microsoft account, and enter the user code. Approve the requested permissions.
+  </Step>
+  <Step title="Wait for confirmation">
+    Orkestral polls Microsoft until you approve. When the flow returns `authorized`, your account details and organizations appear in the app.
+  </Step>
+  <Step title="Browse and add repositories">
+    Orkestral lists your repositories. Pick the ones you want and add them as sources for your agents.
+  </Step>
+</Steps>
+
+<Tip>
+The user code expires after a few minutes. If it expires before you finish, start the connection again to get a fresh code.
+</Tip>
+
+## Device flow states
+
+While you complete the browser step, Orkestral polls Microsoft and reacts to each state it returns.
+
+| State | Meaning |
+| --- | --- |
+| `pending` | You have not approved yet. Orkestral keeps polling. |
+| `slow_down` | Microsoft asks Orkestral to poll less often. The interval increases automatically. |
+| `expired` | The user code timed out. Start the connection again. |
+| `denied` | You declined the request or access was denied. |
+| `authorized` | Sign in succeeded. Your account and organizations are saved. |
+
+## Configuration options
+
+The integration works with built-in defaults. The following environment variables let you point Orkestral at a different Microsoft Entra (Azure AD) tenant or application registration, which is useful for single-tenant or enterprise setups.
+
+<ParamField path="ORKESTRAL_AZURE_TENANT_ID" type="string" default="common">
+  The Microsoft Entra tenant used for the authority URL (`https://login.microsoftonline.com/<tenant>`). Use `common` for multi-tenant sign in, or a specific tenant ID to restrict sign in to one directory.
+</ParamField>
+
+<ParamField path="ORKESTRAL_AZURE_DEVOPS_CLIENT_ID" type="string" default="ad5bfc00-c17c-4f09-a296-dce587eae0a7">
+  The application (client) ID used for the device code flow. Override this to use your own app registration.
+</ParamField>
+
+<Warning>
+These are environment variables read by the Orkestral main process at startup. Set them before launching the app. If you change them after connecting, disconnect and connect again so the new authority and client ID take effect.
+</Warning>
+
+## What gets stored
+
+When you connect, Orkestral saves a single Azure DevOps account record. The public, non secret fields you can see in the app are:
+
+| Field | Description |
+| --- | --- |
+| `displayName` | Your name, read from the ID token. |
+| `email` | Your sign in name (`preferred_username`) or email. |
+| `tenantId` | The tenant ID the token was issued for. |
+| `scope` | The OAuth scopes granted. |
+| `connectedAt` | When the account was first connected. |
+| `expiresAt` | When the current access token expires. |
+| `organizations` | The Azure DevOps organizations linked to your account. |
+
+The access token and refresh token are stored **encrypted** and never returned to the interface. Orkestral decrypts the access token only when it needs to call the Azure DevOps API.
+
+## How repository listing works
+
+When you list repositories, Orkestral:
+
+1. Gets a valid access token, refreshing it first if it expires within about 90 seconds.
+2. Determines which organizations to query. It uses a specific organization if you pass one, otherwise the organizations saved on your account, otherwise it discovers them from your profile.
+3. For each organization, lists projects, then lists the Git repositories in each project.
+4. Returns only repositories that have a clone URL, sorted by their full name (`organization/project/repo`).
+
+Each repository entry includes its organization, project, default branch, web URL, SSH URL, clone URL, and size when available.
+
+<Info>
+Discovery walks every organization and project you can access, so listing can take a moment on large accounts. Repositories without a usable remote URL are skipped.
+</Info>
+
+## Disconnecting
+
+Disconnecting deletes the stored Azure DevOps account, including the encrypted access and refresh tokens. After disconnecting, you need to run the device flow again to reconnect. Sources you already added stay configured, but Orkestral can no longer fetch fresh data for them until you reconnect.
+
+## Capabilities and limits
+
+- Orkestral reads repository metadata for browsing and adding sources. It acts with your own Azure DevOps permissions through `user_impersonation`.
+- Only **Azure Repos (Git)** repositories are listed. TFVC repositories and repos without a clone URL do not appear.
+- The session stays alive automatically while a refresh token is present. If the access token expires and no refresh token exists, you are asked to connect again.
+- Token encryption depends on the operating system keychain. In environments where it is unavailable, connecting and reading tokens fail.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Encryption not available">
+    Orkestral could not reach the operating system keychain to encrypt or decrypt tokens. Make sure your keychain or credential store is unlocked and available, then try connecting again. On Linux, confirm a Secret Service provider (such as GNOME Keyring) is running.
+  </Accordion>
+  <Accordion title="The user code expired before I approved">
+    The device code is short lived. Start the connection again to get a new code, then approve it promptly in the browser.
+  </Accordion>
+  <Accordion title="Session expired. Connect again.">
+    Your access token expired and no refresh token was stored, or the refresh failed. Disconnect and run the device flow again to get a new session.
+  </Accordion>
+  <Accordion title="No organizations or repositories appear">
+    Confirm your account belongs to at least one Azure DevOps organization and that the repositories are Git based. Orkestral discovers organizations from your profile, so make sure your profile is accessible. If you use a single tenant setup, verify `ORKESTRAL_AZURE_TENANT_ID` points to the correct directory.
+  </Accordion>
+  <Accordion title="Sign in is declined or access denied">
+    The flow returned `denied`. Re-run the connection and approve every requested permission. If your organization enforces conditional access policies, an administrator may need to allow the app registration.
+  </Accordion>
+  <Accordion title="A repository I expect is missing">
+    Orkestral skips repositories that do not expose a clone URL and only lists Azure Repos (Git). Check that the repo exists under a project you can access and that it is a Git repository.
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Sources" href="/en/sources" icon="folder">
+    Add connected repositories as sources for your agents.
+  </Card>
+  <Card title="Integrations" href="/en/integrations" icon="plug">
+    See the other providers you can connect to Orkestral.
+  </Card>
+</CardGroup>

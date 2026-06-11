@@ -1,0 +1,226 @@
+---
+title: "Observabilidade"
+description: "Conecte sinais de produção para os agentes agirem sobre eles."
+---
+
+A observabilidade transforma o ruído de produção em trabalho sobre o qual seu time pode agir. Você conecta um provedor (New Relic ou Better Stack), o Orkestral traz **sinais** ao vivo (erros, incidentes, logs) e seus agentes podem analisar qualquer sinal em uma sessão dedicada ou reagir a ele automaticamente por meio de **automações**.
+
+O resultado: um erro de produção deixa de ser algo que você copia e cola em um chat. Ele vira um sinal que seu orquestrador CEO ou um agente especialista capta, lê com o contexto completo do repositório e propõe uma correção.
+
+<CardGroup cols={2}>
+  <Card title="Sinais" icon="signal">
+    Um feed ao vivo de erros, incidentes e logs trazidos do seu provedor, classificados e prontos para análise.
+  </Card>
+  <Card title="Automações" icon="bolt">
+    Regras que correspondem aos sinais recebidos e os encaminham a um agente, seja como proposta na caixa de entrada ou de forma totalmente automática.
+  </Card>
+</CardGroup>
+
+## Como funciona
+
+Cada provedor conectado tem duas telas que trabalham em conjunto.
+
+<Steps>
+  <Step title="Conecte um provedor">
+    Você conecta o **New Relic** ou o **Better Stack** pela página de **Integrações**. Até que uma conta esteja conectada, as telas de Observabilidade mostram um estado de não conectado com uma dica para configurá-lo primeiro.
+  </Step>
+  <Step title="Os sinais começam a chegar">
+    Depois de conectado, o Orkestral lista os sinais recentes desse provedor (até 60 por vez) e os atualiza automaticamente a cada 5 minutos. Você também pode atualizar sob demanda.
+  </Step>
+  <Step title="Você analisa um sinal">
+    Clique em **Analisar** em qualquer sinal e o Orkestral abre uma nova sessão de agente focada nesse problema exato, com os detalhes do sinal entregues ao agente.
+  </Step>
+  <Step title="As automações reagem por você">
+    As regras que você define decidem quais sinais são encaminhados a um agente sem que você precise acompanhar o feed, seja propondo o trabalho na sua caixa de entrada ou iniciando a análise automaticamente.
+  </Step>
+</Steps>
+
+<Note>
+Sinais e automações têm escopo por workspace e por provedor. New Relic e Better Stack têm cada um seu próprio feed, suas próprias regras e seu próprio histórico de execuções.
+</Note>
+
+## A página de sinais
+
+A página de sinais é o feed ao vivo de um provedor. Abra-a a partir de **Integrações** depois de conectar uma conta.
+
+### O que cada sinal mostra
+
+Todo sinal na lista é um card que você pode abrir ou sobre o qual pode agir diretamente.
+
+<AccordionGroup>
+  <Accordion title="Tipo" icon="tag">
+    Uma etiqueta colorida que marca o sinal como **erro**, **incidente** ou **log**. O tipo também determina como as automações fazem a correspondência.
+  </Accordion>
+  <Accordion title="Título e resumo" icon="align-left">
+    O título do problema mais um resumo curto de duas linhas quando o provedor o fornece, para que você possa triar sem sair da página.
+  </Accordion>
+  <Accordion title="Serviço, severidade e contagem de eventos" icon="layer-group">
+    Metadados de contexto: qual serviço emitiu o sinal, sua severidade e quantas vezes o evento foi disparado.
+  </Accordion>
+  <Accordion title="Visto pela última vez" icon="clock">
+    O timestamp mais recente do sinal, exibido no seu formato local de data e hora.
+  </Accordion>
+  <Accordion title="Abrir no provedor" icon="arrow-up-right-from-square">
+    Quando o provedor inclui um link, uma ação **Abrir** leva você direto ao erro ou incidente original no New Relic ou Better Stack.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: o feed de sinais com etiquetas de tipo, resumos e o botão Analisar */}
+
+### Ações na página
+
+<CardGroup cols={3}>
+  <Card title="Atualizar" icon="magnifying-glass">
+    Traga os sinais mais recentes sob demanda. O feed também se atualiza a cada 5 minutos.
+  </Card>
+  <Card title="Automações" icon="sliders">
+    Vá para as regras e o histórico de execuções deste provedor.
+  </Card>
+  <Card title="Analisar" icon="wand-magic-sparkles">
+    Entregue um único sinal a um agente e abra uma nova sessão sobre ele.
+  </Card>
+</CardGroup>
+
+<Tip>
+Clique no corpo de um card de sinal para abrir sua visão de detalhes. Clique no botão **Analisar** para ir direto a uma sessão de agente. O link do provedor abre no seu navegador e não navega para fora dentro do Orkestral.
+</Tip>
+
+## Como os agentes usam um sinal
+
+Quando você clica em **Analisar**, o Orkestral cria uma nova sessão de agente construída em torno desse sinal e leva você até ela. O agente recebe o sinal como entrada, então começa já com o título do erro, o serviço, a severidade e o resumo em mãos.
+
+Como os agentes do Orkestral trabalham com o contexto completo do repositório, o agente consegue conectar o sintoma de produção ao código que o causou. Essa é a ideia central: o modelo premium planeja a investigação e a correção, e a **Forge** local executa as mudanças de código sem custo de API.
+
+<Steps>
+  <Step title="Escolha um sinal que valha a pena investigar">
+    Use a etiqueta de tipo, a severidade e a contagem de eventos para encontrar o sinal mais importante neste momento.
+  </Step>
+  <Step title="Clique em Analisar">
+    O Orkestral abre uma nova sessão com escopo nesse sinal e direciona você para ela.
+  </Step>
+  <Step title="Deixe o agente trabalhar">
+    O agente lê o sinal, o rastreia pelo seu código e propõe ou aplica uma correção seguindo seu fluxo normal de revisão.
+  </Step>
+</Steps>
+
+## Automações
+
+As automações são regras que monitoram o feed de sinais por você. Em vez de abrir a página e clicar em **Analisar**, você descreve quais sinais importam e qual agente deve tratá-los. Abra a tela de automações com o botão **Automações** na página de sinais.
+
+### O que a tela de automações mostra
+
+A tela tem um resumo, uma lista de regras, um histórico de execuções e um editor de regras lado a lado.
+
+<AccordionGroup>
+  <Accordion title="Estatísticas de resumo" icon="chart-simple">
+    Três cards no topo: quantas regras estão **ativas** do total, quantas **execuções** ocorreram e quando a **última execução** disparou (mostrada como um tempo relativo, como "5 minutos atrás").
+  </Accordion>
+  <Accordion title="Lista de regras" icon="list-check">
+    Todas as regras deste provedor, cada uma com um interruptor liga/desliga, seus filtros, o agente atribuído, o intervalo de atualização e uma etiqueta de modo. Você pode editar ou excluir qualquer regra inline.
+  </Accordion>
+  <Accordion title="Execuções" icon="clock-rotate-left">
+    Um histórico das execuções mais recentes (até 50), cada uma marcada como **ok** ou falha, mostrando o título do sinal, a regra que a acionou, a ação tomada e há quanto tempo foi executada. Essa lista se atualiza a cada 15 segundos.
+  </Accordion>
+  <Accordion title="Editor de regras" icon="pen-to-square">
+    Um painel à direita onde você cria uma nova regra ou edita uma existente. Quando nada está selecionado, ele mostra uma dica para selecionar ou criar uma regra.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: tela de automações com cards de estatísticas, a lista de regras e o painel do editor de regras */}
+
+### Criando uma regra
+
+<Steps>
+  <Step title="Clique em Nova regra">
+    O botão **Nova regra** abre o editor com padrões sensatos. O botão fica desabilitado até que uma conta de provedor esteja conectada.
+  </Step>
+  <Step title="Nomeie a regra">
+    Dê a ela um nome claro para que fique legível na lista de regras e no histórico de execuções, por exemplo "500s do Checkout para o Backend".
+  </Step>
+  <Step title="Escolha o tipo">
+    Corresponda a **todos** os sinais, ou restrinja apenas a **erro**, **incidente** ou **log**.
+  </Step>
+  <Step title="Escolha o modo">
+    Escolha **Proposta na caixa de entrada** para que os sinais correspondentes fiquem na fila para sua revisão, ou **Análise automática** para iniciar uma sessão de agente automaticamente. Veja os modos abaixo.
+  </Step>
+  <Step title="Adicione filtros">
+    Opcionalmente, defina **Severidade contém** e **Serviço contém** para restringir a correspondência a severidades ou serviços específicos. Deixe-os em branco para corresponder a qualquer um.
+  </Step>
+  <Step title="Atribua um agente">
+    Escolha qual agente trata as correspondências. O padrão é o **orquestrador CEO**, que planeja e delega; você também pode direcionar para um especialista específico do seu time.
+  </Step>
+  <Step title="Defina o intervalo de atualização">
+    Escolha com que frequência a regra verifica novos sinais: **desligado**, ou a cada 1, 5, 15, 30 ou 60 minutos. Desligado significa que a regra não faz polling por conta própria.
+  </Step>
+  <Step title="Ative e salve">
+    Ative **Habilitado** e depois **Salvar**. A nova regra aparece na lista imediatamente.
+  </Step>
+</Steps>
+
+### Modos
+
+O modo controla com que agressividade uma regra age quando um sinal corresponde.
+
+<Tabs>
+  <Tab title="Proposta na caixa de entrada">
+    Os sinais correspondentes ficam na fila como propostas para você revisar antes que qualquer agente seja executado. Use isso para serviços ruidosos ou quando você quer um humano no fluxo. Este é o padrão para uma nova regra.
+  </Tab>
+  <Tab title="Análise automática">
+    Os sinais correspondentes iniciam imediatamente uma sessão de agente. Use isso para regras de alto sinal e baixo ruído, em que você confia que o agente investigue sem esperar por você.
+  </Tab>
+</Tabs>
+
+<Warning>
+A análise automática inicia o trabalho sem perguntar antes. Combine-a com filtros restritos de **tipo**, **severidade** e **serviço** para que a regra dispare apenas em sinais que você genuinamente quer tratados automaticamente. Mantenha fontes ruidosas ou de baixa prioridade em Proposta na caixa de entrada.
+</Warning>
+
+### Gerenciando regras
+
+<CardGroup cols={3}>
+  <Card title="Alternar" icon="toggle-on">
+    Acione o interruptor de uma regra para habilitá-la ou desabilitá-la sem perder sua configuração.
+  </Card>
+  <Card title="Editar" icon="pencil">
+    Abra qualquer regra no editor para alterar seus filtros, modo, agente ou intervalo.
+  </Card>
+  <Card title="Excluir" icon="trash">
+    Remova uma regra. O Orkestral pede que você confirme antes de excluir.
+  </Card>
+</CardGroup>
+
+### Lendo o histórico de execuções
+
+Cada execução informa o que aconteceu na última vez em que uma regra correspondeu a um sinal.
+
+<AccordionGroup>
+  <Accordion title="Status" icon="circle-check">
+    Um visto verde para uma execução bem-sucedida ou uma marca vermelha para uma falha, para que você identifique de relance regras que não estão se comportando bem.
+  </Accordion>
+  <Accordion title="Sinal e regra" icon="link">
+    O título do sinal (ou seu id) mais o nome da regra que disparou, para que você possa rastrear uma execução até sua regra.
+  </Accordion>
+  <Accordion title="Ação e tempo" icon="clock">
+    Qual ação a execução tomou e há quanto tempo foi executada, em tempo relativo.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+A lista de execuções faz polling a cada 15 segundos, então você pode acompanhar as automações dispararem quase em tempo real depois de habilitar uma regra.
+</Info>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Conecte um provedor" icon="plug" href="/pt/integrations">
+    Configure o New Relic ou o Better Stack pela página de Integrações antes que os sinais possam aparecer.
+  </Card>
+  <Card title="Monte seu time" icon="users" href="/pt/agents">
+    Contrate os especialistas para os quais você quer que as automações encaminhem os sinais.
+  </Card>
+  <Card title="Entenda as sessões" icon="comments" href="/pt/sessions">
+    Veja como um sinal analisado se transforma em uma sessão de agente em andamento.
+  </Card>
+  <Card title="Acompanhe o trabalho" icon="list-check" href="/pt/issues">
+    Acompanhe as correções como issues e épicos assim que um agente as assume.
+  </Card>
+</CardGroup>

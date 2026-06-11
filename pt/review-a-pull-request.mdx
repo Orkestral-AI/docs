@@ -1,0 +1,209 @@
+---
+title: "Revisar um pull request"
+description: "Passo a passo: receba uma revisão sênior em um PR do GitHub."
+---
+
+O Orkestral roda uma revisão de nível staff sênior em qualquer pull request do GitHub. Um agente revisor busca o PR e seu diff, lê as convenções do seu projeto e então retorna um veredito estruturado: um resumo, uma nota, uma recomendação, comentários inline atrelados a linhas reais e um passo a passo arquivo por arquivo. Você lê tudo dentro do app, aplica correções localmente e, opcionalmente, publica tudo de volta no GitHub como uma única revisão.
+
+Esta página guia você por uma revisão de ponta a ponta, pela leitura das descobertas e por como agir sobre elas.
+
+## O que você recebe
+
+<CardGroup cols={2}>
+  <Card title="Comentários inline" icon="comments">
+    Até 12 comentários atrelados a linhas exatas do diff, cada um com um tipo, uma severidade, uma mensagem de por-que-importa e uma sugestão de código opcional.
+  </Card>
+  <Card title="Veredito e nota" icon="gavel">
+    Uma nota de 0 a 10, um nível de risco, uma estimativa de esforço e uma recomendação: aprovar, solicitar mudanças ou comentar.
+  </Card>
+  <Card title="Passo a passo dos arquivos" icon="list-check">
+    Uma linha por arquivo alterado descrevendo o que mudou e como é classificado (feature, fix, refactor e assim por diante).
+  </Card>
+  <Card title="Avaliação de testes" icon="flask">
+    O que está coberto, o que está faltando e em quais cenários críticos (auth, billing, dados sensíveis).
+  </Card>
+</CardGroup>
+
+## Antes de começar
+
+<AccordionGroup>
+  <Accordion title="Um agente revisor com um adaptador" icon="user-gear">
+    A revisão roda através de um agente. O Orkestral escolhe um agente cujo papel ou nome corresponde a `code-review` ou `reviewer`, e recai sobre o seu orquestrador CEO. Esse agente **precisa ter um adaptador configurado** (Claude, Codex ou Gemini). Sem adaptador, a revisão falha com uma mensagem clara apontando você para **Configurações do agente, Adaptador**.
+  </Accordion>
+  <Accordion title="A CLI correspondente instalada" icon="terminal">
+    O adaptador chama uma CLI local: `claude`, `codex` ou `gemini`. O binário precisa estar instalado e no seu `PATH`, com credenciais válidas ou uma chave de API. Se estiver faltando, a revisão falha com o nome da CLI e o código de saída para que você possa corrigir.
+  </Accordion>
+  <Accordion title="Acesso do GitHub ao repositório" icon="github">
+    O Orkestral busca os metadados do PR e o diff unificado através da API do GitHub. O repositório precisa estar acessível com as suas credenciais do GitHub conectadas.
+  </Accordion>
+  <Accordion title="Um caminho de workspace local (recomendado)" icon="folder-open">
+    Se o workspace aponta para um clone local, o revisor roda **dentro daquele diretório**. Isso permite que ele leia o `package.json`, configs de lint e TypeScript, e arquivos vizinhos para aprender suas convenções antes de comentar. Também habilita aplicar sugestões a arquivos locais depois.
+  </Accordion>
+</AccordionGroup>
+
+## Rodar uma revisão
+
+<Steps>
+  <Step title="Abra a superfície de code review">
+    Vá até a área de code review do seu workspace e inicie uma nova revisão. Você fornece o repositório (`owner/repo`) e o número do pull request.
+
+    {/* PRINT: o novo formulário de code review com os campos de repo e número do PR */}
+  </Step>
+  <Step title="Escolha o revisor (opcional)">
+    Deixe o revisor em **auto** para que o Orkestral escolha, ou selecione um agente específico. O adaptador e o modelo do agente escolhido conduzem a análise. As próprias instruções do agente (seu `AGENTS.md`) são adicionadas ao início do prompt da revisão, então um revisor que você ajustou para a sua stack carrega esse contexto consigo.
+  </Step>
+  <Step title="Adicione PRs vinculados para revisões cross-stack (opcional)">
+    Se uma mudança abrange mais de um repositório (por exemplo, um PR de backend mais um PR de frontend), adicione-os como **PRs vinculados**. A revisão então foca em problemas cross-stack: formatos de payload que não combinam, um campo renomeado em apenas um lado, códigos de erro que o outro lado nunca trata e disputas entre deploys.
+
+    <Note>
+      Com PRs vinculados, cada diff é truncado proporcionalmente para que o prompt combinado se mantenha gerenciável. Um único PR mantém até 1500 linhas de diff; múltiplos PRs compartilham um orçamento, com pelo menos 400 linhas cada.
+    </Note>
+  </Step>
+  <Step title="Inicie a análise">
+    Dispare a revisão. O Orkestral retorna imediatamente e o trabalho continua em segundo plano, então a superfície permanece responsiva enquanto o agente pensa.
+  </Step>
+  <Step title="Acompanhe as fases">
+    A revisão transmite seu progresso através de fases: **fetch** (puxando o PR e o diff), **prompt** (montando o diff e as instruções), **spawn** (iniciando a CLI), **analyzing** (o agente lendo o código), e então **parse** (interpretando a resposta). Para o Claude, a saída é transmitida token por token.
+
+    {/* PRINT: modal de revisão mostrando o indicador de fase ao vivo */}
+
+    <Tip>
+      Precisa parar antes? Cancele a revisão. O Orkestral envia `SIGTERM` ao processo da CLI, escala para `SIGKILL` após dois segundos se necessário, e marca a revisão como cancelada.
+    </Tip>
+  </Step>
+</Steps>
+
+## Como o revisor pensa
+
+Entender o briefing do revisor ajuda você a confiar na (e a contestar a) sua saída.
+
+<Tabs>
+  <Tab title="No que ele foca">
+    O prompt mira em **problemas reais de engenharia**, não em estilo de código:
+
+    - **Bugs**: race conditions, off-by-one, null ou undefined não tratados, deps de `useEffect` desatualizadas, mutação acidental, condições invertidas, cleanup faltando, erros engolidos.
+    - **Segurança**: XSS, injection, segredos hardcoded, CORS ou CSRF mal configurados, validação server-side faltando.
+    - **Performance**: queries N+1, efeitos reexecutando a cada render, renders desnecessários, imports pesados, memory leaks.
+    - **Arquitetura e contrato**: formatos de API quebrados, estado duplicado, acoplamento severo, side effects no lugar errado.
+    - **Testes**: um caminho crítico (auth, billing, dados sensíveis) ou um edge case óbvio deixado sem cobertura, nomeado especificamente.
+  </Tab>
+  <Tab title="Sobre o que ele se cala">
+    O revisor é instruído a **não** comentar coisas que o seu ferramental já trata ou que equivalem a ruído:
+
+    - Formatação, espaçamento, aspas, vírgulas finais, comprimento de linha.
+    - Implicâncias triviais de nomenclatura e anotações de tipo explícitas óbvias.
+    - Imports não usados ou fora de ordem.
+    - "Considere extrair isto" ou "adicione um comentário" sem benefício concreto.
+    - Sugestões hipotéticas do tipo "se algum dia você precisar".
+
+    Ele assume que seu linter, formatter e type-checker passaram, porque um time não faz merge de um PR vermelho.
+  </Tab>
+  <Tab title="Idioma">
+    Todo o texto corrido (resumo, comentários, passo a passo, avaliação de testes) volta no idioma ativo do seu app. Termos técnicos consagrados permanecem em inglês (`useEffect`, `race condition`, `null`), mas as frases completas seguem o seu locale.
+  </Tab>
+</Tabs>
+
+<Info>
+  Quando uma config MCP local está disponível, o revisor pode chamar ferramentas do Orkestral no meio da revisão, por exemplo criando uma issue ao encontrar um bug ou buscando na sua base de conhecimento para checar uma convenção antes de comentar. Se a config MCP não puder ser construída, a revisão ainda roda, apenas sem essas ferramentas.
+</Info>
+
+## Ler as descobertas
+
+Assim que a revisão termina, percorra-a de cima para baixo.
+
+<Steps>
+  <Step title="Comece pelo veredito">
+    Leia o **resumo**, depois a **recomendação** e a **nota** juntas:
+
+    - `approve`: a nota é 7 ou mais, sem nada crítico.
+    - `request_changes`: há uma descoberta crítica, ou a nota é 5 ou menos.
+    - `comment`: sugestões que valem a pena ver, mas nada bloqueante.
+
+    O **nível de risco** (baixo, médio, alto) e o **esforço** (pequeno, médio, grande) dão a você uma noção rápida de quanta atenção o PR precisa.
+  </Step>
+  <Step title="Examine destaques e preocupações">
+    **Destaques** apontam o que o PR faz bem, especificamente. **Preocupações** listam riscos técnicos reais. Use as preocupações como seu checklist do que verificar antes do merge.
+  </Step>
+  <Step title="Leia a avaliação de testes">
+    Isto diz a você qual cobertura existe e quais cenários críticos estão faltando. Trate uma lacuna nomeada (por exemplo, "nenhum teste para o caminho de erro de rede") como um to-do concreto, não uma cobrança genérica.
+  </Step>
+  <Step title="Percorra os arquivos">
+    O **passo a passo** tem uma entrada por arquivo alterado com um resumo de uma ou duas frases e um tipo de mudança (`feature`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`). Ao lado dele, o Orkestral mostra a lista de **arquivos alterados** com adições, remoções e status (adicionado, modificado, removido, renomeado) extraídos diretamente do diff.
+  </Step>
+  <Step title="Abra os comentários inline">
+    Cada comentário carrega:
+
+    - **filePath** e **line** apontando para a localização exata no diff.
+    - **kind**: bug, suggestion, security, style, performance ou question.
+    - **severity**: critical, warning ou info.
+    - **title** e **message** explicando o problema, o porquê e o impacto real.
+    - uma **suggestion** opcional (código corrigido) e **codeContext** (algumas linhas ao redor).
+
+    {/* PRINT: um comentário inline mostrando tipo, severidade, mensagem e uma sugestão de código */}
+
+    <Warning>
+      O revisor é limitado a 12 comentários inline por design. Se um PR tem mais problemas que isso, ele traz à tona os que mais importam em vez de afogar você em implicâncias.
+    </Warning>
+  </Step>
+</Steps>
+
+## Agir sobre um comentário
+
+<Steps>
+  <Step title="Aplique uma sugestão localmente">
+    Para um comentário que inclui uma sugestão e uma linha-alvo, aplique-a ao arquivo no seu workspace local. O Orkestral substitui as linhas-alvo (`lineStart` a `lineEnd`) pelo código sugerido, escreve o arquivo e marca aquele comentário como **resolvido**.
+
+    <Note>
+      Isto precisa de um workspace com um caminho local e o arquivo presente em disco. Um comentário sem linha-alvo não pode ser aplicado automaticamente; corrija-o à mão.
+    </Note>
+  </Step>
+  <Step title="Inspecione o diff no app">
+    Você pode ler o diff do PR por arquivo sem sair do Orkestral, para conferir um comentário contra o hunk real ao qual ele aponta.
+  </Step>
+</Steps>
+
+## Publicar a revisão no GitHub
+
+Quando estiver satisfeito com o resultado, envie-o de volta como uma **única revisão do GitHub** com comentários inline.
+
+<Steps>
+  <Step title="Confirme que a revisão está completa">
+    Apenas uma revisão completa pode ser publicada. Ela também precisa do SHA do commit head do PR, que o Orkestral captura durante a fase de fetch. Se isso estiver faltando, rode a análise novamente.
+  </Step>
+  <Step title="Publique-a">
+    O Orkestral publica todo comentário que tem uma linha-alvo como um comentário inline no commit head. Comentários com uma sugestão são renderizados como um bloco `suggestion` do GitHub que seus colegas podem aplicar com um clique. Cada comentário é prefixado com seu tipo e severidade.
+  </Step>
+  <Step title="Confira o corpo do resumo">
+    O corpo da revisão abre com um cabeçalho Code review by Orkestral, seu resumo, o nível de risco, a contagem total de comentários e um detalhamento por tipo (bugs, security, suggestions, performance, style, questions). A revisão é publicada com o evento `COMMENT`, então ela não aprova nem bloqueia o PR por conta própria.
+
+    {/* PRINT: a revisão publicada no GitHub com sugestões inline */}
+  </Step>
+</Steps>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="O agente não tem adaptador configurado" icon="triangle-exclamation">
+    Abra as configurações do agente revisor, vá em **Adaptador** e escolha Claude, Codex ou Gemini. Sem um, a revisão não pode rodar.
+  </Accordion>
+  <Accordion title="A CLI falhou (código de saída exibido)" icon="terminal">
+    O erro inclui o nome da CLI e seu stderr. Confirme que o binário está instalado e no seu `PATH`, que as credenciais ou a chave de API são válidas, e que o adaptador está acessível.
+  </Accordion>
+  <Accordion title="Não foi possível parsear a resposta como JSON" icon="brackets-curly">
+    O revisor precisa retornar um único bloco JSON sem markdown ou texto corrido ao redor. O Orkestral repara problemas comuns (vírgulas finais, smart quotes, comentários soltos) e extrai o primeiro objeto balanceado, mas um agente tagarela ainda pode quebrá-lo. Confira o `AGENTS.md` do revisor para garantir que ele não está adicionando um preâmbulo.
+  </Accordion>
+  <Accordion title="Não foi possível buscar o PR no GitHub" icon="github">
+    Verifique se o `owner/repo` e o número do PR estão corretos e se a sua conexão com o GitHub tem acesso àquele repositório.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Transforme uma descoberta em trabalho" icon="list-check">
+    Deixe o revisor abrir issues a partir dos bugs que encontra, ou crie-as você mesmo, e acompanhe as correções como épicos e issues.
+  </Card>
+  <Card title="Ajuste seu agente revisor" icon="user-gear">
+    Refine o `AGENTS.md` do revisor com as convenções do seu time para que revisões futuras cheguem mais perto de como vocês realmente fazem merge.
+  </Card>
+</CardGroup>

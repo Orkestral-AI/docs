@@ -1,0 +1,153 @@
+---
+title: "Connect an MCP server"
+description: "Step-by-step: extend the team with a Model Context Protocol server."
+---
+
+An MCP server gives your agents new powers. MCP (Model Context Protocol) is an open standard that exposes tools, data, and actions to AI models. When you connect one in Orkestral, every model you enable it for can call those tools while it works on your code. For example, connect **Playwright** and your agents can drive a real browser to click, fill forms, and read pages.
+
+This page walks you through connecting an MCP server from the **MCPs** screen, choosing which models can use it, and importing servers you already configured in other CLIs.
+
+<Note>
+Orkestral manages MCP servers per workspace. Switch workspaces and you switch which servers are connected. All credentials you enter stay on your machine.
+</Note>
+
+## What MCP adds to your team
+
+<CardGroup cols={2}>
+  <Card title="New tools for agents" icon="screwdriver-wrench">
+    Each server publishes a set of tools. Browser control, web search, database access, file APIs, and more become callable during a task.
+  </Card>
+  <Card title="Per model control" icon="sliders">
+    You decide which models get a server. Give browser access to your QA agent's model and keep it off the rest.
+  </Card>
+  <Card title="Bring your own credentials" icon="key">
+    Servers that need an API key prompt you for it on install. Keys are stored locally and never leave your machine.
+  </Card>
+  <Card title="Reuse existing setups" icon="terminal">
+    Orkestral detects MCP servers you already configured in Claude Code, Codex, Gemini, and Cursor so you can import them in one click.
+  </Card>
+</CardGroup>
+
+## Open the MCPs screen
+
+The MCPs screen has two tabs. **Marketplace** is where you browse and install servers. **Installed** is where you manage what is connected and import servers detected in your other CLIs.
+
+{/* PRINT: MCPs screen with Marketplace and Installed tabs */}
+
+<Steps>
+  <Step title="Pick an active workspace">
+    Open Orkestral and make sure a workspace is selected. The MCPs screen needs an active workspace, because servers are connected per workspace. With none selected, the screen tells you to choose one first.
+  </Step>
+  <Step title="Go to MCPs">
+    Open the **MCPs** entry in the navigation. You land on the **Marketplace** tab by default. The **Installed** tab carries a small badge with the number of servers currently connected in this workspace.
+  </Step>
+</Steps>
+
+## Install a server from the marketplace
+
+The marketplace search reaches a live registry, so you can find servers beyond the curated highlights. The example below uses Playwright, but the steps are the same for any server.
+
+<Steps>
+  <Step title="Search for the server">
+    On the **Marketplace** tab, type into the search box at the top (for example `playwright`). Results update as you type. Use the category chips under the search box to narrow the list, or browse the **Featured** highlights when the box is empty.
+  </Step>
+  <Step title="Open the server details">
+    Click a card to open its detail dialog. There you see the description, author, category, star count, links to the repository and homepage, and the full README when one is available.
+  </Step>
+  <Step title="Enter credentials if asked">
+    If the server needs an API key or token, a **Credentials** section appears with one field per value. Required fields must be filled before you can install. Many servers include a **Get credential** link that opens the provider page where you generate the key.
+
+    <Tip>
+    Credential fields are masked by default and stored locally with the server. Optional fields are labeled as such and can be left blank.
+    </Tip>
+  </Step>
+  <Step title="Choose which models can use it">
+    Under **Enable on models**, pick the models that get this server. The default scope is every model (`*`). Narrow it to a specific model when only one part of your team needs the tools.
+  </Step>
+  <Step title="Install">
+    Click **Install**. If a server needs no credentials, you can install it straight from the card with one click, scoped to all models. A toast confirms the server is connected, and the card now shows an **Installed** badge.
+  </Step>
+</Steps>
+
+<Warning>
+The **Install** button stays disabled while any required credential is empty. The footer reminds you to fill the missing fields. Fill them, then install.
+</Warning>
+
+## Import a server from your CLIs
+
+If you already use MCP servers in another tool, you do not have to set them up again. Orkestral reads the known config files (read only) and lists what it finds so you can import with one click.
+
+<AccordionGroup>
+  <Accordion title="Which CLIs are detected" icon="terminal">
+    Orkestral looks for servers configured in:
+
+    - **Claude Code**: `~/.claude.json` (global servers plus per project servers)
+    - **Codex**: `~/.codex/config.toml` (the `[mcp_servers.*]` sections)
+    - **Gemini**: `~/.gemini/settings.json`
+    - **Cursor**: `~/.cursor/mcp.json`
+
+    Detection is read only. Orkestral never edits these files. It only lists the servers so you can bring them into the workspace.
+  </Accordion>
+  <Accordion title="What gets imported" icon="download">
+    Both transport styles are picked up: command based servers (`stdio`, with their `command`, `args`, and `env`) and URL based servers (`http` or `sse`, with their `url` and `headers`). The imported server keeps the same name it had in the source CLI.
+  </Accordion>
+</AccordionGroup>
+
+<Steps>
+  <Step title="Open the Installed tab">
+    On the MCPs screen, switch to the **Installed** tab.
+  </Step>
+  <Step title="Find the Detected in CLIs section">
+    Below the servers managed by Orkestral, a **Detected in CLIs** section lists every server found in your other tools. Each row shows the server name, a badge for the source CLI, and the command or URL it runs.
+  </Step>
+  <Step title="Import the server">
+    Click **Import** on a row. The server is added to the workspace and enabled for all models. A toast confirms the import and the row switches to an **Imported** state so you do not add it twice.
+  </Step>
+</Steps>
+
+{/* PRINT: Detected in CLIs section with an Import button */}
+
+## Manage a connected server
+
+Everything you install or import shows up under **Managed by Orkestral** on the **Installed** tab. Each row shows the model scope and whether credentials are set.
+
+<Steps>
+  <Step title="Open the server">
+    Click a server row to open its detail dialog with a **Manage** action.
+  </Step>
+  <Step title="Update credentials or scope">
+    Change credential values or adjust which models the server runs on, then click **Save changes**. Existing credentials show a masked placeholder, so you can leave a field untouched to keep the current value.
+  </Step>
+  <Step title="Remove the server">
+    Click **Remove** to disconnect the server from the workspace. This affects only Orkestral. Servers detected in your CLIs are untouched.
+  </Step>
+</Steps>
+
+<Info>
+The number badge on the **Installed** tab counts only the servers managed by Orkestral in the active workspace, not the ones detected in your CLIs.
+</Info>
+
+## Tips and troubleshooting
+
+<AccordionGroup>
+  <Accordion title="A server I configured in a CLI is not detected" icon="magnifying-glass">
+    Confirm the config file exists at the expected path and uses the `mcpServers` shape (or `[mcp_servers.*]` for Codex). Detection skips entries that have neither a `command` nor a `url`. Reopen the **Installed** tab to refresh the list.
+  </Accordion>
+  <Accordion title="My agents are not using the server's tools" icon="robot">
+    Check the model scope. A server only reaches the models you enabled it for. Open the server, confirm the right models are selected under **Enable on models**, and save.
+  </Accordion>
+  <Accordion title="Where are my credentials stored" icon="lock">
+    Credentials you enter are kept locally with the connected server in your workspace data. They are not sent anywhere except to the server you connected them for.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Add a skill" icon="book" href="/en/install-a-skill">
+    Pair MCP tools with reusable skills that teach your agents how and when to use them.
+  </Card>
+  <Card title="Hire your team" icon="users" href="/en/hire-your-team">
+    Bring on the specialists who will put these tools to work on your codebase.
+  </Card>
+</CardGroup>

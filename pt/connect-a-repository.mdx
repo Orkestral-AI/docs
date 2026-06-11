@@ -1,0 +1,180 @@
+---
+title: "Conectar um repositório"
+description: "Passo a passo: adicione um repo ou pasta e deixe o Orkestral mapear."
+---
+
+Uma fonte é qualquer base de código que você quer que o time trabalhe: um repositório do GitHub, um repositório do Azure DevOps ou uma pasta local na sua máquina. Assim que você conecta uma fonte a um workspace, o Orkestral a lê, mapeia e dá a cada agente (CEO, Tech Lead, Code Reviewer e os especialistas) contexto completo para planejar e executar o trabalho.
+
+Este guia mostra todas as formas de adicionar uma fonte, explica o que o mapeamento faz e mostra como o Orkestral se mantém ciente do git o tempo todo.
+
+<Info>
+As fontes pertencem a um **workspace**. Garanta que o workspace desejado esteja ativo antes de começar. O diálogo lê o workspace ativo automaticamente.
+</Info>
+
+## O que você pode conectar
+
+<CardGroup cols={3}>
+  <Card title="Repositório do GitHub" icon="github">
+    Escolha entre os repos que sua conta do GitHub pode ver. O Orkestral o clona localmente para que os agentes tenham os arquivos reais.
+  </Card>
+  <Card title="Repositório do Azure DevOps" icon="microsoft">
+    Conecte sua conta do Azure DevOps uma vez e depois escolha qualquer repo que sua conta possa acessar.
+  </Card>
+  <Card title="Pasta local" icon="folder">
+    Aponte o Orkestral para uma pasta que já está no seu disco. Ele procura repos git dentro dela e permite adicionar vários de uma vez.
+  </Card>
+</CardGroup>
+
+## Abrir o diálogo de adicionar fonte
+
+<Steps>
+  <Step title="Garanta que o workspace certo está ativo">
+    A fonte que você adicionar cai no workspace que estiver ativo. Troque de workspace pela barra lateral se necessário. Trocar de workspace também muda a cor de destaque, o que é uma confirmação visual rápida de que você está no lugar certo.
+  </Step>
+  <Step title="Acione Adicionar fonte">
+    Abra o diálogo **Adicionar fonte** pela barra lateral ou onde quer que seu workspace o exiba. O diálogo é global, então você pode abri-lo de qualquer lugar do app.
+
+    {/* PRINT: o diálogo Adicionar fonte com as abas GitHub, Azure e Pasta */}
+  </Step>
+  <Step title="Escolha uma aba">
+    Escolha **GitHub**, **Azure** ou **Pasta** no topo do diálogo. O restante deste guia tem uma seção por aba.
+  </Step>
+</Steps>
+
+## Conectar um repositório do GitHub
+
+<Steps>
+  <Step title="Abra a aba GitHub">
+    O diálogo carrega a lista de repositórios que sua conta do GitHub pode acessar. Se a lista estiver vazia ou der erro, sua conexão com o GitHub está faltando ou expirou, então reconecte o GitHub primeiro.
+  </Step>
+  <Step title="Busque e selecione um repo">
+    Use a caixa de busca para filtrar pelo nome completo (por exemplo `your-org/your-repo`). Clique em um repo para selecioná-lo. A lista mostra até 50 resultados, então refine a busca se não encontrar o seu.
+  </Step>
+  <Step title="Defina o rótulo e o papel">
+    - **Rótulo** é o nome amigável exibido por todo o app. Por padrão ele usa o nome do repo, e você pode alterá-lo.
+    - **Papel** diz ao time como tratar essa fonte (por exemplo Frontend ou Backend). Os papéis usam o conjunto padrão de papéis. Deixá-lo vazio está tudo bem.
+  </Step>
+  <Step title="Decida sobre a análise">
+    Deixe **Analisar após adicionar** marcado para que o Orkestral mapeie o código e proponha um time imediatamente. Veja [O que o mapeamento faz](#what-mapping-does) abaixo.
+  </Step>
+  <Step title="Adicione a fonte">
+    Clique em **Adicionar**. O Orkestral clona o repo localmente e o registra no workspace. A primeira fonte que você adiciona se torna a fonte **primária** automaticamente.
+  </Step>
+</Steps>
+
+<Note>
+Repos privados são clonados via HTTPS usando um cabeçalho de autenticação efêmero. O token é usado apenas para a chamada de rede e nunca é gravado no `.git/config`, então a URL remota armazenada permanece limpa.
+</Note>
+
+## Conectar um repositório do Azure DevOps
+
+<Steps>
+  <Step title="Conecte sua conta do Azure (apenas na primeira vez)">
+    Se nenhuma conta do Azure estiver vinculada ainda, a aba mostra um botão **Conectar**. Clique nele para iniciar um login por device code. O Orkestral abre a página de verificação no seu navegador. Digite o código, aprove o acesso, e o diálogo detecta a aprovação automaticamente.
+  </Step>
+  <Step title="Busque e selecione um repo">
+    Uma vez conectado, a aba lista os repositórios que sua conta do Azure consegue alcançar. Filtre pelo nome completo e clique no que você quer. Cada linha mostra a URL remota para que você confirme que escolheu o projeto certo.
+  </Step>
+  <Step title="Defina o rótulo e o papel">
+    Igual ao GitHub: o **Rótulo** usa por padrão o nome do repo e o **Papel** é opcional.
+  </Step>
+  <Step title="Adicione a fonte">
+    Clique em **Adicionar**. O Orkestral registra o repo do Azure assim como um do GitHub, e a primeira fonte no workspace se torna primária.
+  </Step>
+</Steps>
+
+<Tip>
+Se a janela de login ficar parada por muito tempo, o fluxo de device code expira e você verá um erro. Basta clicar em **Conectar** novamente para reiniciá-lo.
+</Tip>
+
+## Conectar uma pasta local
+
+A aba de pasta é a opção mais flexível, porque o Orkestral varre o que você apontar e ajuda a adicionar repos aninhados em uma única passada.
+
+<Steps>
+  <Step title="Escolha uma pasta">
+    Digite ou cole um caminho absoluto, ou clique em **Escolher** para abrir o seletor nativo de pastas. O rótulo usa por padrão o nome da pasta assim que você escolher uma.
+  </Step>
+  <Step title="Defina um rótulo e papel iniciais">
+    Preencha um **Rótulo** e um **Papel** opcional para a pasta de cima. Você ainda pode ajustar isso por item no próximo passo se a varredura encontrar repos aninhados.
+  </Step>
+  <Step title="Deixe o Orkestral varrer">
+    Clique em **Adicionar** para varrer a pasta. Duas coisas podem acontecer:
+
+    <Tabs>
+      <Tab title="Fonte única">
+        Se a pasta for ela mesma um repo git, ou não contiver repos git dentro, o Orkestral a adiciona como uma fonte única e fecha o diálogo.
+      </Tab>
+      <Tab title="Repos encontrados dentro">
+        Se a pasta contiver um ou mais repos git, o Orkestral mostra uma lista de seleção: a pasta pai mais cada repo encontrado, todos pré-marcados.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Revise a seleção (quando há repos encontrados)">
+    Cada linha mostra o caminho e um ícone: um ícone de branch para um repo git, um ícone de pasta com um selo **pasta local** para a pasta pai. Para cada item marcado você pode editar seu **Rótulo** e **Papel** de forma independente. Desmarque qualquer coisa que você não quiser.
+  </Step>
+  <Step title="Adicione os itens selecionados">
+    Clique em **Adicionar selecionados**. O Orkestral cria cada item marcado como sua própria fonte. O primeiro se torna primário se o workspace ainda não tinha fontes, e a proposta de time (se habilitada) roda uma vez ao final, em vez de uma vez por repo.
+  </Step>
+</Steps>
+
+<Warning>
+Se a adição múltipla falhar no meio do caminho, algumas fontes podem já existir. O Orkestral deduplica por caminho, então reenviar não criará duplicatas. O diálogo permanece aberto para que você tente o restante novamente.
+</Warning>
+
+## O que o mapeamento faz
+
+O mapeamento (também chamado de análise ou indexação) é o que transforma uma base de código bruta em contexto sobre o qual o time pode raciocinar. Quando **Analisar após adicionar** está marcado, duas coisas rodam após a fonte ser criada.
+
+<AccordionGroup>
+  <Accordion title="Análise de conhecimento" icon="brain">
+    O Orkestral lê a fonte e constrói uma compreensão de sua estrutura, stack e convenções. É isso que permite a um modelo premium PLANEJAR com precisão e o que permite ao FORGE (o modelo local empacotado) EXECUTAR edições que se encaixam na sua base de código. A cobertura de conhecimento é rastreada por workspace para que você possa ver o que foi mapeado.
+  </Accordion>
+  <Accordion title="Plano de contratação" icon="users">
+    Após o mapeamento, o Orkestral propõe um time sob medida para o que encontrou, para que você possa contratar os especialistas que a base de código realmente precisa. Quando você adiciona várias pastas de uma vez, essa proposta roda uma única vez no último item, então você não é inundado com uma proposta de time por repo.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Você pode deixar **Analisar após adicionar** desmarcado se quiser apenas registrar a fonte agora e mapeá-la depois. O mapeamento é o que dá contexto aos agentes, então rode-o antes de esperar planos de alta qualidade.
+</Tip>
+
+## Consciência de git
+
+Para qualquer fonte que seja um repo git, o Orkestral aciona o CLI `git` que já está na sua máquina. Isso significa que ele se comporta exatamente como seu terminal e funciona da mesma forma no macOS, Linux e Windows. Veja o que ele rastreia e faz.
+
+<CardGroup cols={2}>
+  <Card title="Status" icon="circle-info">
+    Branch atual, upstream, quantos commits você está à frente ou atrás, e cada arquivo alterado (staged, unstaged e untracked). Novos arquivos dentro de uma nova pasta aparecem individualmente.
+  </Card>
+  <Card title="Diffs" icon="code-compare">
+    Diffs por arquivo com bastante contexto, incluindo arquivos untracked renderizados como adições novas para que nada fique invisível no painel de revisão.
+  </Card>
+  <Card title="Branches" icon="code-branch">
+    Liste branches locais e remotos com seu último commit, faça checkout de um branch ou crie um novo a partir de qualquer base.
+  </Card>
+  <Card title="Commit e sincronização" icon="arrows-rotate">
+    Faça stage, unstage, descarte, commit, depois push, pull ou fetch. Operações de rede em repos HTTPS privados usam o mesmo padrão de cabeçalho de autenticação efêmero da clonagem.
+  </Card>
+</CardGroup>
+
+<Note>
+Os erros são traduzidos em orientações claras. Um push rejeitado avisa para você fazer pull primeiro, um push já atualizado avisa que não há nada a enviar, e uma falha de autenticação aponta para configurar suas credenciais.
+</Note>
+
+## Depois de conectar
+
+<CardGroup cols={2}>
+  <Card title="Oriente o CEO" icon="comments">
+    Abra um chat e descreva o que você quer. O orquestrador CEO lê a fonte mapeada, planeja e delega aos especialistas.
+  </Card>
+  <Card title="Acompanhe o trabalho" icon="list-check">
+    Os planos viram issues e épicos que você pode acompanhar enquanto o time executa mudanças localmente pelo motor Fast Apply.
+  </Card>
+  <Card title="Adicione mais fontes" icon="plus">
+    Um workspace pode conter muitas fontes. Repita esse fluxo para conectar cada repo e pasta que o time deve ver.
+  </Card>
+  <Card title="Defina papéis com intenção" icon="user-tag">
+    Os papéis moldam como os agentes raciocinam sobre cada fonte. Reveja-os conforme seu projeto cresce para que o especialista certo seja dono do código certo.
+  </Card>
+</CardGroup>

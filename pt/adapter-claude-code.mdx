@@ -1,0 +1,170 @@
+---
+title: "Adapter Claude Code"
+description: "Use a CLI do Claude Code como provedor de planejamento dos agentes."
+---
+
+O adapter Claude Code conecta o Orkestral à ferramenta de linha de comando `claude` da Anthropic. Ele é um dos adapters de provedor já incluídos, e o Orkestral o marca como recomendado.
+
+No Orkestral, os adapters de provedor premium PLANEJAM e a Forge local EXECUTA as alterações de código. Quando você atribui o adapter Claude Code a um agente, esse agente usa sua CLI `claude` local para raciocinar e planejar. O Orkestral executa a CLI como um processo filho na sua máquina, então o trabalho usa sua própria assinatura Claude ou seus créditos de API, não uma chave do Orkestral.
+
+{/* PRINT: Card do adapter Claude Code na grade de adapters com o selo de recomendado */}
+
+## O que é
+
+O adapter encapsula o binário `claude`. Ele faz três coisas:
+
+- Lista os modelos Claude que você pode escolher para um agente.
+- Executa um teste de ambiente para confirmar que a CLI está instalada, responde e está autenticada.
+- Invoca a CLI em modo não interativo para que um agente possa planejar sem prompts manuais.
+
+Internamente, o tipo do adapter é `claude_local` e seu nome de exibição é **Claude Code**.
+
+## Requisitos
+
+<CardGroup cols={2}>
+  <Card title="CLI claude instalada" icon="terminal">
+    O binário `claude` precisa estar no seu `PATH`. Instale com `npm i -g @anthropic-ai/claude-code` ou siga o guia oficial da Anthropic.
+  </Card>
+  <Card title="Autenticado" icon="key">
+    Você precisa estar autenticado. Execute `claude login` em um terminal antes de usar o adapter, ou entre com sua conta Anthropic ou chave de API.
+  </Card>
+</CardGroup>
+
+<Info>
+O Orkestral nunca armazena credenciais da Anthropic. A autenticação fica inteiramente na CLI `claude` na sua máquina. O Orkestral apenas inicia o binário e lê sua saída.
+</Info>
+
+## Como o Orkestral executa a CLI
+
+O Orkestral chama `claude` diretamente como um processo filho (sem shell), passando o prompt pela entrada padrão. Para o teste de ambiente ele executa:
+
+```bash
+claude --print - --dangerously-skip-permissions
+```
+
+- `--print` faz a CLI retornar uma única resposta não interativa em vez de abrir uma sessão.
+- `-` instrui a CLI a ler o prompt do `stdin`.
+- `--dangerously-skip-permissions` evita os prompts interativos de permissão que de outra forma bloqueariam uma execução automatizada.
+
+A sondagem envia um prompt mínimo (`Respond with hello.`) e inspeciona a saída para decidir se a CLI está saudável, precisa de login ou retornou algo inesperado.
+
+## Configurar
+
+<Steps>
+  <Step title="Instale a CLI">
+    Instale a CLI do Claude Code globalmente e confirme que ela está acessível:
+
+    ```bash
+    npm i -g @anthropic-ai/claude-code
+    claude --version
+    ```
+  </Step>
+  <Step title="Faça login">
+    Autentique a CLI para que ela possa responder às solicitações:
+
+    ```bash
+    claude login
+    ```
+  </Step>
+  <Step title="Adicione o adapter no Orkestral">
+    Abra a grade de adapters no onboarding ou nas configurações e selecione **Claude Code**. O Orkestral executa o teste de ambiente automaticamente.
+  </Step>
+  <Step title="Escolha um modelo e as opções">
+    Escolha um modelo da lista e ajuste os campos de configuração descritos abaixo.
+  </Step>
+  <Step title="Atribua a um agente">
+    Ao contratar ou editar um agente, defina seu provedor como **Claude Code** para que ele planeje com este adapter.
+  </Step>
+</Steps>
+
+## Modelos
+
+O adapter expõe versões explícitas de modelos (das mais novas para as mais antigas) além de aliases de tier. Os aliases resolvem para o modelo mais novo do seu tier no lado da CLI.
+
+| Id do modelo | Rótulo | Observações |
+| --- | --- | --- |
+| `default` | Padrão (configurado na CLI) | Usa o modelo que estiver definido na CLI |
+| `claude-opus-4-8` | Claude Opus 4.8 | Versão explícita |
+| `claude-opus-4-7` | Claude Opus 4.7 | Versão explícita |
+| `claude-sonnet-4-6` | Claude Sonnet 4.6 | Versão explícita |
+| `claude-haiku-4-5` | Claude Haiku 4.5 | Versão explícita |
+| `opus` | Opus (alias) | Modelo mais novo do tier Opus |
+| `sonnet` | Sonnet (alias) | Modelo mais novo do tier Sonnet |
+| `haiku` | Haiku (alias) | Modelo mais novo do tier Haiku |
+
+<Tip>
+Escolha `default` se quiser que o Orkestral siga o modelo que sua CLI já está configurada para usar. Escolha um alias de tier (`opus`, `sonnet`, `haiku`) se quiser o modelo mais recente desse tier sem fixar uma versão.
+</Tip>
+
+## Opções de configuração
+
+O adapter expõe estes campos no seu formulário de configuração.
+
+<ParamField path="effort" type="select" default="medium">
+  Esforço de raciocínio. Um entre `low`, `medium` ou `high`. Passado à CLI pela flag `--effort`.
+</ParamField>
+
+<ParamField path="chrome" type="toggle" default="false">
+  Habilita as ferramentas de navegador (Chrome) para o agente.
+</ParamField>
+
+<ParamField path="instructionsFilePath" type="file">
+  Caminho para um arquivo de instruções em Markdown (por exemplo `/path/to/INSTRUCTIONS.md`). Seu conteúdo é injetado no system prompt em tempo de execução.
+</ParamField>
+
+<ParamField path="command" type="text" default="claude">
+  Substituição do comando usado para invocar a CLI. Aceita um caminho ou um nome de comando. O padrão é `claude`. Use isto quando o binário não se chamar `claude` ou não estiver no seu `PATH` padrão.
+</ParamField>
+
+{/* PRINT: Formulário de configuração do adapter Claude Code mostrando effort, ferramentas de navegador, arquivo de instruções e substituição de comando */}
+
+## Teste de ambiente
+
+Quando você adiciona ou testa o adapter, o Orkestral executa um conjunto ordenado de verificações. O resultado geral é o pior das verificações individuais: qualquer falha faz o teste inteiro falhar, qualquer aviso o torna um aviso, caso contrário ele passa.
+
+<AccordionGroup>
+  <Accordion title="CLI no PATH">
+    O Orkestral localiza o binário `claude` com `which` (ou `where` no Windows). Se não for encontrado, o teste falha e para aqui com uma dica de instalação.
+  </Accordion>
+  <Accordion title="Versão da CLI">
+    Executa `claude --version` com um tempo limite de 5 segundos. Se a CLI não responder, o teste falha e reporta o erro vindo da CLI.
+  </Accordion>
+  <Accordion title="Resposta do agente">
+    Envia a sondagem `Respond with hello.` com um tempo limite de 45 segundos. Uma resposta contendo `hello` passa. Erros de login, timeouts ou saída inesperada produzem um aviso com uma mensagem de detalhe curta.
+  </Accordion>
+</AccordionGroup>
+
+## Capacidades e limites
+
+- Roda inteiramente na sua máquina. O Orkestral inicia o binário diretamente, sem shell, para evitar injeção.
+- Usa sua própria autenticação e cota do Claude. O Orkestral não faz proxy nem medição das chamadas.
+- A sondagem fecha o `stdin` após enviar a entrada, então a CLI não fica travada esperando por mais dados.
+- Este adapter é um provedor de planejamento. A execução de código no Orkestral roda pela Forge local, não por este adapter.
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="CLI claude no PATH falhou">
+    O binário não está instalado ou não está no seu `PATH`. Instale com `npm i -g @anthropic-ai/claude-code`, depois reabra o Orkestral para que ele capture o `PATH` atualizado. Se o binário tiver outro nome ou local, defina o campo **Command (override)** com seu caminho completo.
+  </Accordion>
+  <Accordion title="Não autenticado">
+    A sondagem detectou um problema de autenticação (mensagens como `please log in`, `claude login`, `not authenticated` ou `unauthorized`). Execute `claude login` em um terminal e teste o adapter novamente.
+  </Accordion>
+  <Accordion title="Sondagem expirou">
+    A sondagem não terminou dentro de 45 segundos. Tente testar novamente, ou execute `claude` em um terminal para confirmar que a CLI funciona de forma interativa. Uma primeira resposta lenta ou um problema de rede pode disparar este aviso.
+  </Accordion>
+  <Accordion title="Resposta inesperada">
+    A CLI respondeu, mas não incluiu `hello`. Isso geralmente é inofensivo. Verifique a mensagem de detalhe mostrada no resultado do teste e confirme que a CLI funciona por conta própria.
+  </Accordion>
+</AccordionGroup>
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Visão geral dos adapters" icon="layer-group" href="/pt/adapters">
+    Entenda como os adapters de provedor e a Forge local separam o planejamento da execução.
+  </Card>
+  <Card title="Contratando agentes" icon="users" href="/pt/agents">
+    Atribua o adapter Claude Code a um agente da sua equipe.
+  </Card>
+</CardGroup>

@@ -1,0 +1,213 @@
+---
+title: "Contratar e configurar um time"
+description: "Passo a passo: monte seu time de agentes e configure os papéis."
+---
+
+Um workspace no Orkestral é tocado por um time, não por um único bot. Um orquestrador **CEO** lê seus repositórios, planeja o trabalho e delega para especialistas como Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA e Designer. Este guia mostra como contratar esse time através do CEO em linguagem simples, e como ajustar finamente cada papel depois.
+
+Você tem duas formas de fazer um time crescer:
+
+<CardGroup cols={2}>
+  <Card title="Peça ao CEO" icon="comments">
+    Descreva no chat o time ou agente que você quer. O CEO propõe um plano de contratação, você aprova, e o Orkestral cria cada agente com papéis e modelos sensatos.
+  </Card>
+  <Card title="Configure manualmente" icon="sliders">
+    Abra o formulário avançado e defina o adapter, o modelo, as capacidades e a linha de reporte de um único especialista você mesmo.
+  </Card>
+</CardGroup>
+
+<Note>
+O caminho mais rápido é deixar o CEO contratar o time inteiro de uma vez. A configuração manual é melhor quando você quer um agente bem específico ou quer ajustar um papel existente.
+</Note>
+
+## Como funciona a contratação
+
+Quando o CEO propõe um time, ele escreve um plano curto mais um bloco legível por máquina para cada agente. Cada bloco se parece com `<orkestral:create-agent name="..." role="..." />`. Quando você aprova, o Orkestral interpreta esses blocos e cria os agentes.
+
+Algumas coisas acontecem automaticamente quando um plano é aprovado:
+
+<AccordionGroup>
+  <Accordion title="Os modelos são atribuídos por papel" icon="microchip">
+    Papéis de planejamento e revisão (qualquer um que corresponda a review, lead, architect, manager, product ou coordinator) recebem um modelo **premium**, o mesmo que seu CEO usa, porque eles raciocinam e decidem. Papéis executores (frontend, backend, devops, qa e similares) recebem o modelo local **Forge** como primário, então mudanças de código do dia a dia não custam nada em taxas de API. O CEO pode sobrescrever isso por agente marcando um papel como `forge` ou `premium` no plano.
+  </Accordion>
+  <Accordion title="Papéis e nomes duplicados são ignorados" icon="copy">
+    Se um agente com o mesmo nome, ou o mesmo papel normalizado, já existe no workspace, esse bloco é ignorado. Então re-executar um plano de contratação não vai criar gêmeos. Os nomes de papéis são normalizados, o que significa que "front-end", "frontend" e "UI" mapeiam todos para o mesmo papel Frontend.
+  </Accordion>
+  <Accordion title="As linhas de reporte são conectadas" icon="sitemap">
+    Cada agente pode declarar para quem reporta. Se o plano diz `reports_to="CEO"` ou nomeia outro agente contratado, o Orkestral define esse gestor. Se estiver vazio ou desconhecido, o agente reporta ao CEO por padrão.
+  </Accordion>
+  <Accordion title="Um esquadrão central é garantido" icon="users-gear">
+    Todo workspace é preenchido com um esquadrão central: um **Tech Lead** e um **Code Reviewer** (ambos premium, reportando ao CEO), mais **QA** e **Designer** quando suas fontes pedirem. O QA aparece quando você tem código frontend, backend, mobile ou de infra; o Designer aparece quando você tem código frontend ou mobile.
+  </Accordion>
+  <Accordion title="Os especialistas são combinados com seus repos" icon="folder-tree">
+    Depois da contratação, o Orkestral escaneia suas fontes conectadas e sincroniza o time para combinar com a stack que encontra. Isso mantém os especialistas certos apontados para os repositórios certos.
+  </Accordion>
+</AccordionGroup>
+
+## Contratar um time completo via CEO
+
+<Steps>
+  <Step title="Abra um chat com o CEO">
+    Vá ao seu workspace e inicie uma sessão com o **CEO** (o orquestrador). Este é o agente marcado como orquestrador na sua lista de agentes. Se você ainda não conectou nenhum repositório, faça isso primeiro para que o CEO possa ler sua stack e planejar com precisão.
+
+    {/* PRINT: chat do workspace com o CEO selecionado */}
+  </Step>
+  <Step title="Descreva o time que você quer">
+    Diga ao CEO o que você está construindo e o time que tem em mente. Seja concreto sobre o escopo. Por exemplo:
+
+    > "Estou construindo um web app em Next.js com uma API em Node e Postgres. Contrate um time completo: um tech lead, um dev frontend, um dev backend, um engenheiro DevOps, QA e um designer."
+
+    Você também pode apenas descrever o produto e deixar o CEO decidir quem é necessário. Quanto mais contexto ele tiver das suas fontes, melhor o plano.
+  </Step>
+  <Step title="Revise o plano de contratação proposto">
+    O CEO responde com um plano: uma justificativa curta e um elenco de agentes, cada um com um nome, papel e o modelo que vai usar. Leia e verifique três coisas:
+
+    <CardGroup cols={3}>
+      <Card title="Papéis" icon="user-tag">
+        Os especialistas certos para sua stack.
+      </Card>
+      <Card title="Modelos" icon="microchip">
+        Premium para planejadores e revisores, Forge para executores.
+      </Card>
+      <Card title="Reporte" icon="sitemap">
+        Para quem cada agente reporta.
+      </Card>
+    </CardGroup>
+
+    {/* PRINT: plano de contratação do CEO com o elenco proposto */}
+  </Step>
+  <Step title="Aprove o plano">
+    Se o plano parecer certo, diga ao CEO para seguir em frente (por exemplo, "aprovado, contrate-os"). Na aprovação, o Orkestral cria cada agente, conecta as linhas de reporte, garante o esquadrão central e combina os especialistas com seus repositórios. Se você quiser mudanças, peça ao CEO para ajustar o elenco antes de aprovar e ele vai reescrever o plano.
+
+    <Warning>
+    Nada é criado até você aprovar. Um plano que está apenas descrito em prosa, sem os blocos create-agent, não vai contratar ninguém. Se isso acontecer, peça ao CEO para "gerar os blocos create-agent".
+    </Warning>
+  </Step>
+  <Step title="Confirme que o time aparece">
+    Abra sua lista de agentes. Você deve ver os novos especialistas mais o esquadrão central, cada um com um avatar, um título e uma linha de reporte. A partir daqui você pode começar a delegar issues, ou abrir qualquer agente para ajustá-lo finamente.
+
+    {/* PRINT: lista de agentes mostrando o time recém-contratado */}
+  </Step>
+</Steps>
+
+## Contratar um único agente
+
+Você não precisa contratar um time inteiro. Você pode pedir ao CEO um especialista, ou construir um na mão.
+
+<Tabs>
+  <Tab title="Peça ao CEO">
+    <Steps>
+      <Step title="Abra o diálogo de novo agente">
+        Na área de agentes, escolha adicionar um novo agente. O diálogo abre no modo **Peça ao CEO** por padrão.
+      </Step>
+      <Step title="Dê um nome ao agente e escreva sua missão">
+        Insira um **Nome** e uma **Missão** opcional que descreva o que esse agente deve assumir. A missão é o campo mais útil de todos: ela diz ao CEO para que serve o agente.
+
+        {/* PRINT: formulário Peça ao CEO com nome e missão preenchidos */}
+      </Step>
+      <Step title="Peça ao CEO para criá-lo">
+        Confirme. O Orkestral abre uma sessão com o CEO levando seu pedido, e o CEO propõe e cria o agente da mesma forma que lida com um time completo. Se não existir CEO no workspace, o diálogo avisa, então garanta que seu workspace tenha um orquestrador primeiro.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Configure manualmente">
+    Use isto quando quiser controle total sobre o adapter, o modelo e as permissões. Veja a próxima seção para cada campo.
+  </Tab>
+</Tabs>
+
+## Configurar papéis manualmente
+
+No diálogo de novo agente, escolha **Configure manualmente** para abrir o formulário avançado. É também aqui que você ajusta finamente os parâmetros de um especialista que o CEO criou.
+
+<Steps>
+  <Step title="Defina a identidade">
+    Escolha um **avatar**, depois insira um **Nome** e um **Título**. O avatar é derivado do nome até você escolher um explicitamente no seletor.
+  </Step>
+  <Step title="Defina a linha de reporte">
+    Use o pill **Reporta a** para escolher um gestor. Escolha o CEO, outro agente, ou nenhum gestor. Quando um agente reporta a um gestor, ele valida suas mudanças com esse gestor antes de aplicá-las, que é como os portões de revisão funcionam em uma hierarquia.
+  </Step>
+  <Step title="Escolha o adapter e o modelo">
+    Selecione um **tipo de adapter** (o motor que roda o agente). Depois escolha o **modelo primário**. Você pode opcionalmente habilitar um **modelo barato** para passos mais leves, e definir o **esforço de raciocínio** de auto até alto para raciocínios mais difíceis.
+
+    <Info>
+    Para papéis executores, aponte o adapter para o Forge local para que as mudanças de código rodem com custo de API zero. Mantenha os modelos premium para planejamento e revisão, onde a qualidade do raciocínio importa mais.
+    </Info>
+  </Step>
+  <Step title="Ajuste as opções de execução">
+    Ajuste o **comando**, **máximo de turnos**, um **arquivo de instruções** (um caminho absoluto para um arquivo estilo AGENTS.md), **args extras** e **variáveis de ambiente**. Marque qualquer variável sensível como **secret** para que seu valor seja armazenado criptografado em vez de em texto puro.
+
+    {/* PRINT: formulário avançado com adapter e opções de execução */}
+  </Step>
+  <Step title="Defina as capacidades">
+    Alterne o que o agente tem permissão de fazer:
+
+    <CardGroup cols={2}>
+      <Card title="Editar arquivos" icon="file-pen">
+        Permita que o agente altere código nas suas fontes.
+      </Card>
+      <Card title="Rodar comandos" icon="terminal">
+        Permita que o agente rode comandos de shell.
+      </Card>
+      <Card title="Criar agentes" icon="user-plus">
+        Permita que o agente contrate outros agentes. Normalmente reservado ao CEO.
+      </Card>
+      <Card title="Atribuir tarefas" icon="list-check">
+        Permita que o agente delegue issues para outros.
+      </Card>
+    </CardGroup>
+
+    <Tip>
+    Combine as capacidades com o papel. Um Code Reviewer raramente precisa editar arquivos, enquanto um dev Frontend precisa de acesso de edição e de comando. Mantenha criar agentes desligado para todos, exceto o CEO.
+    </Tip>
+  </Step>
+  <Step title="Adicione um system prompt">
+    Escreva um **system prompt** opcional para moldar o comportamento, a voz e as prioridades do agente. Mantenha-o focado no que esse papel assume.
+  </Step>
+  <Step title="Teste o agente">
+    Use **Testar agente** para verificar se o adapter está acessível e configurado. Você recebe um status de aprovado, alerta ou falha com detalhe por verificação. Corrija qualquer verificação que falhe antes de depender do agente.
+
+    {/* PRINT: resultado do teste do agente com as verificações */}
+  </Step>
+  <Step title="Crie o agente">
+    Confirme para criar. O novo agente entra no workspace imediatamente e fica pronto para receber trabalho.
+  </Step>
+</Steps>
+
+## Os papéis padrão
+
+Estes são os papéis que o Orkestral garante em todo workspace, junto com seu tier de modelo padrão e linha de reporte.
+
+<AccordionGroup>
+  <Accordion title="Tech Lead" icon="user-tie">
+    Modelo premium, reporta ao CEO. Assume arquitetura, decisões entre repos, contratos e delegação para especialistas. Criado em todo workspace.
+  </Accordion>
+  <Accordion title="Code Reviewer" icon="magnifying-glass">
+    Modelo premium, reporta ao CEO. Revisa o projeto como um sistema inteiro: contratos entre repos, segurança, custo, performance, testes, regressões e adequação arquitetural. Criado em todo workspace.
+  </Accordion>
+  <Accordion title="QA" icon="vial">
+    Modelo Forge, reporta ao Tech Lead. Roda smoke tests, verificações de regressão e validação de contratos. Adicionado quando você tem fontes frontend, backend, mobile ou de infra.
+  </Accordion>
+  <Accordion title="Designer" icon="palette">
+    Modelo Forge, reporta ao Tech Lead. Protege o design system, a acessibilidade, a hierarquia visual e a consistência de componentes. Adicionado quando você tem fontes frontend ou mobile.
+  </Accordion>
+  <Accordion title="Especialistas" icon="code">
+    Frontend, Backend, DevOps e papéis executores similares rodam no Forge como primário e são combinados com os repositórios onde sua stack vive.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer em seguida
+
+<CardGroup cols={2}>
+  <Card title="Delegue sua primeira issue" icon="list-check" href="/pt/delegate-work">
+    Entregue trabalho ao time e veja o CEO roteá-lo para o especialista certo.
+  </Card>
+  <Card title="Conecte mais fontes" icon="folder-tree" href="/pt/connect-sources">
+    Adicione repositórios para que os especialistas sejam combinados com o código certo.
+  </Card>
+  <Card title="Entenda o Forge" icon="hammer" href="/pt/the-forge">
+    Veja como o modelo local executa mudanças de código com custo de API zero.
+  </Card>
+  <Card title="Ajuste adapters e modelos" icon="sliders" href="/pt/adapters-and-models">
+    Escolha o motor e o modelo certos para cada papel.
+  </Card>
+</CardGroup>

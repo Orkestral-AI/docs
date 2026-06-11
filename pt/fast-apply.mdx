@@ -1,0 +1,191 @@
+---
+title: "Fast Apply"
+description: "O motor determinístico que funde as edições nos seus arquivos."
+---
+
+O Fast Apply é o motor local que transforma uma edição da IA em uma mudança real no disco. Os modelos premium planejam e o modelo local embutido (o Forge) descreve a mudança, mas é o Fast Apply que de fato funde essa mudança no seu arquivo. Ele roda inteiramente na sua máquina, não custa nada em tokens de API e segue regras rígidas para nunca escrever algo do qual não tenha certeza.
+
+Esta página explica como o Fast Apply analisa as edições, como localiza o ponto certo no seu arquivo, por que recusa edições ambíguas e como ele se combina com o Forge para manter as mudanças de código baratas e seguras.
+
+<CardGroup cols={2}>
+  <Card title="Determinístico por design" icon="lock">
+    O app aplica a edição, nunca o modelo. A mesma entrada sempre produz a mesma saída.
+  </Card>
+  <Card title="Local e gratuito" icon="microchip">
+    A fusão roda no processo principal do Electron, sem chamada externa por padrão.
+  </Card>
+  <Card title="Nunca reescreve arquivos inteiros" icon="shield-halved">
+    Apenas os trechos correspondentes mudam. Todo o resto do seu arquivo é preservado byte a byte.
+  </Card>
+  <Card title="Falha em alto e bom som, nunca adivinha" icon="triangle-exclamation">
+    Se uma correspondência for ambígua ou inexistente, a edição é rejeitada com um motivo claro.
+  </Card>
+</CardGroup>
+
+## Por que um motor determinístico
+
+Modelos locais pequenos são ótimos em descrever uma mudança, mas pouco confiáveis em reproduzir longos trechos de código literalmente. Se você deixar o modelo reescrever um arquivo inteiro, ele tende a remover comentários, reordenar imports ou alterar silenciosamente código distante da edição. O Fast Apply elimina esse risco ao tornar o modelo responsável apenas pelo **texto da mudança**, enquanto o app é responsável por **onde e como** esse texto é inserido.
+
+<Note>
+O modelo só produz o texto da edição. O aplicador (`parseEditBlocks`, `applyEditBlocks` e `mergeLazyEdit` em `src/main/services/smart-exec/morph.ts`) é o que altera o seu arquivo. Essa separação é o que torna cada aplicação reproduzível e revisável.
+</Note>
+
+## Os dois formatos de edição
+
+O Fast Apply entende dois formatos de edição. Ambos mantêm o modelo honesto ao forçá-lo a se ancorar em linhas que realmente existem no seu arquivo.
+
+<Tabs>
+  <Tab title="Blocos de busca e substituição">
+    Um bloco nomeia as linhas exatas a encontrar e as linhas a colocar no lugar delas:
+
+    ```text
+    <<<<<<< SEARCH
+    <existing lines, exact>
+    =======
+    <new lines>
+    >>>>>>> REPLACE
+    ```
+
+    Regras:
+    - São permitidos vários blocos por arquivo, aplicados em ordem.
+    - Um **SEARCH** vazio significa inserir ou criar: o **REPLACE** é prependido ao arquivo (ou se torna o arquivo inteiro se ele estava vazio).
+    - Um **REPLACE** vazio significa excluir: as linhas correspondentes ao **SEARCH** são removidas.
+    - Cada bloco deve corresponder exatamente uma vez. Mais de uma correspondência é rejeitada como ambígua.
+  </Tab>
+  <Tab title="Edições preguiçosas">
+    Em vez de repetir código longo literalmente, o modelo emite apenas o trecho alterado e marca o código intocado com um comentário de reticências:
+
+    ```text
+    function totals(items) {
+      // ... existing code ...
+      const tax = subtotal * 0.1;
+      return subtotal + tax;
+    }
+    ```
+
+    Cada trecho deve começar e terminar com uma **linha de âncora** real e inalterada que exista no seu arquivo. O modelo só precisa acertar duas linhas por trecho; o app preenche tudo entre as âncoras a partir do seu arquivo original.
+  </Tab>
+</Tabs>
+
+<Tip>
+O formato preguiçoso é o que o Forge mais usa. Ele mantém a saída do modelo curta, que é exatamente onde os modelos pequenos são mais precisos, e permite que o app preserve cada linha que o modelo não mencionou.
+</Tip>
+
+## Como funciona uma fusão de busca e substituição
+
+Quando o Fast Apply processa um bloco de busca e substituição, ele percorre os níveis do mais rígido ao mais tolerante e para no primeiro nível que produz uma correspondência única e não ambígua.
+
+<Steps>
+  <Step title="Analisar os blocos">
+    `parseEditBlocks` varre a saída do modelo em busca das marcações `SEARCH`, `=======` e `REPLACE`. O texto em prosa ao redor dos blocos é ignorado, marcações soltas de código markdown são removidas e blocos truncados (sem um divisor ou marcador final) são descartados em vez de aplicados pela metade.
+  </Step>
+  <Step title="Tentar uma correspondência exata">
+    O motor conta as ocorrências do texto SEARCH no arquivo. Exatamente uma ocorrência é substituída no local. Zero ou mais de uma passa para a próxima decisão.
+  </Step>
+  <Step title="Rejeitar correspondências ambíguas">
+    Se o texto SEARCH aparece mais de uma vez, a edição é rejeitada com um motivo como `SEARCH matches 3x (ambiguous), needs more context`. O Fast Apply não escolherá um entre vários pontos por você.
+  </Step>
+  <Step title="Tentar uma correspondência com espaços normalizados">
+    Se não houve acerto exato, o motor compara o SEARCH com janelas de linhas do mesmo tamanho, com os espaços finais e internos normalizados. Ele aplica a mudança apenas quando exatamente uma janela é equivalente.
+  </Step>
+  <Step title="Tentar uma correspondência aproximada ancorada e segura">
+    Como último recurso, ele pontua cada janela de mesmo tamanho por similaridade. Ele aplica apenas quando exatamente uma janela atinge ou supera o limiar de similaridade. Isso captura quase-acertos por espaços ou aspas sem nunca adivinhar.
+  </Step>
+  <Step title="Falhar claramente se nada se encaixar">
+    Se nenhum nível produz uma correspondência única, o bloco falha com um motivo preciso. O orquestrador pode então reparar a edição ou escalar para um modelo premium, em vez de corromper o seu arquivo.
+  </Step>
+</Steps>
+
+<Warning>
+O nível aproximado usa um limiar de similaridade fixo de `0.92` e só dispara para uma única janela qualificada. Zero ou múltiplas janelas acima do limiar significam rejeição. Essa barra é deliberadamente alta para que o motor possa absorver variações de espaços e aspas, mas nunca possa escrever silenciosamente o conteúdo errado.
+</Warning>
+
+## Como funciona uma fusão preguiçosa
+
+As edições preguiçosas são fundidas por `mergeLazyEdit`. A atualização é dividida em trechos a cada marcador de reticências, e cada trecho é costurado de volta ao seu arquivo usando suas linhas de âncora.
+
+<Steps>
+  <Step title="Segmentar a atualização">
+    A atualização é dividida em trechos contíguos sempre que aparece um marcador `... existing code ...`. O marcador é reconhecido em vários estilos de comentário, então `//`, `#`, `--`, `/* */`, `<!-- -->` e `;` todos funcionam.
+  </Step>
+  <Step title="Escolher as âncoras">
+    Para cada trecho, a primeira e a última linha não vazias se tornam as âncoras inicial e final. As linhas de borda vazias são ignoradas porque corresponderiam a qualquer linha vazia.
+  </Step>
+  <Step title="Localizar as âncoras no seu arquivo">
+    `anchorPositions` busca cada âncora do mais rígido ao mais tolerante: linha exata, linha sem espaços nas pontas, depois linha com espaços normalizados. Se essas falharem, ele tenta uma chave estrutural para declarações comuns de JS e TS (de modo que `export default function foo` ainda possa se ancorar em `export function foo` quando esse nome é único), depois uma única linha aproximada de alta similaridade. Linhas curtas como `}` ou `)` nunca são correspondidas de forma aproximada.
+  </Step>
+  <Step title="Escolher o melhor trecho">
+    Quando vários pares de âncoras são possíveis, o motor escolhe o trecho cujo comprimento é mais próximo do comprimento do snippet. Isso evita o bug clássico de fechar na primeira `}` aninhada em vez da verdadeira chave de fechamento da função.
+  </Step>
+  <Step title="Preservar tudo fora do trecho">
+    As linhas originais antes de cada trecho (o cabeçalho e os espaços entre trechos) e depois do último trecho (o final) são copiadas inalteradas. Apenas os trechos correspondentes são substituídos.
+  </Step>
+  <Step title="Proteger contra encolhimento catastrófico">
+    Após a fusão, se um arquivo não trivial (mais de 30 linhas) perdeu mais de 60 por cento das suas linhas, a fusão é rejeitada como âncora suspeita, em vez de gravar um arquivo mutilado.
+  </Step>
+</Steps>
+
+<Info>
+Em uma fusão preguiçosa, as linhas de âncora reais do seu arquivo são mantidas, não as versões reformatadas pelo modelo. Assim, mesmo quando o modelo ajusta o espaçamento de uma âncora, a linha exata do seu arquivo sobrevive à fusão.
+</Info>
+
+## Por que a ambiguidade é rejeitada
+
+Todo o motor é construído sobre uma promessa: se não tiver certeza, não escreve. Essa promessa aparece em vários lugares.
+
+<AccordionGroup>
+  <Accordion title="Múltiplas correspondências significam parar, não escolher" icon="clone">
+    Quando um SEARCH ou âncora corresponde mais de uma vez, o motor recusa em vez de escolher. Uma escolha errada editaria a região errada e passaria pela revisão sem ser notada. A rejeição força uma edição mais específica ou uma escalada.
+  </Accordion>
+  <Accordion title="Os níveis vão do rígido ao frouxo, e param cedo" icon="layer-group">
+    Cada correspondedor tenta primeiro o exato, depois o sem espaços nas pontas, depois o normalizado. O primeiro nível que encontra qualquer correspondência vence, então uma correspondência exata nunca é diluída por correspondências mais frouxas abaixo.
+  </Accordion>
+  <Accordion title="O aproximado é ancorado e limitado" icon="ruler-combined">
+    A correspondência por similaridade só se aplica com uma única janela acima de um limiar alto. Ela existe para absorver ruído de espaços e aspas, não para inventar conteúdo.
+  </Accordion>
+  <Accordion title="Motivos de falha claros" icon="message">
+    Toda rejeição carrega um motivo legível: correspondência ambígua, âncora não encontrada ou encolhimento suspeito. Esse motivo é o que permite ao orquestrador decidir reparar ou escalar.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: uma edição do Fast Apply rejeitada mostrando o motivo da falha no painel de execução */}
+
+## Como o Fast Apply se combina com o Forge
+
+O Forge é o modelo local embutido (Qwen2.5-Coder) que executa as mudanças de código. O Fast Apply são as mãos dele. O Forge escreve uma edição preguiçosa; o Fast Apply a funde de forma determinística; só se a fusão não conseguir encontrar suas âncoras é que o trabalho sobe um nível.
+
+<Steps>
+  <Step title="Um modelo premium planeja">
+    Um orquestrador premium lê o seu repositório e decide o que deve mudar, depois delega a edição concreta ao Forge.
+  </Step>
+  <Step title="O Forge emite uma edição">
+    O Forge produz uma edição preguiçosa curta (ou blocos de busca e substituição), mantendo apenas algumas linhas de âncora ao redor de cada mudança.
+  </Step>
+  <Step title="O Fast Apply funde localmente">
+    O aplicador determinístico funde a edição no seu arquivo com custo zero de API. A maioria das edições se resolve aqui.
+  </Step>
+  <Step title="Escalar apenas em caso de falha">
+    Se a fusão local não conseguir ancorar a edição, o trabalho é escalado para que um modelo premium produza uma edição mais limpa, em vez de o motor adivinhar.
+  </Step>
+</Steps>
+
+<Note>
+Existe um fallback hospedado opcional (`morphFastApply`, a API do morphllm.com) que pode fundir uma edição preguiçosa antes da escalada para premium. Ele vem desligado por padrão e só ativa quando uma `MORPH_API_KEY` está presente no ambiente. Ele não é exposto na UI, porque o Orkestral é local-first.
+</Note>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Conheça o Forge" icon="hammer" href="/pt/forge">
+    Aprenda como o modelo local embutido executa mudanças de código com custo zero de API.
+  </Card>
+  <Card title="Revisar mudanças" icon="code-compare" href="/pt/review-changes">
+    Veja como as edições fundidas aparecem como diffs que você pode aprovar antes de chegarem ao seu repositório.
+  </Card>
+  <Card title="Configurar ferramentas" icon="screwdriver-wrench" href="/pt/tools">
+    Gerencie o comportamento do Fast Apply e provedores opcionais na área de Ferramentas.
+  </Card>
+  <Card title="Como funciona a orquestração" icon="sitemap" href="/pt/orchestration">
+    Entenda como planejamento, delegação e execução se encaixam.
+  </Card>
+</CardGroup>

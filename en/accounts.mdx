@@ -1,0 +1,171 @@
+---
+title: "Accounts and Cloud"
+description: "Sign in to sync your profile across desktop and web."
+---
+
+Orkestral runs local-first on your machine, so you can use it fully without an account. Signing in to Orkestral Cloud connects the desktop app to your web account so your name and email flow into the app automatically. This page explains how sign in and sign up work, how the callback brings your profile back into the desktop app, and exactly what stays local versus what lives in the cloud.
+
+<CardGroup cols={2}>
+  <Card title="Local-first by default" icon="house">
+    Your workspaces, sources, issues, and chats live in `~/.orkestral` on disk. No account is required to work.
+  </Card>
+  <Card title="Cloud connects your profile" icon="cloud">
+    Signing in brings your account email and name into the app so greetings, settings, and prompts reflect who you are.
+  </Card>
+</CardGroup>
+
+## What is local versus cloud
+
+<Info>
+  The desktop app never receives your access or refresh tokens in its UI layer. Only your email and name cross into the interface. The tokens stay in the background, encrypted at rest.
+</Info>
+
+<Tabs>
+  <Tab title="Stored locally">
+    - All workspaces, sources (repos and folders), issues, epics, and goals.
+    - Your chat history with agents.
+    - Your local profile (email and name) in **Settings, General**.
+    - Cloud session tokens, stored encrypted on disk through the operating system secure storage.
+  </Tab>
+  <Tab title="Comes from cloud">
+    - The identity you sign in with: your account email (always) and your display name (when your web account has one).
+    - Account creation and password handling, which happen entirely in your browser on the Orkestral Cloud website.
+  </Tab>
+</Tabs>
+
+When you sign in, Orkestral reads your identity from the signed session, saves the encrypted session, and syncs your local profile to match. Your name is optional: if your web account has no name yet, your existing local name is kept.
+
+## How sign in works
+
+Orkestral uses the native-app sign in pattern described in RFC 8252. Instead of embedding a login form, the app opens your real browser, you authenticate there, and the result is handed back to the running desktop app.
+
+There are two return paths. The app prefers the loopback path because it works the same in development and production. If the loopback listener does not answer, the website falls back to a deep link.
+
+<Steps>
+  <Step title="You start sign in from the app">
+    The app opens a tiny local listener on `127.0.0.1` (loopback) and then opens `https://orkestral.pro/login?next=desktop` in your default browser.
+  </Step>
+  <Step title="You authenticate on the web">
+    You sign in or sign up on the Orkestral Cloud website. All credential handling stays in the browser.
+  </Step>
+  <Step title="The web hands tokens back">
+    The website first posts your session to the loopback listener. If that does not respond, it falls back to the `orkestral://auth?...` deep link (packaged app only).
+  </Step>
+  <Step title="The app verifies and syncs">
+    The app decodes the session to read your user id, email, and name. It saves the encrypted session, syncs your local profile, focuses the main window, and updates the UI.
+  </Step>
+</Steps>
+
+{/* PRINT: the Cloud sign-in button in Settings opening the browser */}
+
+### The loopback callback
+
+The loopback path is the primary route and runs in both development and production.
+
+<AccordionGroup>
+  <Accordion title="A local listener on a fixed port" icon="server">
+    When you start sign in, the app brings up an HTTP listener bound to `127.0.0.1` on a fixed port (`38427` by default). The website is built to send your session to this exact address, so the browser and the app meet on the same loopback channel.
+  </Accordion>
+  <Accordion title="Only the /auth path is accepted" icon="route">
+    The listener answers requests on `/auth` and reads `access_token` and `refresh_token` from the query string. Any other path returns a not found response.
+  </Accordion>
+  <Accordion title="CORS so the browser can deliver" icon="globe">
+    Because the request travels from the secure Cloud origin to `127.0.0.1`, the listener sends a permissive cross origin header so your browser is allowed to deliver the response and the website learns the app received it.
+  </Accordion>
+  <Accordion title="It closes itself" icon="clock">
+    The listener stays open for up to five minutes while it waits for your browser. Clicking sign in again refreshes that window. Once a valid session arrives, the listener shuts down right away.
+  </Accordion>
+</AccordionGroup>
+
+### The deep-link fallback
+
+If the loopback listener cannot answer (for example in a packaged app where the listener did not bind), the website falls back to the custom protocol `orkestral://auth?...`.
+
+<AccordionGroup>
+  <Accordion title="The protocol is registered for the packaged app" icon="link">
+    The packaged app registers itself as the handler for the `orkestral://` scheme so the operating system can route the deep link back to the running app.
+  </Accordion>
+  <Accordion title="Why dev on macOS skips registration" icon="apple">
+    On macOS in development, the app does not register the protocol. Doing so would point the scheme at the generic Electron binary inside `node_modules`, and the operating system would launch an empty Electron instead of your running app. In development the loopback path handles the return, and the deep link is reserved for the packaged app.
+  </Accordion>
+  <Accordion title="Windows and Linux in development" icon="windows">
+    On Windows and Linux during development, the deep link is registered against the Electron binary plus your project path, and the link is detected from the launch arguments.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  A deep link or loopback callback is only accepted when it carries both `access_token` and `refresh_token`. A callback missing either token is ignored, and you stay signed out.
+</Warning>
+
+## What happens after you sign in
+
+Once the session is verified, three things happen in the app.
+
+<CardGroup cols={3}>
+  <Card title="Session saved" icon="lock">
+    Your account id, email, name, and the two tokens are stored encrypted on disk so the session survives restarts.
+  </Card>
+  <Card title="Profile synced" icon="user-pen">
+    Your local profile is updated with your email (always) and your name (when present), so the app reflects your account without re-typing.
+  </Card>
+  <Card title="UI updated" icon="bell">
+    The main window comes to the front and the interface refreshes to show you as signed in.
+  </Card>
+</CardGroup>
+
+<Tip>
+  After signing in, open **Settings, General** to confirm your email and name. Your name is what agents use in greetings and prompts, so set it here if your web account does not have one.
+</Tip>
+
+## Sign up for a new account
+
+You do not create an account inside the desktop app. Sign up happens on the website during the same flow.
+
+<Steps>
+  <Step title="Start sign in from the app">
+    Click the Cloud sign in action. The browser opens the Orkestral Cloud login page.
+  </Step>
+  <Step title="Choose to create an account">
+    On the web page, switch to sign up and create your account there.
+  </Step>
+  <Step title="Return to the app">
+    After your account is created and you are signed in on the web, the session is handed back through loopback or the deep link, and the desktop app picks up your new identity.
+  </Step>
+</Steps>
+
+<Note>
+  Because sign up runs in your browser, you get the full web experience for account creation, including any verification steps, before the app ever sees your identity.
+</Note>
+
+## Sign out
+
+Signing out clears the stored session from the app and marks the app as signed out in the UI. Your local data is untouched: workspaces, sources, issues, and chats all remain on disk in `~/.orkestral`. Your local profile name and email in **Settings, General** also stay as they are.
+
+<Warning>
+  Signing out only removes the local session. It does not sign you out of the Orkestral Cloud website in your browser. Sign out there separately if you are on a shared machine.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The browser opened but the app did not update" icon="triangle-exclamation">
+    The loopback listener waits up to five minutes. If too much time passed, return to the app and start sign in again to reopen the listener, then retry in the browser.
+  </Accordion>
+  <Accordion title="Sign in completed on the web but nothing happened in the app" icon="rotate">
+    The callback only completes when it carries both tokens. Start sign in again from the app so a fresh listener is ready, then complete the login on the web in the same session.
+  </Accordion>
+  <Accordion title="A blank Electron window opened instead of the app" icon="ghost">
+    This is the development-on-macOS deep link case. In that setup the loopback path is the one that returns your session. Make sure you started sign in from the running app so the loopback listener is active.
+  </Accordion>
+</AccordionGroup>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Set your profile" icon="id-card" href="/en/settings">
+    Confirm your name and email in Settings so agents address you correctly.
+  </Card>
+  <Card title="Create a workspace" icon="folder-plus" href="/en/workspaces">
+    Start organizing your repositories and folders into a workspace.
+  </Card>
+</CardGroup>

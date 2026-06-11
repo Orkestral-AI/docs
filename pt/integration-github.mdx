@@ -1,0 +1,167 @@
+---
+title: "GitHub"
+description: "Conecte o GitHub para repositórios, pull requests e reviews."
+---
+
+A integração com o GitHub conecta sua conta do GitHub ao Orkestral para que sua equipe de agentes possa clonar repositórios, abrir pull requests, listar e ler PRs, e publicar code reviews com comentários inline. Você conecta uma única vez com um login de dispositivo seguro. O Orkestral armazena o token de acesso criptografado na sua máquina e nunca o grava em texto puro no disco.
+
+<Info>
+O GitHub é uma integração local-first. Seu token fica em `~/.orkestral`, criptografado pelo keychain do seu sistema operacional. Nenhum serviço de nuvem do Orkestral o acessa.
+</Info>
+
+## O que ela habilita
+
+<CardGroup cols={2}>
+  <Card title="Repositórios" icon="folder-git">
+    Liste repositórios que você possui, dos quais é colaborador ou que acessa por meio de uma organização, e clone-os como sources.
+  </Card>
+  <Card title="Pull requests" icon="git-pull-request">
+    Liste pull requests abertos e recentes de um repositório, e crie novos pull requests a partir de uma branch.
+  </Card>
+  <Card title="Code review" icon="comments">
+    Leia o diff de um pull request e publique um review com um resumo e comentários inline em linhas específicas.
+  </Card>
+  <Card title="Auth segura" icon="lock">
+    Login via Device Flow sem client secret. O token é criptografado em repouso e removido de logs e mensagens de erro.
+  </Card>
+</CardGroup>
+
+## Requisitos
+
+- Uma conta do GitHub com acesso aos repositórios em que você quer trabalhar.
+- Um keychain do sistema operacional disponível para o `safeStorage` do Electron. No macOS, no Windows e na maioria dos desktops Linux ele está presente por padrão. Se estiver ausente, a conexão falha com um erro de criptografia.
+- `git` instalado e no seu `PATH`. O Orkestral executa `git clone` ao clonar um repositório.
+- Acesso de rede a `github.com` e `api.github.com`.
+
+O OAuth App padrão solicita estes escopos:
+
+| Escopo | Por que é necessário |
+| --- | --- |
+| `repo` | Acesso de leitura e escrita aos seus repositórios, incluindo os privados, para clonar, listar PRs, criar PRs e publicar reviews. |
+| `read:user` | Ler seu perfil (login, nome de exibição, avatar) para identificar a conta conectada. |
+
+## Como conectar
+
+O Orkestral usa o GitHub OAuth Device Flow. Você autoriza o Orkestral no `github.com` inserindo um código curto, então nenhuma senha ou secret jamais passa pelo app.
+
+<Steps>
+  <Step title="Inicie a conexão">
+    Abra a integração com o GitHub nas configurações e escolha conectar. O Orkestral solicita um código de dispositivo e mostra um **user code** mais um link de verificação.
+
+    {/* PRINT: Painel de conexão do GitHub mostrando o user code */}
+  </Step>
+  <Step title="Autorize no GitHub">
+    O Orkestral abre seu navegador na página de verificação. Insira o **user code** e então aprove os escopos solicitados para sua conta.
+  </Step>
+  <Step title="Aguarde a confirmação">
+    O Orkestral consulta o GitHub em segundo plano. Quando você aprova, ele busca seu perfil, criptografa o token e armazena a conta. O painel passa a mostrar seu login, nome de exibição e avatar.
+  </Step>
+</Steps>
+
+<Note>
+O código de dispositivo expira após uma janela fixa (o GitHub retorna o tempo limite quando o fluxo começa). Se ele expirar antes de você aprovar, inicie a conexão novamente para obter um código novo.
+</Note>
+
+## Clonando um repositório
+
+Quando você clona um repositório como source, o Orkestral executa `git clone` com o token armazenado injetado apenas para esse único comando:
+
+- O token é passado por um `http.extraHeader` em memória (`Authorization: Basic` com `x-access-token`), de modo que ele nunca é gravado no `.git/config` do repositório clonado.
+- `GIT_TERMINAL_PROMPT=0` é definido, então o git nunca trava em um prompt de senha interativo.
+- O progresso do clone é transmitido de volta para a UI.
+- Quaisquer credenciais são removidas da saída de erro antes que ela seja exibida para você.
+
+<ParamField path="branch" type="string">
+Branch opcional para fazer checkout. Quando omitida, o git clona a branch padrão do repositório.
+</ParamField>
+
+<ParamField path="depth" type="number">
+Profundidade de clone opcional. Quando definida como um número positivo, o Orkestral executa um clone raso (`--depth`) por velocidade. Você pode buscar o histórico completo depois, se precisar. Quando omitida, o clone é completo.
+</ParamField>
+
+## Pull requests e reviews
+
+Uma vez conectado, os agentes e o ferramental de review podem usar estas capacidades contra qualquer repositório que você possa acessar:
+
+| Capacidade | Comportamento |
+| --- | --- |
+| Listar repositórios | Retorna repositórios com afiliação `owner`, `collaborator` e `organization_member`, ordenados pelo push mais recente (até 500). |
+| Branch padrão | Resolve a branch padrão de um repositório (por exemplo `main` ou `dev`) para usar como base de PR. |
+| Listar pull requests | Retorna PRs abertos e fechados recentemente, ordenados pela atualização mais recente, paginados automaticamente (até 1000). |
+| Ler diff de PR | Busca um diff unificado de um pull request, usado pelo code review. |
+| Criar pull request | Abre um PR de uma branch `head` para uma branch `base`, com body e flag de draft opcionais. |
+| Publicar review | Cria um review do GitHub que agrupa um resumo mais comentários inline em arquivos e linhas específicos. |
+
+### Comentários de review e eventos
+
+Um review publicado carrega um body de resumo de nível superior e zero ou mais comentários inline. Cada comentário inline aponta para um caminho de arquivo, uma linha e um lado do diff.
+
+<ParamField path="side" type="'LEFT' | 'RIGHT'" default="RIGHT">
+Em qual lado do diff o comentário se fixa. `RIGHT` é a nova versão do arquivo; `LEFT` é a versão antiga.
+</ParamField>
+
+<ParamField path="event" type="'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'" default="COMMENT">
+O veredito de review que o GitHub registra. `COMMENT` deixa feedback sem veredito, `APPROVE` aprova o PR e `REQUEST_CHANGES` o bloqueia.
+</ParamField>
+
+<ParamField path="draft" type="boolean" default="false">
+Ao criar um pull request, abre-o como draft em vez de um PR pronto para review.
+</ParamField>
+
+## Capacidades e limites
+
+- A listagem de repositórios retorna no máximo 500 repositórios (5 páginas de 100). Se você tiver mais, os que receberam push mais recentemente vêm primeiro.
+- A listagem de pull requests retorna no máximo 1000 PRs (10 páginas de 100), com a atividade mais recente primeiro.
+- O clone é raso apenas quando você passa uma profundidade; caso contrário, ele puxa o histórico completo.
+- O token é criptografado com o keychain do sistema operacional. Se o keychain estiver indisponível, tanto a conexão quanto qualquer ação que use o token falham com um erro de criptografia claro.
+- O Orkestral conversa com a API REST do GitHub fixada na versão `2022-11-28`.
+
+<Warning>
+Desconectar uma conta exclui o token armazenado dela. Clonar, listar, criar PRs e publicar reviews param de funcionar até você reconectar.
+</Warning>
+
+## Configuração
+
+<ParamField path="ORKESTRAL_GITHUB_CLIENT_ID" type="string">
+Variável de ambiente que sobrescreve o client ID do OAuth App empacotado. Defina-a quando quiser rodar o Device Flow contra o seu próprio GitHub OAuth App (útil para desenvolvimento). Seu app precisa ter **Enable Device Flow** ativado.
+</ParamField>
+
+Para revisar ou revogar o acesso do Orkestral pelo GitHub, abra a página de configurações do aplicativo OAuth do app conectado. O Orkestral pode abrir essa página para você; ela aponta para `github.com/settings/connections/applications/<client id>`.
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="O Device Flow não está habilitado neste OAuth App">
+    Isso acontece com um client ID personalizado cujo OAuth App não permite o Device Flow. Vá em `github.com/settings/applications`, abra o app, marque **Enable Device Flow** e salve. O client ID padrão do Orkestral já tem isso habilitado.
+  </Accordion>
+  <Accordion title="Client ID inválido ou desconhecido">
+    O GitHub rejeitou o client ID (`incorrect_client_credentials` ou `invalid_client`). Verifique `ORKESTRAL_GITHUB_CLIENT_ID`. O OAuth App precisa existir e o ID precisa corresponder exatamente. Remova a variável para voltar ao app empacotado.
+  </Accordion>
+  <Accordion title="O código expirou antes de eu aprová-lo">
+    O código de dispositivo expirou. Inicie a conexão novamente para obter um **user code** novo e então aprove-o prontamente no GitHub.
+  </Accordion>
+  <Accordion title="Eu aprovei, mas diz acesso negado">
+    Você recusou a autorização no GitHub ou aprovou uma conta diferente. Reinicie a conexão e aprove com a conta correta.
+  </Accordion>
+  <Accordion title="Criptografia não disponível">
+    Seu sistema operacional não expôs um keychain utilizável, então o Orkestral não consegue criptografar ou descriptografar o token. Isso é comum em configurações Linux mínimas sem um serviço de secrets. Instale ou desbloqueie um keychain (por exemplo o GNOME Keyring) e então reconecte.
+  </Accordion>
+  <Accordion title="git clone falha">
+    Confirme que o `git` está instalado e no seu `PATH`, que você ainda tem acesso ao repositório e que seu token não foi revogado. A saída de erro é higienizada para ocultar credenciais, então o final da mensagem do git indica a causa real (por exemplo uma branch ausente ou um erro de permissão). Se o token foi revogado, reconecte a conta.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Se as chamadas de pull request ou review começarem a falhar com erros de autorização depois de funcionarem antes, seu token provavelmente foi revogado no GitHub. Desconecte e reconecte a conta para gerar um novo.
+</Tip>
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Adapters" icon="plug" href="/pt/adapters">
+    Os providers que dão energia aos seus agentes, incluindo o Forge local.
+  </Card>
+  <Card title="Sources" icon="folder-tree" href="/pt/sources">
+    Adicione repositórios e pastas para sua equipe trabalhar.
+  </Card>
+</CardGroup>

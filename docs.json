@@ -37,12 +37,37 @@
           {
             "group": "Projects & workflow",
             "icon": "folder-tree",
-            "pages": ["en/workspaces", "en/sources", "en/routines-goals"]
+            "pages": ["en/projects", "en/workspaces", "en/sources", "en/routines-goals"]
           },
           {
             "group": "Power features",
             "icon": "bolt",
-            "pages": ["en/forge", "en/knowledge-base", "en/integrations"]
+            "pages": ["en/forge", "en/fast-apply", "en/knowledge-base", "en/observability", "en/sentry", "en/integrations"]
+          },
+          {
+            "group": "How-to guides",
+            "icon": "wrench",
+            "pages": ["en/connect-a-repository", "en/hire-a-team", "en/run-your-first-task", "en/review-a-pull-request", "en/build-your-knowledge-base", "en/connect-an-mcp-server"]
+          },
+          {
+            "group": "Administration",
+            "icon": "shield",
+            "pages": ["en/settings", "en/accounts", "en/data-and-privacy", "en/updates"]
+          },
+          {
+            "group": "Reference · Adapters",
+            "icon": "plug",
+            "pages": ["en/adapter-claude-code", "en/adapter-codex", "en/adapter-gemini", "en/adapter-cursor"]
+          },
+          {
+            "group": "Reference · MCP",
+            "icon": "brain",
+            "pages": ["en/mcp-server"]
+          },
+          {
+            "group": "Reference · Integrations",
+            "icon": "puzzle-piece",
+            "pages": ["en/integration-github", "en/integration-azure-devops"]
           }
         ]
       },
@@ -67,12 +92,37 @@
           {
             "group": "Projetos & fluxo",
             "icon": "folder-tree",
-            "pages": ["pt/workspaces", "pt/sources", "pt/routines-goals"]
+            "pages": ["pt/projects", "pt/workspaces", "pt/sources", "pt/routines-goals"]
           },
           {
             "group": "Recursos avançados",
             "icon": "bolt",
-            "pages": ["pt/forge", "pt/knowledge-base", "pt/integrations"]
+            "pages": ["pt/forge", "pt/fast-apply", "pt/knowledge-base", "pt/observability", "pt/sentry", "pt/integrations"]
+          },
+          {
+            "group": "Guias práticos",
+            "icon": "wrench",
+            "pages": ["pt/connect-a-repository", "pt/hire-a-team", "pt/run-your-first-task", "pt/review-a-pull-request", "pt/build-your-knowledge-base", "pt/connect-an-mcp-server"]
+          },
+          {
+            "group": "Administração",
+            "icon": "shield",
+            "pages": ["pt/settings", "pt/accounts", "pt/data-and-privacy", "pt/updates"]
+          },
+          {
+            "group": "Referência · Adapters",
+            "icon": "plug",
+            "pages": ["pt/adapter-claude-code", "pt/adapter-codex", "pt/adapter-gemini", "pt/adapter-cursor"]
+          },
+          {
+            "group": "Referência · MCP",
+            "icon": "brain",
+            "pages": ["pt/mcp-server"]
+          },
+          {
+            "group": "Referência · Integrações",
+            "icon": "puzzle-piece",
+            "pages": ["pt/integration-github", "pt/integration-azure-devops"]
           }
         ]
       }

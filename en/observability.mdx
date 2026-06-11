@@ -1,0 +1,226 @@
+---
+title: "Observability"
+description: "Connect production signals so agents can act on them."
+---
+
+Observability turns production noise into work your team can act on. You connect a provider (New Relic or Better Stack), Orkestral pulls in live **signals** (errors, incidents, logs), and your agents can analyze any signal in a dedicated session or react to it automatically through **automations**.
+
+The result: a production error stops being something you copy and paste into a chat. It becomes a signal your CEO orchestrator or a specialist agent picks up, reads with full repo context, and proposes a fix for.
+
+<CardGroup cols={2}>
+  <Card title="Signals" icon="signal">
+    A live feed of errors, incidents, and logs pulled from your provider, ranked and ready to analyze.
+  </Card>
+  <Card title="Automations" icon="bolt">
+    Rules that match incoming signals and route them to an agent, either as an inbox proposal or fully automatic.
+  </Card>
+</CardGroup>
+
+## How it works
+
+Each connected provider has two screens that work together.
+
+<Steps>
+  <Step title="Connect a provider">
+    You connect **New Relic** or **Better Stack** from the **Integrations** page. Until an account is connected, the Observability screens show a not-connected state with a hint to set it up first.
+  </Step>
+  <Step title="Signals stream in">
+    Once connected, Orkestral lists recent signals for that provider (up to 60 at a time) and refreshes them automatically every 5 minutes. You can also refresh on demand.
+  </Step>
+  <Step title="You analyze a signal">
+    Click **Analyze** on any signal and Orkestral opens a new agent session focused on that exact problem, with the signal details handed to the agent.
+  </Step>
+  <Step title="Automations react for you">
+    Rules you define decide which signals get routed to an agent without you watching the feed, either proposing the work in your inbox or kicking off analysis automatically.
+  </Step>
+</Steps>
+
+<Note>
+Signals and automations are scoped per workspace and per provider. New Relic and Better Stack each have their own feed, their own rules, and their own run history.
+</Note>
+
+## The signals page
+
+The signals page is the live feed for one provider. Open it from **Integrations** after connecting an account.
+
+### What each signal shows
+
+Every signal in the list is a card you can open or act on directly.
+
+<AccordionGroup>
+  <Accordion title="Kind" icon="tag">
+    A colored badge marking the signal as an **error**, **incident**, or **log**. The kind also drives how automations match.
+  </Accordion>
+  <Accordion title="Title and summary" icon="align-left">
+    The headline of the problem plus a short two-line summary when the provider gives one, so you can triage without leaving the page.
+  </Accordion>
+  <Accordion title="Service, severity, and event count" icon="layer-group">
+    Context metadata: which service emitted the signal, its severity, and how many times the event has fired.
+  </Accordion>
+  <Accordion title="Last seen" icon="clock">
+    The most recent timestamp for the signal, shown in your local date and time format.
+  </Accordion>
+  <Accordion title="Open in provider" icon="arrow-up-right-from-square">
+    When the provider includes a link, an **Open** action takes you straight to the original error or incident in New Relic or Better Stack.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: the signals feed with kind badges, summaries, and the Analyze button */}
+
+### Actions on the page
+
+<CardGroup cols={3}>
+  <Card title="Refresh" icon="magnifying-glass">
+    Pull the latest signals on demand. The feed also refreshes itself every 5 minutes.
+  </Card>
+  <Card title="Automations" icon="sliders">
+    Jump to the rules and run history for this provider.
+  </Card>
+  <Card title="Analyze" icon="wand-magic-sparkles">
+    Hand a single signal to an agent and open a fresh session on it.
+  </Card>
+</CardGroup>
+
+<Tip>
+Click the body of a signal card to open its detail view. Click the **Analyze** button to skip straight to an agent session. The provider link opens in your browser and does not navigate away inside Orkestral.
+</Tip>
+
+## How agents use a signal
+
+When you click **Analyze**, Orkestral creates a new agent session built around that signal and navigates you to it. The agent receives the signal as input, so it starts with the error title, service, severity, and summary already in hand.
+
+Because Orkestral agents work with full repo context, the agent can connect the production symptom to the code that caused it. That is the core idea: the premium model plans the investigation and the fix, and the local **Forge** executes the code changes at no API cost.
+
+<Steps>
+  <Step title="Pick a signal worth investigating">
+    Use the kind badge, severity, and event count to find the signal that matters most right now.
+  </Step>
+  <Step title="Click Analyze">
+    Orkestral opens a new session scoped to that signal and routes you into it.
+  </Step>
+  <Step title="Let the agent work">
+    The agent reads the signal, traces it through your code, and proposes or applies a fix following your normal review flow.
+  </Step>
+</Steps>
+
+## Automations
+
+Automations are rules that watch the signal feed for you. Instead of opening the page and clicking **Analyze**, you describe which signals matter and which agent should handle them. Open the automations screen with the **Automations** button on the signals page.
+
+### What the automations screen shows
+
+The screen has a summary, a rules list, a run history, and a rule editor side by side.
+
+<AccordionGroup>
+  <Accordion title="Summary stats" icon="chart-simple">
+    Three cards at the top: how many rules are **active** out of the total, how many **runs** have happened, and when the **last run** fired (shown as a relative time like "5 minutes ago").
+  </Accordion>
+  <Accordion title="Rules list" icon="list-check">
+    Every rule for this provider, each with an on/off switch, its filters, the assigned agent, the refresh interval, and a mode badge. You can edit or delete any rule inline.
+  </Accordion>
+  <Accordion title="Runs" icon="clock-rotate-left">
+    A history of the most recent runs (up to 50), each marked **ok** or failed, showing the signal title, the rule that triggered it, the action taken, and how long ago it ran. This list refreshes every 15 seconds.
+  </Accordion>
+  <Accordion title="Rule editor" icon="pen-to-square">
+    A panel on the right where you create a new rule or edit an existing one. When nothing is selected, it shows a hint to select or create a rule.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: automations screen with stat cards, the rules list, and the rule editor panel */}
+
+### Creating a rule
+
+<Steps>
+  <Step title="Click New rule">
+    The **New rule** button opens the editor with sensible defaults. The button is disabled until a provider account is connected.
+  </Step>
+  <Step title="Name the rule">
+    Give it a clear name so it reads well in the rules list and run history, for example "Checkout 500s to Backend".
+  </Step>
+  <Step title="Choose the kind">
+    Match **all** signals, or narrow to just **error**, **incident**, or **log**.
+  </Step>
+  <Step title="Pick the mode">
+    Choose **Inbox proposal** to have matching signals queued for your review, or **Auto-analyze** to start an agent session automatically. See the modes below.
+  </Step>
+  <Step title="Add filters">
+    Optionally set **Severity contains** and **Service contains** to narrow matching to specific severities or services. Leave them blank to match any.
+  </Step>
+  <Step title="Assign an agent">
+    Pick which agent handles matches. The default is the **CEO orchestrator**, which plans and delegates; you can also target a specific specialist from your team.
+  </Step>
+  <Step title="Set the refresh interval">
+    Choose how often the rule checks for new signals: **off**, or every 1, 5, 15, 30, or 60 minutes. Off means the rule does not poll on its own.
+  </Step>
+  <Step title="Enable and save">
+    Toggle **Enabled**, then **Save**. The new rule appears in the list immediately.
+  </Step>
+</Steps>
+
+### Modes
+
+The mode controls how aggressively a rule acts when a signal matches.
+
+<Tabs>
+  <Tab title="Inbox proposal">
+    Matching signals are queued as proposals for you to review before any agent runs. Use this for noisy services or when you want a human in the loop. This is the default for a new rule.
+  </Tab>
+  <Tab title="Auto-analyze">
+    Matching signals immediately start an agent session. Use this for high-signal, low-noise rules where you trust the agent to investigate without waiting on you.
+  </Tab>
+</Tabs>
+
+<Warning>
+Auto-analyze starts work without asking first. Pair it with tight **kind**, **severity**, and **service** filters so the rule only fires on signals you genuinely want handled automatically. Keep loud or low-priority sources on Inbox proposal.
+</Warning>
+
+### Managing rules
+
+<CardGroup cols={3}>
+  <Card title="Toggle" icon="toggle-on">
+    Flip the switch on a rule to enable or disable it without losing its configuration.
+  </Card>
+  <Card title="Edit" icon="pencil">
+    Open any rule in the editor to change its filters, mode, agent, or interval.
+  </Card>
+  <Card title="Delete" icon="trash">
+    Remove a rule. Orkestral asks you to confirm before deleting.
+  </Card>
+</CardGroup>
+
+### Reading the run history
+
+Each run tells you what happened the last time a rule matched a signal.
+
+<AccordionGroup>
+  <Accordion title="Status" icon="circle-check">
+    A green check for a successful run or a red mark for a failure, so you can spot rules that are not behaving at a glance.
+  </Accordion>
+  <Accordion title="Signal and rule" icon="link">
+    The signal title (or its id) plus the name of the rule that triggered, so you can trace a run back to its rule.
+  </Accordion>
+  <Accordion title="Action and time" icon="clock">
+    Which action the run took and how long ago it ran, in relative time.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+The runs list polls every 15 seconds, so you can watch automations fire in near real time after you enable a rule.
+</Info>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Connect a provider" icon="plug" href="/en/integrations">
+    Set up New Relic or Better Stack from the Integrations page before signals can appear.
+  </Card>
+  <Card title="Build your team" icon="users" href="/en/agents">
+    Hire the specialists you want automations to route signals to.
+  </Card>
+  <Card title="Understand sessions" icon="comments" href="/en/sessions">
+    See how an analyzed signal turns into a working agent session.
+  </Card>
+  <Card title="Track the work" icon="list-check" href="/en/issues">
+    Follow fixes as issues and epics once an agent picks them up.
+  </Card>
+</CardGroup>

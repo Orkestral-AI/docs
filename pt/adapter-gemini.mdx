@@ -1,0 +1,139 @@
+---
+title: "Adapter Gemini"
+description: "Use o Gemini como provedor de planejamento."
+---
+
+O adapter Gemini conecta o Orkestral ao **Gemini CLI** do Google para que um agente possa usar modelos Gemini no planejamento. Como os outros adapters de provedores premium, o Gemini conduz o trabalho de raciocínio e delegação. O **Forge** local incluído executa as alterações de código de fato, sem custo de API.
+
+<Info>
+Id do tipo de adapter: `gemini_local`. Nome de exibição: **Gemini CLI**. Ele executa um binário `gemini` local na sua máquina, então seu código e seus prompts vão direto para a CLI que você instalou.
+</Info>
+
+## O que é
+
+O adapter Gemini é um wrapper fino em torno do Google Gemini CLI (`@google/gemini-cli`). O Orkestral detecta a CLI no seu `PATH`, valida suas credenciais do Google e permite escolher um modelo Gemini ao contratar ou configurar um agente. Você o seleciona durante o onboarding ou ao editar um agente em **Configurações**.
+
+{/* PRINT: Bloco do Gemini CLI na grade de adapters durante o onboarding */}
+
+## Requisitos
+
+Antes de selecionar o adapter Gemini, confirme que você tem o seguinte.
+
+<CardGroup cols={2}>
+  <Card title="Gemini CLI instalado" icon="terminal">
+    O binário `gemini` precisa estar no seu `PATH`. Instale-o com `npm i -g @google/gemini-cli`.
+  </Card>
+  <Card title="Node.js" icon="node-js">
+    O Gemini CLI roda sobre Node.js, então um runtime Node recente precisa estar disponível.
+  </Card>
+  <Card title="Credenciais do Google" icon="key">
+    Defina `GEMINI_API_KEY` ou aponte `GOOGLE_APPLICATION_CREDENTIALS` para um arquivo de conta de serviço.
+  </Card>
+  <Card title="Acesso à rede" icon="wifi">
+    Os modelos Gemini rodam na nuvem, então a CLI precisa de acesso de saída ao Google.
+  </Card>
+</CardGroup>
+
+<Warning>
+Se nem `GEMINI_API_KEY` nem `GOOGLE_APPLICATION_CREDENTIALS` estiverem definidos, o teste de ambiente reporta um aviso e as execuções podem falhar. Defina ao menos um antes de depender do adapter.
+</Warning>
+
+## Como configurar
+
+<Steps>
+  <Step title="Instale o Gemini CLI">
+    Execute `npm i -g @google/gemini-cli` em um terminal e confirme que funciona com `gemini --version`.
+  </Step>
+  <Step title="Autentique com o Google">
+    Exporte `GEMINI_API_KEY` com sua chave de API ou defina `GOOGLE_APPLICATION_CREDENTIALS` com o caminho de um arquivo JSON de conta de serviço do Google. Garanta que a variável esteja visível para o ambiente que inicia o Orkestral.
+  </Step>
+  <Step title="Selecione o adapter">
+    No onboarding (ou ao editar um agente), abra a grade de adapters e escolha **Gemini CLI**. Os adapters são listados na ordem do registro, então o Gemini aparece junto com as outras CLIs locais.
+  </Step>
+  <Step title="Escolha um modelo">
+    Escolha um modelo Gemini na lista de modelos (veja abaixo). Use **Default** para manter o modelo que sua CLI estiver configurada para usar.
+  </Step>
+  <Step title="Configure as opções">
+    Opcionalmente ative o toggle de sandbox ou defina um caminho de comando personalizado, então salve.
+  </Step>
+  <Step title="Teste o ambiente">
+    Execute o teste de ambiente para o adapter. O Orkestral verifica o binário, a versão da CLI e suas credenciais do Google, e reporta aprovação, aviso ou falha para cada item.
+  </Step>
+</Steps>
+
+## Modelos
+
+O adapter expõe uma lista fixa de opções de modelo. Escolha uma ao configurar o agente.
+
+| Id do modelo | Rótulo | Notas |
+| --- | --- | --- |
+| `default` | Default | Usa o modelo configurado na CLI. |
+| `gemini-2.5-pro` | Gemini 2.5 Pro | Maior nível de capacidade da lista. |
+| `gemini-2.5-flash` | Gemini 2.5 Flash | Mais rápido e mais barato. |
+| `gemini-2.5-flash-lite` | Gemini 2.5 Flash Lite | Variante Flash mais leve. |
+| `gemini-2.0-flash` | Gemini 2.0 Flash | Geração anterior do Flash. |
+| `gemini-2.0-flash-lite` | Gemini 2.0 Flash Lite | Variante mais leve do 2.0 Flash. |
+
+<Tip>
+Se você não tem certeza de qual modelo usar, comece com **Default**. Ele transfere a escolha para o que quer que seu Gemini CLI já esteja configurado para chamar.
+</Tip>
+
+## Opções de configuração
+
+O adapter expõe dois campos de configuração. Você os define no formulário de configuração do adapter ao selecionar **Gemini CLI**.
+
+<ParamField path="sandbox" type="toggle" default="false">
+  Quando habilitado, o Orkestral passa `--sandbox` para a CLI. Use isto para rodar o Gemini em seu modo sandbox. Desligado por padrão.
+</ParamField>
+
+<ParamField path="command" type="text" default="gemini">
+  Override para o comando ou caminho usado para invocar a CLI. Deixe em branco para usar `gemini` do seu `PATH`, ou defina um caminho completo ou um nome de comando alternativo.
+</ParamField>
+
+## Capacidades e limites
+
+<AccordionGroup>
+  <Accordion title="Provedor de planejamento, não executor">
+    O Gemini conduz o planejamento de um agente. O Forge local realiza as edições de arquivos. Isso mantém o custo de execução em zero no lado da API, deixando o Gemini cuidar do raciocínio.
+  </Accordion>
+  <Accordion title="Binário local">
+    O adapter aciona um processo `gemini` local. Tudo o que a CLI pode fazer (e quaisquer limites que ela tenha) se aplica aqui. O Orkestral não inclui a CLI para você.
+  </Accordion>
+  <Accordion title="Modelos na nuvem">
+    Os próprios modelos Gemini rodam na infraestrutura do Google. Seus prompts e qualquer contexto que a CLI envie saem da sua máquina e vão para o Google.
+  </Accordion>
+  <Accordion title="Verificações de ambiente">
+    O teste de ambiente verifica três coisas: o binário `gemini` está no `PATH`, a CLI responde a `--version` (dentro de um curto timeout) e ao menos uma variável de credencial do Google está presente. Uma credencial ausente é um aviso, não uma falha rígida.
+  </Accordion>
+</AccordionGroup>
+
+## Solução de problemas
+
+<AccordionGroup>
+  <Accordion title="CLI `gemini` não encontrada no PATH">
+    O Orkestral não conseguiu localizar o binário `gemini`. Instale-o com `npm i -g @google/gemini-cli`, então reabra o Orkestral para que ele herde o `PATH` atualizado. Se você o instalou em um local personalizado, defina a opção `command` com o caminho completo.
+  </Accordion>
+  <Accordion title="Verificação de versão falhou">
+    O binário existe mas não respondeu a `gemini --version` dentro do timeout. Execute `gemini --version` você mesmo em um terminal para ver o erro real e confirme que a instalação não está quebrada.
+  </Accordion>
+  <Accordion title="Aviso de credenciais">
+    O teste avisa quando nem `GEMINI_API_KEY` nem `GOOGLE_APPLICATION_CREDENTIALS` estão definidos. Exporte um deles no shell que inicia o Orkestral. No macOS, apps de GUI podem não enxergar variáveis definidas apenas no seu perfil de shell, então defina-as onde o ambiente de inicialização possa lê-las.
+  </Accordion>
+  <Accordion title="Execuções falham mesmo com o teste aprovado">
+    Um teste de ambiente aprovado confirma que a CLI e as credenciais existem, não que as credenciais sejam válidas ou que o modelo escolhido esteja disponível para sua conta. Verifique seu projeto Google, o faturamento e o acesso aos modelos, então tente o modelo **Default** para descartar um problema específico de modelo.
+  </Accordion>
+  <Accordion title="Sandbox se comporta de forma inesperada">
+    O toggle de sandbox apenas adiciona `--sandbox` à invocação da CLI. Se algo funciona sem ele mas não com ele, a diferença vem do próprio sandbox do Gemini CLI, não do Orkestral. Desative o toggle para voltar ao comportamento padrão da CLI.
+  </Accordion>
+</AccordionGroup>
+
+## Relacionados
+
+<CardGroup cols={2}>
+  <Card title="Visão geral dos adapters" href="/pt/adapters" icon="layer-group">
+    Como os adapters de provedores e o Forge local dividem planejamento e execução.
+  </Card>
+  <Card title="Forge local" href="/pt/adapter-forge" icon="hammer">
+    O executor incluído que aplica alterações de código sem custo de API.
+  </Card>
+</CardGroup>

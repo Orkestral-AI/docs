@@ -1,0 +1,193 @@
+---
+title: "Rode sua primeira tarefa"
+description: "Passo a passo: de um pedido no chat até o trabalho revisado e concluído."
+---
+
+Este guia conduz você por uma tarefa completa no Orkestral, de ponta a ponta. Você escreve um pedido no chat, o CEO planeja e delega, a Forge executa o código localmente, um revisor valida o trabalho e você recebe um relatório final na mesma conversa. Ao final, você reconhecerá cada etapa e saberá onde olhar quando quiser direcionar o processo.
+
+<Note>
+O orquestrador CEO é o agente dono da sua sessão de chat. Ele lê seus repositórios, planeja e delega para especialistas. Ele nunca escreve código por conta própria. O modelo local embutido, a **Forge**, faz a edição de fato sem custo de API.
+</Note>
+
+## Como o fluxo funciona
+
+Aqui está o formato de uma tarefa antes de você mergulhar nas etapas. Mantenha essa imagem em mente.
+
+<CardGroup cols={2}>
+  <Card title="Você pede" icon="comment">
+    Um pedido em linguagem simples no chat. O Orkestral detecta se você quer planejamento, uma correção de bug ou apenas uma resposta.
+  </Card>
+  <Card title="O CEO planeja" icon="sitemap">
+    Para trabalhos não triviais, o CEO cria um **épico** mais **sub-issues** focadas, separando frontend e backend, cada uma atribuída ao especialista certo.
+  </Card>
+  <Card title="A Forge executa" icon="hammer">
+    O especialista designado roda localmente pela Forge, aplica um diff e captura um resumo de **Code changes** que você pode revisar.
+  </Card>
+  <Card title="Revisão e relatório" icon="circle-check">
+    O trabalho sobe a cadeia de revisão (Code Reviewer, depois gerentes). Quando o plano termina, o CEO publica um relatório consolidado de volta no seu chat.
+  </Card>
+</CardGroup>
+
+## Rode a tarefa
+
+<Steps>
+  <Step title="Abra um chat com seu CEO" icon="comments">
+    Abra o workspace onde seus repositórios (sources) estão conectados e inicie uma sessão de chat. A sessão pertence ao orquestrador CEO por padrão.
+
+    Confirme o **escopo** na parte inferior do compositor. O escopo **All** dá ao agente todos os sources do workspace. Você pode restringi-lo a sources específicos para que o agente veja apenas os diretórios que você selecionar. O primeiro source selecionado vira o diretório de trabalho.
+
+    {/* PRINT: compositor do chat com o seletor de escopo mostrando All vs sources específicos */}
+
+    <Tip>
+    Quer que um colega específico cuide do turno em vez do CEO? Comece sua mensagem com um `@mention`, por exemplo `@Code Reviewer check the auth flow`. O especialista mencionado executa o turno diretamente e responde no chat, em vez de o CEO delegá-lo.
+    </Tip>
+  </Step>
+
+  <Step title="Escreva um pedido claro" icon="pen">
+    Declare o resultado que você quer em linguagem simples. Você não precisa formatá-lo nem dividi-lo em tarefas por conta própria, isso é trabalho do CEO. Bons pedidos nomeiam o objetivo e, quando útil, um arquivo ou área.
+
+    <Tabs>
+      <Tab title="Pedido de planejamento">
+        ```text
+        Build a settings page where users can change their email
+        and toggle dark mode. Wire it to the existing API.
+        ```
+        O Orkestral detecta a intenção de planejamento e o CEO vai decompor isso em um épico com sub-issues de frontend e backend.
+      </Tab>
+      <Tab title="Correção de bug">
+        ```text
+        Login fails with a 500 when the password has a trailing
+        space. Find and fix it.
+        ```
+        Detectado como uma investigação de bug. O CEO se fundamenta nos arquivos reais antes de propor a correção.
+      </Tab>
+      <Tab title="Pergunta pura">
+        ```text
+        How does our session refresh logic work today?
+        ```
+        Detectado como uma pergunta. Você recebe uma resposta fundamentada no chat, sem issues criadas.
+      </Tab>
+    </Tabs>
+
+    Você pode anexar imagens (por exemplo, um screenshot de uma tela quebrada) à mensagem. O Orkestral as salva para que o agente possa lê-las pelo caminho.
+
+    <Info>
+    O Orkestral espelha o seu idioma. Se você escrever em português, a resposta, os títulos das issues e o relatório voltam em português. Se você escrever em inglês, tudo permanece em inglês.
+    </Info>
+  </Step>
+
+  <Step title="Veja o plano aparecer" icon="list-check">
+    Conforme o CEO responde, você o vê trabalhar ao vivo: uma fase de raciocínio, chamadas de ferramentas (buscando na base de conhecimento, lendo arquivos reais, listando issues existentes) e, então, o plano escrito.
+
+    Para qualquer coisa não trivial, o CEO cria um **épico** primeiro, depois **sub-issues** sob ele. Ele divide o trabalho deliberadamente por área: uma sub-issue de frontend separada e uma sub-issue de backend separada, cada uma atribuída ao especialista correspondente. Ele também verifica as issues existentes primeiro, para que o novo trabalho se anexe a um épico relacionado em vez de criar órfãos.
+
+    {/* PRINT: uma resposta do CEO no chat mostrando o épico criado e suas sub-issues como links */}
+
+    <Note>
+    As descrições das issues ficam enxutas (o objetivo mais, talvez, um arquivo). A profundidade vive na decomposição, não em descrições longas. Se você pedir ao CEO para "ir mais fundo" ou "adicionar mais telas" depois, ele anexa novas sub-issues ao épico existente.
+    </Note>
+  </Step>
+
+  <Step title="Aprove o trabalho para executar" icon="circle-play">
+    Se uma sub-issue começa por conta própria depende do seu status no momento em que é criada.
+
+    <AccordionGroup>
+      <Accordion title="Começa automaticamente" icon="bolt">
+        Uma sub-issue roda imediatamente quando é criada com status **todo**, carrega o rótulo `auto-exec` ou é uma análise de source marcada para execução automática. O CEO usa isso para planos nos quais confia, de modo que o time começa a trabalhar sem esperar por você.
+      </Accordion>
+      <Accordion title="Espera por você" icon="hand">
+        Uma sub-issue criada como **backlog** não inicia automaticamente. Abra-a no quadro de **Issues** e inicie-a quando estiver pronto. Este é o seu portão de aprovação para o trabalho que você quer revisar antes que rode.
+      </Accordion>
+    </AccordionGroup>
+
+    Uma sub-issue só roda quando tem um responsável em um adaptador suportado e nenhuma dependência bloqueante em aberto. Se a issue B está bloqueada pela issue A, B espera até A terminar, e então o sequenciador a inicia. Issues no mesmo repositório nunca rodam ao mesmo tempo, então não podem colidir em arquivos. Issues em repositórios diferentes podem rodar em paralelo.
+
+    {/* PRINT: o quadro de Issues com uma sub-issue passando de todo para in progress */}
+  </Step>
+
+  <Step title="Deixe a Forge executar localmente" icon="hammer">
+    Quando uma sub-issue roda, o especialista designado trabalha pela **Forge** (o modelo local embutido). A Forge gera um diff com `llama.cpp`, e o Orkestral o aplica e valida. Isso não custa nada em tokens de API e mantém sua sessão premium intocada.
+
+    Você acompanha o mesmo feedback ao vivo do chat: uma mensagem em streaming, um indicador de fase, chamadas de ferramentas e um botão de parar. A Forge permanece serializada (uma execução de Forge por vez), de modo que nunca sobrecarrega sua máquina, enquanto até três execuções em repositórios diferentes podem prosseguir juntas.
+
+    <Warning>
+    Algumas tarefas escalam da Forge para um modelo premium: mudanças de alto risco, um workspace com roteamento híbrido configurado para pular o local, ou uma tentativa local que não resolveu de forma limpa. Quando isso acontece, você o vê anotado no traço da execução. O trabalho ainda assim é concluído, só que por um adaptador premium em vez de totalmente local.
+    </Warning>
+
+    Quando a execução termina, o Orkestral captura um resumo de **Code changes**: os arquivos tocados com contagens de linhas adicionadas e removidas, mais um snapshot transacional para que você possa desfazê-lo.
+
+    {/* PRINT: o painel de Code changes listando arquivos com contagens de linhas +/- */}
+  </Step>
+
+  <Step title="Revisão e validação" icon="user-check">
+    O especialista não fecha a própria issue. Após uma execução bem-sucedida, o trabalho sobe uma cadeia de validação para que nada seja entregue sem checagem.
+
+    <Steps>
+      <Step title="Code Reviewer valida o código">
+        Se a execução de fato mudou código, o **Code Reviewer** o valida (a menos que o Code Reviewer tenha sido quem fez o trabalho). Investigação pura que não tocou em código pula esta etapa.
+      </Step>
+      <Step title="Gerentes validam cadeia acima">
+        Acima do revisor, o trabalho pode subir para o gerente ao qual o agente se reporta (por exemplo, um Tech Lead), até um limite de profundidade. Se um revisor solicitar mudanças, a issue volta para o executor corrigir, depois retorna para outra passagem, até um limite de tentativas antes de pedir você.
+      </Step>
+      <Step title="Aprovadores obrigatórios travam o fechamento">
+        Se a issue tem aprovadores obrigatórios explícitos, cada um deles precisa aprovar antes que possa ser marcada como **done**. Uma rejeição a manda de volta para **blocked**; um aprovador pendente a mantém em **in review**.
+      </Step>
+    </Steps>
+
+    Cada etapa de revisão reporta de volta no seu chat: quem está revisando, quando mudanças são solicitadas e quando o trabalho é aprovado. Você nunca precisa adivinhar o que está acontecendo por trás do quadro.
+
+    {/* PRINT: mensagens de chat mostrando as linhas "sent for review", "changes requested" e "approved" */}
+
+    <Tip>
+    A quantidade de finalização autônoma versus revisão obrigatória é governada pelo **nível de autonomia** do seu workspace (baixo, médio ou alto). Mais autonomia deixa o time finalizar mais por conta própria; o Code Reviewer ainda sempre valida mudanças reais de código.
+    </Tip>
+  </Step>
+
+  <Step title="Leia o relatório final" icon="flag-checkered">
+    Quando toda sub-issue no épico atinge um estado terminal (done, blocked ou cancelled), o CEO consolida os resultados e publica um relatório amigável de volta na mesma sessão de chat que iniciou a tarefa. Uma única issue de nível superior fecha o ciclo da mesma forma.
+
+    O relatório abre com uma linha de status geral, lista o que foi feito por issue (cada uma marcada como done ou needs attention), destaca qualquer coisa para você decidir ou aprovar e encerra com próximos passos. É escrito para uma olhada rápida, não para um despejo técnico.
+
+    {/* PRINT: o relatório de conclusão consolidado do CEO no chat */}
+
+    <Info>
+    O relatório é publicado uma vez por plano e sobrevive a um reload, porque é salvo na sessão. Mesmo um final bloqueado ou cancelado fecha o ciclo, então o chat nunca fica em silêncio com você.
+    </Info>
+  </Step>
+</Steps>
+
+## Parar, direcionar e re-executar
+
+Você permanece no controle em todas as etapas.
+
+<AccordionGroup>
+  <Accordion title="Parar uma execução" icon="stop">
+    Use o botão de parar em uma execução ao vivo. Uma parada manual pausa de forma limpa e preserva o que o agente já produziu, sem um erro vermelho. Uma execução enfileirada que ainda não começou é cancelada e sua issue retorna para **todo**, para que você possa re-executá-la depois.
+  </Accordion>
+  <Accordion title="Direcionar no meio do voo" icon="arrows-turn-right">
+    Se uma execução está ativa em uma sessão, sua próxima mensagem pode enfileirar ou direcionar a conversa em vez de iniciar uma execução paralela. Isso mantém um único thread coerente por sessão.
+  </Accordion>
+  <Accordion title="Re-executar uma issue bloqueada" icon="rotate">
+    Uma issue bloqueada carrega um comentário explicando o porquê. Trate o feedback e, então, inicie-a novamente pelo quadro de **Issues**. A cadeia de revisão retoma a partir daí.
+  </Accordion>
+  <Accordion title="Desfazer mudanças de código" icon="clock-rotate-left">
+    Como cada execução da Forge captura um snapshot transacional, você pode desfazer um conjunto de mudanças de arquivo a partir do resumo de **Code changes** se não quiser mantê-las.
+  </Accordion>
+</AccordionGroup>
+
+## O que fazer a seguir
+
+<CardGroup cols={2}>
+  <Card title="Entenda o time" icon="users" href="/pt/agents">
+    Aprenda como o CEO, o Tech Lead, o Code Reviewer e os especialistas dividem o trabalho.
+  </Card>
+  <Card title="Ajuste a autonomia" icon="sliders" href="/pt/workspace-settings">
+    Defina quanto seu time finaliza por conta própria versus envia para revisão.
+  </Card>
+  <Card title="Trabalhe o quadro" icon="table-columns" href="/pt/issues">
+    Gerencie épicos, sub-issues, dependências e aprovadores diretamente.
+  </Card>
+  <Card title="A Forge" icon="microchip" href="/pt/forge">
+    Veja como a execução local e a escalada premium funcionam por baixo dos panos.
+  </Card>
+</CardGroup>
