@@ -1,0 +1,75 @@
+---
+title: "Installation"
+description: "Download and set up Orkestral on macOS, Windows or Linux."
+---
+
+Orkestral ships as a native desktop app for the three major platforms. The local
+models come **bundled inside the installer**, so the app works fully offline from
+the first launch — no extra download.
+
+## Download
+
+{/* PRINT: tela de download do site (orkestral.pro) ou a lista de releases */}
+
+<CardGroup cols={3}>
+  <Card title="macOS" icon="apple">
+    Apple Silicon (M1+) · `.dmg`
+  </Card>
+  <Card title="Windows" icon="windows">
+    x64 · `.exe` (installer)
+  </Card>
+  <Card title="Linux" icon="linux">
+    x86_64 · `.AppImage`
+  </Card>
+</CardGroup>
+
+Get the installer for your platform from the [website](https://orkestral.pro).
+
+<Note>
+  The installers are large (~1.7–2&nbsp;GB) because the local execution model (the
+  Forge) ships inside the app, so it runs offline from the very first launch.
+</Note>
+
+## Install by platform
+
+<Tabs>
+  <Tab title="macOS">
+    1. Open the `.dmg` and drag **Orkestral** to **Applications**.
+    2. The first time, macOS may warn that the developer is unverified — right-click
+       the app and choose **Open** (or **System Settings → Privacy & Security →
+       Open anyway**).
+    3. Open Orkestral.
+  </Tab>
+  <Tab title="Windows">
+    1. Run the `.exe` installer.
+    2. If **SmartScreen** appears, click **More info → Run anyway**.
+    3. Finish the installer and open Orkestral.
+  </Tab>
+  <Tab title="Linux">
+    1. Make the AppImage executable: `chmod +x Orkestral-*.AppImage`
+    2. Run it (double-click or `./Orkestral-*.AppImage`).
+  </Tab>
+</Tabs>
+
+<Warning>
+  Builds are **not code-signed yet**, so the OS shows a one-time warning on first
+  launch. It's safe — there's just no developer certificate yet. Code signing and
+  notarization are on the roadmap.
+</Warning>
+
+## First launch
+
+On the first run, Orkestral sets up its local models — the **Forge** (code
+execution) and **embeddings** (semantic search). Since they're bundled, this is a
+quick local step, not a big download.
+
+Everything is stored under `~/.orkestral` (database, workspace files, models).
+
+## System requirements
+
+- **macOS** 12+ (Apple Silicon), **Windows** 10/11 (x64), or a modern **Linux** x86_64 distro.
+- ~4&nbsp;GB of free disk space after install.
+- For premium adapters (optional): the **Claude Code** (`claude`) and/or **Codex**
+  (`codex`) CLIs installed and authenticated. The Forge needs nothing extra.
+
+Next: [Quickstart](/en/quickstart).

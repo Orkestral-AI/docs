@@ -1,0 +1,89 @@
+---
+title: "Primeiros passos"
+description: "Conecte um workspace e rode sua primeira tarefa com o time de agentes."
+---
+
+Este guia leva você de uma instalação nova até a primeira tarefa concluída. Leva
+poucos minutos.
+
+## 1. Crie um workspace
+
+Um **workspace** é sua unidade de contexto — ele guarda suas fontes (repositórios ou
+pastas), agentes, issues e base de conhecimento.
+
+{/* PRINT: tela de criar/abrir workspace */}
+
+Ao abrir o Orkestral pela primeira vez, crie um workspace e dê um nome (por exemplo,
+o nome do seu produto).
+
+## 2. Conecte uma fonte
+
+Adicione uma **fonte** — um repositório ou pasta local. O Orkestral lê e mapeia tudo
+pra que os agentes entendam sua stack, estrutura e convenções antes de fazer
+qualquer coisa.
+
+<Tip>
+  Você pode adicionar mais de uma fonte ao mesmo workspace. Os agentes leem todas
+  elas.
+</Tip>
+
+## 3. Contrate seu time
+
+Peça ao agente **CEO** (no chat) pra montar um time. Ele propõe um time inicial —
+normalmente um **Tech Lead**, um **Code Reviewer** e os especialistas que seu
+projeto precisa (Frontend, Backend, DevOps...) — com uma hierarquia de reporte
+adequada.
+
+{/* PRINT: tela de contratação / time de agentes */}
+
+## 4. Peça algo
+
+Fale com o CEO em linguagem natural. Descreva o que você quer — uma feature, uma
+correção, um refactor. Você não precisa dizer *como*.
+
+```text
+Adicione um botão de modo escuro na página de configurações e persista a escolha.
+```
+
+Nos bastidores, acontece o seguinte:
+
+<Steps>
+  <Step title="Planejar">
+    O CEO lê o código relevante, quebra o pedido em **issues** e delega pros
+    especialistas certos.
+  </Step>
+  <Step title="Executar">
+    Os especialistas fazem o trabalho. O **Forge** aplica as mudanças de código
+    localmente — sem custo de API — e só escala pra um modelo premium quando preciso.
+  </Step>
+  <Step title="Revisar">
+    O **Code Reviewer** valida as mudanças. Os veredictos (aprovado / requer
+    mudanças) voltam pra você no chat.
+  </Step>
+  <Step title="Reportar">
+    Você recebe um resumo claro do que foi feito, com as issues e mudanças de código
+    ligadas.
+  </Step>
+</Steps>
+
+## 5. Direcione pra um especialista
+
+Mencione um agente com `@` pra enviar um turno direto pra ele — por exemplo
+`@Code Reviewer dá uma olhada nesse PR`. O agente pega o contexto do chat e faz o
+trabalho ele mesmo.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="O time de agentes" icon="users" href="/pt/introduction">
+    Como o CEO, Tech Lead, Code Reviewer e especialistas trabalham juntos.
+  </Card>
+  <Card title="Forge — execução local" icon="bolt" href="/pt/introduction">
+    Como o modelo local executa mudanças com custo de API de $0.
+  </Card>
+</CardGroup>
+
+<Note>
+  Mais guias (Issues & épicas, Revisão de código, Base de conhecimento, Integrações)
+  estão a caminho.
+</Note>
