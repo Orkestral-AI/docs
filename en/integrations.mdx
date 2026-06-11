@@ -1,0 +1,112 @@
+---
+title: "Integrations & MCP"
+description: "Connect MCP servers and agent providers to extend the team."
+---
+
+Orkestral grows with your stack. Connect **MCP servers** to give agents new tools, and choose which **agent provider** acts as the premium planning brain. The local Forge always handles execution at $0 API cost.
+
+<CardGroup cols={2}>
+  <Card title="MCP servers" icon="plug">
+    Plug external tools into the team, browsers, databases, APIs, and more.
+  </Card>
+  <Card title="Agent providers" icon="brain">
+    Pick the premium brain that plans changes: Claude Code, Codex, and others.
+  </Card>
+</CardGroup>
+
+## What is an MCP server?
+
+The **Model Context Protocol (MCP)** is an open standard that lets AI agents talk to external tools through a common interface. An MCP server exposes a set of capabilities, for example, driving a browser, querying a database, or calling a third-party API, that your agents can use during their work.
+
+When you connect an MCP server, every agent on the team gains access to its tools. The CEO orchestrator can delegate work that requires those tools, and specialists can call them while they plan.
+
+<Note>
+A popular example is the **Playwright** MCP server, which gives agents real browser automation, navigating pages, clicking elements, and reading the DOM to verify behavior.
+</Note>
+
+{/* PRINT: Integrations panel showing connected MCP servers */}
+
+## Connect an MCP server
+
+<Steps>
+  <Step title="Open Integrations">
+    Go to **Settings** and open the **Integrations** section.
+  </Step>
+  <Step title="Add a server">
+    Click **Add MCP server** and give it a name.
+  </Step>
+  <Step title="Configure the command">
+    Provide the launch command and arguments for the server. For Playwright, point Orkestral at the `@playwright/mcp` package so it starts on demand.
+  </Step>
+  <Step title="Enable and verify">
+    Toggle the server on. Orkestral starts it and lists the tools it exposes. A green status means the agents can now use it.
+  </Step>
+</Steps>
+
+<Tip>
+Keep only the servers you need enabled. Fewer active tools means tighter, faster planning and less noise for the agents.
+</Tip>
+
+## Agent providers
+
+Agent providers are the premium **planning brains**. They read your repos, reason about the change, and produce the plan and instructions. The bundled local **Forge** (Qwen2.5-Coder) then executes the code edits on your machine through the deterministic Fast Apply engine.
+
+<CardGroup cols={2}>
+  <Card title="Claude Code" icon="robot">
+    Anthropic's agent, strong at multi-step planning and large-codebase reasoning.
+  </Card>
+  <Card title="Codex" icon="code-branch">
+    An alternative provider for planning and delegation across the team.
+  </Card>
+</CardGroup>
+
+<Note>
+More providers can be added over time. Whichever you choose, the division of labor stays the same: the provider **plans**, the Forge **executes** locally.
+</Note>
+
+{/* PRINT: Agent provider selector in Settings */}
+
+### Choose a provider
+
+<Steps>
+  <Step title="Open Settings">
+    In **Settings**, find the **Agent provider** option.
+  </Step>
+  <Step title="Select a brain">
+    Pick the provider you want to direct the team. This sets who plans the work.
+  </Step>
+  <Step title="Keep execution local">
+    No change is needed for execution, the Forge runs locally and applies the code at $0 API cost.
+  </Step>
+</Steps>
+
+## How integrations expand the team
+
+Each integration adds a new capability that the whole hierarchy can draw on.
+
+<AccordionGroup>
+  <Accordion title="More tools, broader work" icon="bolt">
+    Connecting an MCP server like Playwright lets QA agents test in a real browser, while Backend and DevOps agents can reach the APIs and services those servers expose.
+  </Accordion>
+  <Accordion title="Better planning" icon="brain">
+    Choosing a stronger agent provider improves how the CEO orchestrator decomposes your request into issues and delegates to specialists.
+  </Accordion>
+  <Accordion title="Local-first by default" icon="folder">
+    Integrations extend what the team can do, but execution stays on your machine through the Forge. Everything lives in `~/.orkestral`, no server, no telemetry.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+MCP servers run real commands and can reach external systems. Only connect servers you trust, and review what each one is allowed to do.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Meet the team" icon="users" href="/en/team">
+    See the agents and the reporting hierarchy that use these integrations.
+  </Card>
+  <Card title="The Forge" icon="bolt" href="/en/forge">
+    Learn how local execution applies code at $0 API cost.
+  </Card>
+</CardGroup>

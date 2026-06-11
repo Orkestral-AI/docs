@@ -1,0 +1,99 @@
+---
+title: "Workspaces"
+description: "Your unit of context, sources, agents, issues and knowledge in one place."
+---
+
+A workspace is the unit of context in Orkestral. It bundles your sources, your agent team, your issues and your knowledge base into one self-contained space. Everything you do happens inside a workspace, and everything stays local in `~/.orkestral`.
+
+<Note>
+Use one workspace per product, client or project. Keeping contexts separate gives your agents sharper focus and cleaner history.
+</Note>
+
+## Why workspaces exist
+
+Your agents only work well when they share the right context. A workspace draws that boundary for you, it decides which repositories the team can read, which agents are on the roster, and where new issues and knowledge land.
+
+<CardGroup cols={2}>
+  <Card title="Scoped context" icon="bullseye">
+    Agents read only the sources in the current workspace, so plans and code changes stay relevant.
+  </Card>
+  <Card title="Local and private" icon="folder-tree">
+    Each workspace lives on your machine under `~/.orkestral`. No server, no telemetry.
+  </Card>
+  <Card title="Trackable work" icon="list-check">
+    Issues, code changes, reviews and knowledge are all filed against the workspace.
+  </Card>
+  <Card title="Visual identity" icon="bolt">
+    Give each workspace its own accent color so you always know where you are.
+  </Card>
+</CardGroup>
+
+## What lives inside a workspace
+
+<CardGroup cols={2}>
+  <Card title="Sources" icon="folder" href="/en/sources">
+    The repositories and folders your team can read. This is the codebase context.
+  </Card>
+  <Card title="Agent team" icon="users" href="/en/agent-team">
+    The CEO orchestrator and specialists assigned to this workspace.
+  </Card>
+  <Card title="Issues" icon="list-check">
+    Every request becomes trackable work, plans, code changes and reviews.
+  </Card>
+  <Card title="Knowledge base" icon="brain">
+    Notes, decisions and context the team builds up as it works.
+  </Card>
+</CardGroup>
+
+{/* PRINT: workspace overview showing sources, agents, issues and knowledge */}
+
+## Create a workspace
+
+<Steps>
+  <Step title="Open the workspace switcher">
+    Click the workspace name in the top of the sidebar to open the switcher.
+  </Step>
+  <Step title="Choose New workspace">
+    Select **New workspace** and give it a clear name, usually the product or project name.
+  </Step>
+  <Step title="Pick an accent color">
+    Choose an accent color so this workspace is easy to recognize at a glance.
+  </Step>
+  <Step title="Add your sources">
+    Add the repositories or folders the team should read. See [Sources](/en/sources) for details.
+  </Step>
+</Steps>
+
+<Tip>
+Add your sources right away. Agents need real code to read before they can plan or make changes.
+</Tip>
+
+{/* PRINT: New workspace dialog with name and accent color */}
+
+## Switch between workspaces
+
+You can keep as many workspaces as you like and move between them instantly.
+
+<Steps>
+  <Step title="Open the switcher">
+    Click the current workspace name at the top of the sidebar.
+  </Step>
+  <Step title="Select a workspace">
+    Pick another workspace from the list. The whole app re-scopes to it, sources, agents, issues and knowledge all change to match.
+  </Step>
+</Steps>
+
+<Warning>
+Switching workspaces changes the context your agents see. Make sure you are in the right workspace before you start a new request.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect sources" icon="folder" href="/en/sources">
+    Point the workspace at the repositories and folders your team should read.
+  </Card>
+  <Card title="Meet your team" icon="robot" href="/en/agent-team">
+    See who is on the roster and how the reporting hierarchy works.
+  </Card>
+</CardGroup>

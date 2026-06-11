@@ -1,0 +1,111 @@
+---
+title: "Workspaces"
+description: "Sua unidade de contexto, fontes, agentes, issues e conhecimento num lugar só."
+---
+
+Um workspace é a unidade de contexto do Orkestral. Ele reúne suas fontes, seus agentes, suas issues e sua base de conhecimento em um só lugar. Tudo fica delimitado ao workspace e armazenado localmente em `~/.orkestral`.
+
+## O que é um workspace
+
+Pense no workspace como o "projeto" no qual o time de IA trabalha. Quando você dá uma direção, os agentes leem as fontes daquele workspace, planejam e executam dentro daquele contexto, nada vaza de um workspace para outro.
+
+<CardGroup cols={2}>
+  <Card title="Fontes" icon="folder-tree" href="/pt/sources">
+    Os repositórios e pastas que o time lê para ter contexto completo.
+  </Card>
+  <Card title="Time de agentes" icon="users" href="/pt/agent-team">
+    O CEO orquestrador e os especialistas que planejam e delegam.
+  </Card>
+  <Card title="Issues" icon="list-check">
+    Cada direção vira trabalho rastreável: issues, mudanças e revisões.
+  </Card>
+  <Card title="Base de conhecimento" icon="brain">
+    O conhecimento acumulado do projeto, reutilizado pelos agentes.
+  </Card>
+</CardGroup>
+
+<Note>
+  Tudo é local. Não há servidor, telemetria ou sincronização na nuvem, o workspace vive na sua máquina, em `~/.orkestral`.
+</Note>
+
+## Por que workspaces existem
+
+Você raramente trabalha em uma coisa só. Workspaces separam contextos para que cada projeto tenha suas próprias fontes, seu próprio time e seu próprio histórico.
+
+<CardGroup cols={3}>
+  <Card title="Contexto isolado" icon="bullseye">
+    Os agentes só enxergam as fontes do workspace ativo.
+  </Card>
+  <Card title="Histórico próprio" icon="clock">
+    Issues, mudanças e revisões ficam organizadas por projeto.
+  </Card>
+  <Card title="Identidade visual" icon="bolt">
+    Cada workspace pode ter sua própria cor de destaque.
+  </Card>
+</CardGroup>
+
+## Criar um workspace
+
+<Steps>
+  <Step title="Abra o seletor de workspaces">
+    Clique no nome do workspace no topo da barra lateral para abrir o seletor.
+  </Step>
+  <Step title="Clique em Novo workspace">
+    Selecione **Novo workspace** para iniciar a criação.
+  </Step>
+  <Step title="Dê um nome e escolha a cor">
+    Defina um nome claro e escolha a **cor de destaque** que identifica o workspace na interface.
+  </Step>
+  <Step title="Adicione fontes">
+    Conecte os repositórios e pastas do projeto. Veja [Fontes](/pt/sources) para os detalhes.
+  </Step>
+</Steps>
+
+{/* PRINT: diálogo de criação de workspace com campo de nome e seletor de cor */}
+
+<Tip>
+  Use a cor de destaque para diferenciar workspaces de relance, por exemplo, azul para o backend e verde para o app mobile.
+</Tip>
+
+## Alternar entre workspaces
+
+O workspace ativo aparece no topo da barra lateral. Para trocar, clique nele e escolha outro na lista.
+
+<Steps>
+  <Step title="Abra o seletor">
+    Clique no nome do workspace ativo na barra lateral.
+  </Step>
+  <Step title="Escolha o workspace">
+    Selecione o workspace desejado. A interface assume a cor de destaque dele.
+  </Step>
+</Steps>
+
+{/* PRINT: seletor de workspaces aberto mostrando vários workspaces com cores diferentes */}
+
+<Warning>
+  Ao alternar, fontes, agentes, issues e conhecimento mudam junto. Confirme que o workspace certo está ativo antes de dar uma direção ao time.
+</Warning>
+
+## O que vive dentro de um workspace
+
+<AccordionGroup>
+  <Accordion title="Fontes" icon="folder-tree">
+    Os repositórios e pastas locais que o time lê. São a base de contexto de tudo. Veja [Fontes](/pt/sources).
+  </Accordion>
+  <Accordion title="Agentes" icon="robot">
+    O time hierárquico, CEO orquestrador, Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA e Designer. Veja [Time de agentes](/pt/agent-team).
+  </Accordion>
+  <Accordion title="Issues" icon="list-check">
+    Cada pedido vira trabalho rastreável, com mudanças de código e revisões associadas.
+  </Accordion>
+  <Accordion title="Base de conhecimento" icon="brain">
+    O conhecimento que o projeto acumula e que os agentes reutilizam nas próximas tarefas.
+  </Accordion>
+  <Accordion title="Cor de destaque" icon="bolt">
+    A identidade visual do workspace, aplicada na interface quando ele está ativo.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  Todos esses dados são gravados localmente em `~/.orkestral`, separados por workspace, gratuito e sem custo de API para os planos locais.
+</Note>

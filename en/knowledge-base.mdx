@@ -1,0 +1,103 @@
+---
+title: "Knowledge base"
+description: "A wiki-style brain per workspace, generated from your code."
+---
+
+The knowledge base is a wiki-style brain for each workspace. It holds interlinked pages auto-generated from your repositories, so your AI team always answers with real context about your code, not guesses.
+
+Everything is built and searched **on your machine**. No cloud, no telemetry.
+
+<CardGroup cols={2}>
+  <Card title="Wiki pages" icon="brain">
+    Structured pages describing modules, flows, and decisions in your workspace.
+  </Card>
+  <Card title="Wikilinks + graph" icon="code-branch">
+    Pages link to each other, forming a navigable graph of your project.
+  </Card>
+  <Card title="Local RAG" icon="magnifying-glass">
+    BM25 lexical search plus on-device embeddings retrieve the right page.
+  </Card>
+  <Card title="Agents that learn" icon="robot">
+    Agents read the KB before acting and write learnings back to it.
+  </Card>
+</CardGroup>
+
+{/* PRINT: The knowledge base view with the page list and graph */}
+
+## What the knowledge base is
+
+Each workspace gets its own knowledge base, a private wiki that lives next to your repositories in `~/.orkestral`. It captures what your codebase is and how it works, in plain language, so that both you and the agents can reason about the project quickly.
+
+Think of it as institutional memory: instead of re-reading every file on every request, the team consults a curated set of pages that summarize architecture, conventions, and past decisions.
+
+## Pages, wikilinks, and the graph
+
+A knowledge base is made of **pages**. Each page covers one idea, a module, a service, a data flow, a convention, or a decision.
+
+<Steps>
+  <Step title="Pages">
+    Every page has a title and a body. Pages describe a concrete part of your workspace and stay focused on a single topic.
+  </Step>
+  <Step title="Wikilinks">
+    Pages reference each other with wikilinks. When one concept depends on another, a link connects them so you can follow the thread.
+  </Step>
+  <Step title="Graph view">
+    The **graph view** renders every page as a node and every wikilink as an edge. Use it to see clusters, find orphaned topics, and understand how your project hangs together.
+  </Step>
+</Steps>
+
+{/* PRINT: The graph view showing pages as nodes connected by wikilinks */}
+
+<Tip>
+Follow wikilinks the way you would in any wiki. Start from a high-level page and drill down into the modules it mentions.
+</Tip>
+
+## How it is built from your repos
+
+The knowledge base is generated from the repositories in your workspace, then made searchable with a hybrid retrieval engine, all running locally.
+
+<AccordionGroup>
+  <Accordion title="BM25 lexical search" icon="magnifying-glass">
+    A classic keyword ranking algorithm matches exact terms, function names, error strings, file paths. It excels when you know the precise words you are looking for.
+  </Accordion>
+  <Accordion title="Local embeddings (RAG)" icon="brain">
+    On-device embeddings capture meaning, not just keywords. They retrieve pages that are conceptually related even when the wording differs. Combined with BM25, this is retrieval-augmented generation (RAG) running entirely on your hardware.
+  </Accordion>
+  <Accordion title="Fully local" icon="folder">
+    Indexing and search happen on your machine. Your code never leaves your device to populate or query the knowledge base.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+The hybrid approach matters: BM25 nails exact identifiers, while embeddings catch the "what is the thing that does X?" questions. Together they surface the most relevant page for each query.
+</Note>
+
+## How the agents use it
+
+The knowledge base is wired into the team's workflow, not a side feature.
+
+<CardGroup cols={2}>
+  <Card title="Consult before answering" icon="bullseye">
+    Before an agent plans or writes code, it retrieves the most relevant pages so its answer is grounded in your actual project.
+  </Card>
+  <Card title="Write learnings back" icon="bolt">
+    As the team works through issues and reviews, new understanding gets written back to the KB, so the brain keeps improving.
+  </Card>
+</CardGroup>
+
+This creates a loop: the more your team works in a workspace, the richer its knowledge base becomes, and the better grounded every future answer is.
+
+<Warning>
+Knowledge bases are per workspace. Switching workspaces switches the brain, pages and graph from one workspace do not bleed into another.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Agent team" icon="users" href="/en/agents">
+    See how the CEO and specialists delegate work and consult the KB.
+  </Card>
+  <Card title="Workspaces" icon="folder-tree" href="/en/workspaces">
+    Learn how repositories map to a workspace and its knowledge base.
+  </Card>
+</CardGroup>

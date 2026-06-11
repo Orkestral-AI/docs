@@ -1,0 +1,102 @@
+---
+title: "Chat"
+description: "Converse com o CEO e direcione o time em linguagem natural."
+---
+
+O Chat é a superfície principal do Orkestral. Você fala com o agente **CEO** em linguagem natural: descreve o que quer, uma feature, uma correção, uma refatoração, sem dizer **como** fazer. O CEO lê o código relevante, planeja e delega ao especialista certo.
+
+<Note>
+Você não conversa com um único assistente. Você **dirige um time**. O CEO orquestra; os especialistas executam.
+</Note>
+
+{/* PRINT: tela de Chat com a mensagem do usuário e a resposta do CEO */}
+
+## Como conversar
+
+<Steps>
+  <Step title="Descreva o resultado, não os passos" icon="comments">
+    Escreva o que você quer alcançar. Ex.: "Adicione login com Google na tela de entrada". Deixe o **CEO** decidir a abordagem técnica.
+  </Step>
+  <Step title="Envie a mensagem" icon="bolt">
+    O CEO lê os arquivos relevantes do seu repositório antes de responder. As respostas são fundamentadas no seu código real, não em suposições.
+  </Step>
+  <Step title="Acompanhe o trabalho" icon="list-check">
+    Cada pedido vira trabalho rastreável: issues, mudanças de código, revisões e novas entradas na base de conhecimento.
+  </Step>
+</Steps>
+
+<Tip>
+Quanto mais claro o objetivo, melhor o plano. Inclua restrições importantes ("não mexa na API pública", "mantenha compatível com o tema claro") direto na mensagem.
+</Tip>
+
+## O que acontece depois que você envia
+
+O Orkestral transforma sua mensagem em um fluxo orquestrado de ponta a ponta.
+
+<CardGroup cols={2}>
+  <Card title="1. Planejar" icon="brain">
+    O **CEO** (modelo premium) lê o código relevante e monta um plano: o que mudar, onde e por quê.
+  </Card>
+  <Card title="2. Delegar" icon="users">
+    O CEO encaminha o plano ao especialista certo na hierarquia, Tech Lead, Frontend, Backend, DevOps, QA e outros.
+  </Card>
+  <Card title="3. Executar" icon="bolt">
+    A **FORGE** (modelo local) aplica as mudanças de código na sua máquina, a custo $0 de API, com o motor determinístico de Fast Apply.
+  </Card>
+  <Card title="4. Revisar" icon="bullseye">
+    O **Code Reviewer** confere o resultado antes de voltar para você, fechando o ciclo de qualidade.
+  </Card>
+</CardGroup>
+
+{/* PRINT: linha do tempo da orquestração: planejar, delegar, executar, revisar */}
+
+## @menções para roteamento
+
+Quer falar com um especialista direto? Use **@menção** no início ou no meio do turno para rotear a conversa.
+
+```text
+@Code Reviewer revise as últimas mudanças no checkout
+@Frontend deixe o botão de salvar desabilitado enquanto carrega
+```
+
+O especialista mencionado assume o **contexto do chat**, todo o histórico da conversa, e executa a tarefa sem você precisar repetir o que já foi dito.
+
+<AccordionGroup>
+  <Accordion title="Quando usar @menções" icon="robot">
+    Use quando você já sabe qual papel deve agir: pedir uma revisão ao **Code Reviewer**, um ajuste de UI ao **Frontend**, uma mudança de infra ao **DevOps**. Para pedidos abertos, deixe o **CEO** decidir o roteamento.
+  </Accordion>
+  <Accordion title="O especialista herda o contexto" icon="folder-tree">
+    A menção não reinicia a conversa. O especialista lê o que já foi discutido e continua de onde o time parou.
+  </Accordion>
+</AccordionGroup>
+
+## Relatórios amigáveis de volta
+
+O time não devolve só código bruto. A cada etapa, você recebe relatórios claros em linguagem natural:
+
+<CardGroup cols={2}>
+  <Card title="Plano" icon="list-check">
+    Antes de executar, o CEO resume o que pretende fazer, em frases curtas e legíveis. Você lê e confirma a direção.
+  </Card>
+  <Card title="Resumo" icon="comments">
+    Depois da execução, o time explica o que mudou e por quê, sem que você precise ler todo o diff para entender.
+  </Card>
+</CardGroup>
+
+<Tip>
+A conversa alimenta as [issues](/pt/issues) e a [base de conhecimento](/pt/knowledge-base). Cada decisão fica registrada e reaproveitável nas próximas tarefas.
+</Tip>
+
+## Próximos passos
+
+<CardGroup cols={3}>
+  <Card title="O time" icon="users" href="/pt/team">
+    Conheça o CEO e cada especialista da hierarquia.
+  </Card>
+  <Card title="Issues" icon="list-check" href="/pt/issues">
+    Veja como o chat vira trabalho rastreável.
+  </Card>
+  <Card title="A FORGE" icon="bolt" href="/pt/forge">
+    Entenda o executor local de mudanças de código.
+  </Card>
+</CardGroup>

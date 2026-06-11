@@ -1,0 +1,96 @@
+---
+title: "Routines & goals"
+description: "Recurring automations and objectives the agents work toward."
+---
+
+Routines and goals turn your AI team into a proactive operation. A **routine** is a recurring automation your agents run on a schedule. A **goal** is a workspace-level objective the agents keep in mind and work toward over time. Together they let the team act without waiting for a new request each time.
+
+<CardGroup cols={2}>
+  <Card title="Routines" icon="clock">
+    Recurring automations, the team runs the same task on a schedule and reports back.
+  </Card>
+  <Card title="Goals" icon="bullseye">
+    Standing objectives, the team weighs its work against what you're trying to achieve.
+  </Card>
+</CardGroup>
+
+## What a routine is
+
+A routine is a saved instruction the agents execute automatically at a set interval, daily, weekly, or on a custom schedule. Instead of asking "review the open issues" every morning, you define it once and the team runs it for you.
+
+Common routines:
+
+- A daily code-health sweep that flags risky changes and stale branches.
+- A weekly dependency check that opens issues for outdated packages.
+- A recurring review pass over recently merged work.
+- A scheduled knowledge-base refresh after a busy week.
+
+<Note>
+Routines run locally like any other request. Premium models plan the work; the bundled local **Forge** executes code changes at $0 API cost.
+</Note>
+
+## Set up a routine
+
+<Steps>
+  <Step title="Open routines" icon="clock">
+    Go to your workspace and open the **Routines** panel.
+  </Step>
+  <Step title="Describe the task" icon="comments">
+    Write the instruction in plain language, just like a normal request, for example, "Check for failing tests and open an issue for each one."
+  </Step>
+  <Step title="Pick a schedule" icon="gear">
+    Choose how often it runs, daily, weekly, or a custom cadence, and the time it should start.
+  </Step>
+  <Step title="Save and let it run" icon="bolt">
+    Save the routine. The team runs it automatically on schedule and reports results back as trackable work.
+  </Step>
+</Steps>
+
+{/* PRINT: the Routines panel with a new daily routine and its schedule */}
+
+<Tip>
+Keep each routine focused on one outcome. A tight routine produces a clear report; a broad one produces noise. Use multiple routines instead of one catch-all.
+</Tip>
+
+## What a workspace goal is
+
+A workspace goal is a standing objective you set for the whole workspace, the bigger thing you're trying to achieve. Goals don't run on a schedule. Instead, the agents keep them in context and let them shape how they plan and prioritize work.
+
+Examples of goals:
+
+- "Ship the v2 dashboard by end of quarter."
+- "Reduce the backlog of open bugs."
+- "Improve test coverage across the API."
+
+{/* PRINT: a workspace goal shown alongside the team's active work */}
+
+## How the agents act on routines and goals
+
+The CEO orchestrator reads your repos, then plans and delegates to specialists, Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA, and Designer. Routines and goals feed directly into that planning.
+
+<AccordionGroup>
+  <Accordion title="Routines trigger work on schedule" icon="clock">
+    When a routine is due, the orchestrator picks it up, plans the task, and delegates it to the right specialists, the same flow as a request you type yourself. Each run produces issues, code changes, reviews, and knowledge-base entries you can track.
+  </Accordion>
+  <Accordion title="Goals steer prioritization" icon="bullseye">
+    Goals don't fire on a clock. The team weighs new and recurring work against your active goals, so the changes it proposes move you toward the objective rather than drifting away from it.
+  </Accordion>
+  <Accordion title="Everything stays local and trackable" icon="folder-tree">
+    Routine runs and goal-driven work land in `~/.orkestral` as issues, reviews, and history, no server, no telemetry. You stay in control and can review every result.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Routines act on your codebase automatically. Review what each routine produces before relying on it, and keep schedules conservative until you trust the output.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Issues & work tracking" icon="list-check" href="/en/issues">
+    See how routine runs and goal-driven work become trackable issues.
+  </Card>
+  <Card title="Your AI team" icon="users" href="/en/agents">
+    Meet the specialists the orchestrator delegates to.
+  </Card>
+</CardGroup>

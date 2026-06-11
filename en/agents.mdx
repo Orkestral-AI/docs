@@ -3,37 +3,27 @@ title: "The agent team"
 description: "How the CEO, Tech Lead, Code Reviewer and specialists work together."
 ---
 
-In Orkestral you don't talk to a single assistant — you **direct a team**. Each
+In Orkestral you don't talk to a single assistant, you **direct a team**. Each
 agent has a role, a place in the hierarchy, and picks up the shared context of your
 workspace.
 
 ## The hierarchy
 
-<Frame>
+```mermaid
+flowchart TD
+    You["You"] -->|natural language| CEO["CEO, orchestrator"]
+    CEO --> TL["Tech Lead"]
+    CEO --> CR["Code Reviewer"]
+    TL --> S["Specialists: Frontend, Backend, DevOps, QA, Designer"]
+    S --> OUT["Issues, code changes, reviews, knowledge base"]
 ```
-                 YOU
-                  │  natural language
-                  ▼
-            ┌────────────┐
-            │    CEO      │  reads repos, plans, delegates
-            └─────┬───────┘
-        ┌─────────┼──────────┐
-        ▼         ▼          ▼
-   ┌─────────┐ ┌──────────┐ ┌────────────┐
-   │Tech Lead│ │  Code     │ │Specialists │  Frontend,
-   └────┬────┘ │ Reviewer  │ └────────────┘  Backend, DevOps…
-        │      └──────────┘
-        ▼
-  Issues · Code changes · Reviews · Knowledge base
-```
-</Frame>
 
 - **You** talk to the CEO in plain language.
-- The **CEO** reports to you — it reads the repositories, plans, and delegates.
+- The **CEO** reports to you, it reads the repositories, plans, and delegates.
 - The **Tech Lead** and **Code Reviewer** report to the CEO.
 - **Specialists** (Frontend, Backend, DevOps, QA, Designer…) report to the Tech Lead.
 
-Every meaningful request becomes **issues** — the product is trackable work, not
+Every meaningful request becomes **issues**, the product is trackable work, not
 throwaway chat.
 
 ## Roles
@@ -49,11 +39,11 @@ throwaway chat.
     direction consistent.
   </Accordion>
   <Accordion title="Code Reviewer" icon="magnifying-glass">
-    Reviews code changes with senior-level rigor — structured findings, and a
+    Reviews code changes with senior-level rigor, structured findings, and a
     verdict (approved / changes requested) that comes back to you in chat.
   </Accordion>
   <Accordion title="Specialists" icon="users">
-    Frontend, Backend, DevOps, QA, Designer and more — they execute the actual work
+    Frontend, Backend, DevOps, QA, Designer and more, they execute the actual work
     in their area.
   </Accordion>
 </AccordionGroup>
@@ -68,7 +58,7 @@ reporting structure. You approve, and the agents are created in your workspace.
 ## Routing with @mentions
 
 Mention an agent with `@` to send a turn **directly** to them. That agent picks up
-the chat context and does the work itself — no extra delegation.
+the chat context and does the work itself, no extra delegation.
 
 ```text
 @Code Reviewer check the auth changes in this PR
@@ -82,5 +72,5 @@ the chat context and does the work itself — no extra delegation.
 ## The loop stays closed
 
 When a specialist finishes, the work flows back: code-touching changes are routed to
-the **Code Reviewer**, and the verdict returns to your chat — so nothing is left
+the **Code Reviewer**, and the verdict returns to your chat, so nothing is left
 "done but unverified."

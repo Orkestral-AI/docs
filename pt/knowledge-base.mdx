@@ -1,0 +1,94 @@
+---
+title: "Base de conhecimento"
+description: "Um cérebro estilo wiki por workspace, gerado do seu código."
+---
+
+A base de conhecimento é o cérebro de cada workspace. Ela transforma seus repositórios em uma wiki navegável que os agentes consultam antes de responder e atualizam depois de trabalhar.
+
+Tudo é gerado e armazenado localmente em `~/.orkestral`. Nenhum dado vai para a nuvem.
+
+{/* PRINT: visão geral da base de conhecimento com lista de páginas e grafo */}
+
+## O que é a base de conhecimento
+
+<CardGroup cols={3}>
+  <Card title="Páginas" icon="brain">
+    Notas estilo wiki que descrevem partes do seu código, decisões e padrões.
+  </Card>
+  <Card title="Wikilinks" icon="code-branch">
+    Conexões entre páginas que formam uma teia de contexto navegável.
+  </Card>
+  <Card title="Grafo" icon="folder-tree">
+    Uma visão visual de como as páginas se conectam entre si.
+  </Card>
+</CardGroup>
+
+Cada workspace tem sua própria base de conhecimento. Ela cresce conforme você trabalha: o que os agentes aprendem volta para cá.
+
+## Páginas, wikilinks e grafo
+
+<Steps>
+  <Step title="Páginas" icon="brain">
+    Cada página é uma nota em Markdown sobre um tema: um módulo, um fluxo, uma decisão de arquitetura ou um padrão recorrente. As páginas são curtas, focadas e legíveis por você e pelos agentes.
+  </Step>
+  <Step title="Wikilinks" icon="code-branch">
+    As páginas se referenciam entre si com wikilinks no estilo `[[Nome da página]]`. Isso conecta conceitos relacionados e dá aos agentes um caminho para seguir quando precisam de mais contexto.
+  </Step>
+  <Step title="Visão de grafo" icon="folder-tree">
+    A visão de grafo mostra todas as páginas como nós e os wikilinks como arestas. Use-a para enxergar clusters, encontrar áreas pouco documentadas e navegar pelo seu projeto visualmente.
+  </Step>
+</Steps>
+
+{/* PRINT: visão de grafo com páginas conectadas por wikilinks */}
+
+<Tip>
+  Clique em qualquer nó do grafo para abrir a página. Siga os wikilinks para explorar tópicos relacionados sem sair da base de conhecimento.
+</Tip>
+
+## Como ela é construída a partir dos seus repositórios
+
+A base de conhecimento é gerada automaticamente do seu código. O Orkestral indexa seus repositórios e cria páginas com busca em duas camadas, totalmente no seu dispositivo.
+
+<CardGroup cols={2}>
+  <Card title="Busca lexical BM25" icon="magnifying-glass">
+    Indexação por palavras-chave que encontra correspondências exatas de termos, nomes de função, símbolos e trechos de código.
+  </Card>
+  <Card title="Embeddings locais (RAG)" icon="bolt">
+    Embeddings gerados no dispositivo capturam o significado semântico, recuperando contexto relevante mesmo sem correspondência exata de palavras.
+  </Card>
+</CardGroup>
+
+As duas camadas trabalham juntas: o BM25 garante precisão em termos exatos e os embeddings garantem cobertura semântica. O resultado é uma recuperação híbrida (RAG) que entende tanto a forma quanto o sentido do seu código.
+
+<Note>
+  Toda a indexação, os embeddings e a busca rodam localmente. Seu código nunca sai da sua máquina, sem nuvem, sem telemetria.
+</Note>
+
+## Como os agentes usam a base
+
+<AccordionGroup>
+  <Accordion title="Consulta antes de responder" icon="robot">
+    Antes de planejar ou executar, os agentes buscam na base de conhecimento o contexto relevante. Isso os fundamenta no seu código real em vez de em suposições.
+  </Accordion>
+  <Accordion title="Aprendizados de volta para a base" icon="brain">
+    Quando os agentes descobrem algo novo, uma decisão, um padrão, uma armadilha, esse aprendizado é escrito de volta como páginas e wikilinks. A base fica mais inteligente a cada tarefa.
+  </Accordion>
+  <Accordion title="Contexto compartilhado pela equipe" icon="users">
+    O CEO orquestrador e os especialistas (Tech Lead, Code Reviewer, Frontend, Backend, DevOps, QA, Designer) compartilham a mesma base. Todos puxam do mesmo cérebro do workspace.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  A base de conhecimento vive por workspace. Se você adicionar ou remover repositórios, reindexe para manter as páginas e os embeddings alinhados ao seu código atual.
+</Warning>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Workspaces" icon="folder" href="/pt/workspaces">
+    Configure repositórios e organize cada cérebro por workspace.
+  </Card>
+  <Card title="Equipe de agentes" icon="users" href="/pt/agents">
+    Veja como o CEO e os especialistas consultam a base ao trabalhar.
+  </Card>
+</CardGroup>

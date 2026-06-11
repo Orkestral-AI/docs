@@ -1,0 +1,101 @@
+---
+title: "Sources"
+description: "Connect repositories and folders so the team understands your code."
+---
+
+A source is a repository or folder you connect to a workspace. When you add a source, Orkestral reads and **maps** it before any agent acts. Your agents understand the stack, structure and conventions of your code from the very first request.
+
+<Note>
+Sources stay on your machine. Orkestral reads them locally in `~/.orkestral`, nothing is uploaded.
+</Note>
+
+## Add a source
+
+{/* PRINT: The Add source dialog with a folder picker */}
+
+<Steps>
+  <Step title="Open your workspace" icon="folder">
+    Select the workspace you want the team to work in, then open its **Sources** panel.
+  </Step>
+  <Step title="Connect a repository or folder" icon="folder-tree">
+    Click **Add source** and pick a local Git repository or any folder on your disk. Orkestral detects whether the folder is version-controlled.
+  </Step>
+  <Step title="Let Orkestral map it" icon="brain">
+    Mapping starts automatically. Wait for it to finish, the source is ready once the team has a full picture of your code.
+  </Step>
+</Steps>
+
+<Tip>
+A single repository is enough to get started. You can connect more sources at any time.
+</Tip>
+
+## What mapping does
+
+Mapping is how Orkestral turns a folder of files into context the team can reason about. It runs once when you add a source and refreshes as your code changes.
+
+<CardGroup cols={2}>
+  <Card title="Detects the stack" icon="bolt">
+    Identifies languages, frameworks and tooling so agents speak your project's dialect.
+  </Card>
+  <Card title="Reads the structure" icon="folder-tree">
+    Maps directories, modules and entry points to know where things live.
+  </Card>
+  <Card title="Learns conventions" icon="list-check">
+    Picks up naming, patterns and style so generated code matches your codebase.
+  </Card>
+  <Card title="Indexes for retrieval" icon="magnifying-glass">
+    Builds an index agents search to pull the right files into context on demand.
+  </Card>
+</CardGroup>
+
+Because mapping happens **before** any agent acts, the CEO orchestrator plans against real structure instead of guessing. Specialists then read the exact files they need.
+
+## Use multiple sources
+
+One workspace can hold many sources, and agents read **across all of them**. This is useful when your work spans more than one repository.
+
+<AccordionGroup>
+  <Accordion title="Frontend and backend repos" icon="code-branch">
+    Add both repositories to the same workspace so a change that touches the API and the UI is planned and executed with full context on both sides.
+  </Accordion>
+  <Accordion title="App plus shared library" icon="folder">
+    Connect your application and a shared package so agents understand how they depend on each other.
+  </Accordion>
+  <Accordion title="Docs alongside code" icon="list-check">
+    Include a docs folder so the team can update documentation in step with the code it describes.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+Every source you add is mapped independently, then made available to the whole team in that workspace.
+</Note>
+
+## Git awareness
+
+For sources under version control, Orkestral surfaces Git **status** and **diffs**. Agents see exactly what you have changed, so plans and reviews reflect your working tree, not just the last commit.
+
+{/* PRINT: A source showing changed files and an inline diff */}
+
+<CardGroup cols={2}>
+  <Card title="Status" icon="code-branch">
+    See which files are modified, added or untracked at a glance.
+  </Card>
+  <Card title="Diffs" icon="magnifying-glass">
+    Inspect line-by-line changes that agents read before they act on a file.
+  </Card>
+</CardGroup>
+
+<Warning>
+If a source is a plain folder without Git, agents still read and map it, but status and diffs are unavailable until it becomes a Git repository.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workspaces" icon="folder" href="/en/workspaces">
+    Organize sources and the team into focused workspaces.
+  </Card>
+  <Card title="Meet the team" icon="users" href="/en/team">
+    See which agents read your sources and how they collaborate.
+  </Card>
+</CardGroup>

@@ -1,32 +1,27 @@
 ---
-title: "Forge — local execution"
+title: "The Forge"
 description: "How the bundled local model executes code changes at $0 API cost."
 ---
 
 **Forge** is Orkestral's bundled local code model. It runs entirely on your machine
-(Qwen2.5-Coder via `node-llama-cpp`, GGUF) and executes the actual code changes —
+(Qwen2.5-Coder via `node-llama-cpp`, GGUF) and executes the actual code changes,
 so routine work costs **nothing** in API fees.
 
 ## The idea: premium plans, local executes
 
-<Frame>
+```mermaid
+flowchart TD
+    P["Premium model"] -->|plans the change| F["Forge, runs locally"]
+    F -->|applies the edit| D["Done, zero API cost"]
+    F -.->|cannot apply| E["Escalate to premium, once"]
 ```
- premium model ──► PLAN the change (what files, what edits)
-        │
-        ▼
- Forge (local)  ──► EXECUTE: emit precise edit blocks
-        │
-        ├─ success ──► done · $0 API cost
-        └─ can't apply ──► escalate to premium model (once) as fallback
-```
-</Frame>
 
 A premium model is great at *planning*. The Forge is great (and free) at *doing*.
 Orkestral splits the job so you pay only for the thinking, not the typing.
 
 ## Fast Apply
 
-The Forge pairs with Orkestral's own **Fast Apply** — a deterministic engine that
+The Forge pairs with Orkestral's own **Fast Apply**, a deterministic engine that
 merges edits into your files:
 
 <Steps>
@@ -37,12 +32,12 @@ merges edits into your files:
     Retries ignoring indentation/whitespace differences.
   </Step>
   <Step title="Safe fuzzy">
-    A single-match fuzzy pass — and it **rejects** anything ambiguous rather than
+    A single-match fuzzy pass, and it **rejects** anything ambiguous rather than
     writing the wrong content.
   </Step>
 </Steps>
 
-Fast Apply only touches the changed lines — it never rewrites the whole file, and it
+Fast Apply only touches the changed lines, it never rewrites the whole file, and it
 needs no external service.
 
 ## $0 by design
@@ -56,7 +51,7 @@ needs no external service.
 ## When it escalates
 
 If the Forge can't apply a change confidently, Orkestral escalates **once** to a
-premium model as a fallback — so correctness is never sacrificed for cost.
+premium model as a fallback, so correctness is never sacrificed for cost.
 
 <Note>
   The Forge model ships **inside the installer**, so it's ready on first launch with

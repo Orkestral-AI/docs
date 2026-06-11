@@ -1,0 +1,105 @@
+---
+title: "Revisão de código"
+description: "Reviews sênior nos seus PRs do GitHub, com o veredicto no chat."
+---
+
+O agente **Code Reviewer** faz revisões de nível sênior nos seus pull requests do GitHub. Ele valida cada mudança de código, registra achados estruturados com comentários inline e devolve o veredicto ao seu chat, fechando o ciclo para que nada fique "pronto, mas não verificado".
+
+<CardGroup cols={2}>
+  <Card title="Validação sênior" icon="magnifying-glass">
+    O Code Reviewer lê o diff com contexto do repositório e avalia correção, riscos e qualidade.
+  </Card>
+  <Card title="Ciclo fechado" icon="bullseye">
+    O veredicto volta ao chat, então a equipe sabe se a entrega foi aprovada ou precisa de ajustes.
+  </Card>
+</CardGroup>
+
+## Como a revisão é disparada
+
+Uma revisão acontece como parte do trabalho da equipe, você não precisa abri-la manualmente.
+
+<Steps>
+  <Step title="Você pede uma mudança no chat">
+    O CEO orquestrador planeja e delega a implementação para os especialistas.
+  </Step>
+  <Step title="A mudança vira um PR">
+    Quando o trabalho produz código, ele é proposto como um pull request no GitHub.
+  </Step>
+  <Step title="O Code Reviewer entra em ação">
+    O orquestrador encaminha o PR ao **Code Reviewer**, que valida a mudança antes de marcá-la como concluída.
+  </Step>
+</Steps>
+
+<Note>
+Você também pode pedir explicitamente no chat: peça à equipe para **revisar** um PR específico, e o Code Reviewer assume a tarefa.
+</Note>
+
+{/* PRINT: chat acionando uma revisão de código sobre um PR */}
+
+## Revisando PRs do GitHub
+
+O Code Reviewer trabalha diretamente sobre o pull request, não sobre arquivos soltos.
+
+<CardGroup cols={3}>
+  <Card title="Lê o diff" icon="code-branch">
+    Examina exatamente o que mudou no PR, com o contexto do restante do repositório.
+  </Card>
+  <Card title="Avalia com critério" icon="brain">
+    Procura bugs, regressões, riscos de segurança e problemas de qualidade.
+  </Card>
+  <Card title="Comenta no PR" icon="comments">
+    Publica os achados como comentários no próprio pull request do GitHub.
+  </Card>
+</CardGroup>
+
+<Tip>
+Conecte sua conta do GitHub para que o Code Reviewer possa ler PRs e publicar comentários. Veja [Integrações](/pt/integrations).
+</Tip>
+
+## Achados estruturados e comentários inline
+
+Cada revisão produz achados organizados, não um bloco de texto solto. Os comentários ficam ancorados nas linhas exatas do diff.
+
+<AccordionGroup>
+  <Accordion title="Comentários inline" icon="code">
+    Cada achado é fixado na linha do arquivo que o motivou, então você vê o problema no contexto, dentro do PR.
+  </Accordion>
+  <Accordion title="Achados classificados" icon="list-check">
+    Os pontos são estruturados por relevância, bloqueadores reais separados de sugestões de melhoria.
+  </Accordion>
+  <Accordion title="Justificativa clara" icon="magnifying-glass">
+    Cada comentário explica o porquê, para você decidir com segurança o que ajustar.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: comentários inline do Code Reviewer em um PR do GitHub */}
+
+## O veredicto volta ao chat
+
+Ao final, o Code Reviewer emite um veredicto e o devolve à conversa, assim a equipe não considera o trabalho terminado sem validação.
+
+<Tabs>
+  <Tab title="Aprovado">
+    O PR passou na revisão. A mudança é considerada validada e o ciclo é fechado.
+  </Tab>
+  <Tab title="Mudanças solicitadas">
+    O Code Reviewer aponta o que precisa mudar. O orquestrador reabre o trabalho e delega as correções aos especialistas.
+  </Tab>
+</Tabs>
+
+<Warning>
+Nada é marcado como concluído só porque o código foi escrito. O status "feito" depende do veredicto do Code Reviewer voltar ao chat.
+</Warning>
+
+{/* PRINT: veredicto de revisão (aprovado / mudanças solicitadas) no chat */}
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="A equipe de agentes" icon="users" href="/pt/agents">
+    Conheça o Code Reviewer e os demais especialistas da hierarquia.
+  </Card>
+  <Card title="Integrações" icon="plug" href="/pt/integrations">
+    Conecte o GitHub para revisar PRs e publicar comentários.
+  </Card>
+</CardGroup>

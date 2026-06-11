@@ -1,0 +1,103 @@
+---
+title: "Fontes"
+description: "Conecte repositórios e pastas pro time entender seu código."
+---
+
+Uma **fonte** é um repositório ou pasta que você conecta a um workspace. Quando você adiciona uma fonte, o Orkestral lê e **mapeia** o código, entendendo a stack, a estrutura e as convenções, antes de qualquer agente agir.
+
+Isso garante que o time trabalhe com contexto real do seu projeto, não com suposições.
+
+<CardGroup cols={2}>
+  <Card title="Contexto completo" icon="folder-tree">
+    Os agentes leem seu código de verdade antes de planejar qualquer mudança.
+  </Card>
+  <Card title="Várias fontes" icon="folder">
+    Adicione quantos repositórios quiser a um único workspace.
+  </Card>
+  <Card title="Git nativo" icon="code-branch">
+    Status e diffs disponíveis pro time enxergar suas mudanças locais.
+  </Card>
+  <Card title="100% local" icon="bolt">
+    Tudo fica na sua máquina, em `~/.orkestral`. Sem servidor, sem telemetria.
+  </Card>
+</CardGroup>
+
+## Adicionar uma fonte
+
+<Steps>
+  <Step title="Abra o workspace">
+    Selecione o workspace onde você quer conectar o código. Cada workspace tem suas próprias fontes.
+  </Step>
+  <Step title="Clique em Adicionar fonte">
+    Aponte pra um repositório Git ou uma pasta no seu disco. O Orkestral aceita qualquer diretório de projeto.
+  </Step>
+  <Step title="Aguarde o mapeamento">
+    O Orkestral varre a fonte e monta o mapa do projeto. Em projetos grandes isso leva alguns instantes.
+  </Step>
+</Steps>
+
+{/* PRINT: tela de adicionar fonte com seleção de pasta */}
+
+<Note>
+A fonte aponta pros arquivos no lugar onde eles já estão. O Orkestral não copia nem move seu código.
+</Note>
+
+## O que o mapeamento faz
+
+Antes de qualquer agente atuar, o Orkestral indexa a fonte pra responder três perguntas:
+
+<AccordionGroup>
+  <Accordion title="Qual é a stack?" icon="brain">
+    Detecta linguagens, frameworks, gerenciadores de pacotes e ferramentas de build a partir dos arquivos do projeto.
+  </Accordion>
+  <Accordion title="Como o código está organizado?" icon="folder-tree">
+    Mapeia a árvore de diretórios, módulos e os pontos de entrada principais, pro time saber onde cada coisa vive.
+  </Accordion>
+  <Accordion title="Quais são as convenções?" icon="list-check">
+    Identifica padrões de nomenclatura, estilo e estrutura pra que as mudanças combinem com o resto do projeto.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Esse mapa é o que faz o time delegar com precisão. O CEO orquestrador usa ele pra planejar e direcionar os especialistas certos.
+</Tip>
+
+## Usar várias fontes
+
+Um workspace pode conter mais de uma fonte, por exemplo, um frontend e um backend separados, ou um monorepo dividido em pacotes.
+
+Os agentes **leem todas as fontes em conjunto**. Eles entendem como o front conversa com o back e mantêm a coerência entre os repositórios numa mesma tarefa.
+
+{/* PRINT: workspace com duas fontes conectadas (frontend e backend) */}
+
+<Warning>
+Conecte só as fontes relevantes pro workspace. Repositórios extras aumentam o ruído de contexto e diluem o foco do time.
+</Warning>
+
+## Consciência de Git
+
+Quando a fonte é um repositório Git, o Orkestral expõe o estado do versionamento pros agentes:
+
+<CardGroup cols={2}>
+  <Card title="Status" icon="magnifying-glass">
+    O time vê quais arquivos foram modificados, adicionados ou removidos desde o último commit.
+  </Card>
+  <Card title="Diffs" icon="code-branch">
+    Os agentes leem as suas mudanças locais linha a linha antes de propor as próprias.
+  </Card>
+</CardGroup>
+
+Assim os agentes trabalham sobre o seu estado atual, não sobre uma versão antiga do `main`, e evitam desfazer alterações que você ainda está fazendo.
+
+{/* PRINT: painel de status do Git mostrando arquivos modificados */}
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Workspaces" icon="folder" href="/pt/workspaces">
+    Organize fontes, agentes e tarefas por projeto.
+  </Card>
+  <Card title="O time de agentes" icon="users" href="/pt/agents">
+    Veja como o CEO orquestra os especialistas a partir do mapa da fonte.
+  </Card>
+</CardGroup>

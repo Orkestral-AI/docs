@@ -1,32 +1,27 @@
 ---
-title: "Forge — execução local"
+title: "O Forge"
 description: "Como o modelo local embutido executa mudanças de código com custo de API de $0."
 ---
 
 O **Forge** é o modelo de código local embutido do Orkestral. Ele roda inteiramente
 na sua máquina (Qwen2.5-Coder via `node-llama-cpp`, GGUF) e executa as mudanças de
-código de verdade — então o trabalho rotineiro custa **nada** em taxas de API.
+código de verdade, então o trabalho rotineiro custa **nada** em taxas de API.
 
 ## A ideia: premium planeja, local executa
 
-<Frame>
+```mermaid
+flowchart TD
+    P["Modelo premium"] -->|planeja a mudança| F["Forge, roda local"]
+    F -->|aplica a edição| D["Pronto, custo de API zero"]
+    F -.->|não consegue aplicar| E["Escala pro premium, uma vez"]
 ```
- modelo premium ──► PLANEJA a mudança (quais arquivos, quais edições)
-        │
-        ▼
- Forge (local)  ──► EXECUTA: emite blocos de edição precisos
-        │
-        ├─ sucesso ──► pronto · custo de API $0
-        └─ não aplica ──► escala pro modelo premium (uma vez) como fallback
-```
-</Frame>
 
 Um modelo premium é ótimo pra *planejar*. O Forge é ótimo (e grátis) pra *fazer*. O
 Orkestral divide o trabalho pra você pagar só pelo raciocínio, não pela digitação.
 
 ## Fast Apply
 
-O Forge anda junto com o **Fast Apply** próprio do Orkestral — um motor
+O Forge anda junto com o **Fast Apply** próprio do Orkestral, um motor
 determinístico que funde as edições nos seus arquivos:
 
 <Steps>
@@ -37,12 +32,12 @@ determinístico que funde as edições nos seus arquivos:
     Tenta de novo ignorando diferenças de indentação/espaços.
   </Step>
   <Step title="Fuzzy seguro">
-    Uma passada fuzzy de match único — e **rejeita** qualquer coisa ambígua em vez
+    Uma passada fuzzy de match único, e **rejeita** qualquer coisa ambígua em vez
     de escrever o conteúdo errado.
   </Step>
 </Steps>
 
-O Fast Apply mexe só nas linhas alteradas — nunca reescreve o arquivo inteiro e não
+O Fast Apply mexe só nas linhas alteradas, nunca reescreve o arquivo inteiro e não
 precisa de serviço externo.
 
 ## $0 por design
@@ -56,7 +51,7 @@ precisa de serviço externo.
 ## Quando escala
 
 Se o Forge não consegue aplicar uma mudança com confiança, o Orkestral escala **uma
-vez** pra um modelo premium como fallback — então a correção nunca é sacrificada pelo
+vez** pra um modelo premium como fallback, então a correção nunca é sacrificada pelo
 custo.
 
 <Note>

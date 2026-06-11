@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "maple",
   "name": "Orkestral",
   "colors": {
     "primary": "#7c6cf0",
@@ -13,8 +13,8 @@
   "background": {
     "decoration": "gradient",
     "color": {
-      "light": "#f6f4fb",
-      "dark": "#07060c"
+      "light": "#faf9fe",
+      "dark": "#0c0a18"
     }
   },
   "favicon": {
@@ -34,7 +34,20 @@
           {
             "group": "Concepts",
             "icon": "lightbulb",
-            "pages": ["en/agents", "en/forge"]
+            "pages": ["en/agents", "en/forge", "en/workspaces"]
+          },
+          {
+            "group": "Features",
+            "icon": "stars",
+            "pages": [
+              "en/sources",
+              "en/chat",
+              "en/issues",
+              "en/code-review",
+              "en/knowledge-base",
+              "en/routines-goals",
+              "en/integrations"
+            ]
           }
         ]
       },
@@ -49,7 +62,20 @@
           {
             "group": "Conceitos",
             "icon": "lightbulb",
-            "pages": ["pt/agents", "pt/forge"]
+            "pages": ["pt/agents", "pt/forge", "pt/workspaces"]
+          },
+          {
+            "group": "Funcionalidades",
+            "icon": "stars",
+            "pages": [
+              "pt/sources",
+              "pt/chat",
+              "pt/issues",
+              "pt/code-review",
+              "pt/knowledge-base",
+              "pt/routines-goals",
+              "pt/integrations"
+            ]
           }
         ]
       }

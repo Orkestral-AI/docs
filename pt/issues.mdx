@@ -1,0 +1,111 @@
+---
+title: "Issues & épicas"
+description: "Todo pedido vira trabalho rastreável, agrupado em épicas."
+---
+
+No Orkestral, você não conversa com um assistente solto. Cada pedido relevante vira **trabalho rastreável**: issues organizadas em épicas, com status, prioridade e responsável. Nada de código tocado sem a sua aprovação.
+
+{/* PRINT: painel de Issues do Orkestral com épicas e issues filhas */}
+
+## Do chat para a issue
+
+Quando você descreve uma necessidade no chat, o orquestrador interpreta o pedido e o transforma em issues acionáveis automaticamente.
+
+<Steps>
+  <Step title="Você descreve o pedido" icon="comments">
+    Escreva o que precisa em linguagem natural, uma feature, um bug, uma refatoração.
+  </Step>
+  <Step title="O orquestrador planeja" icon="brain">
+    O modelo premium lê seus repositórios, entende o contexto e decompõe o pedido.
+  </Step>
+  <Step title="Issues são criadas" icon="list-check">
+    Cada parte do trabalho vira uma issue com título, descrição e vínculos.
+  </Step>
+</Steps>
+
+<Note>
+A deduplicação acontece no servidor: pedidos repetidos não geram issues duplicadas. Se já existe uma issue equivalente, o Orkestral reaproveita em vez de criar outra.
+</Note>
+
+## Épicas agrupam issues relacionadas
+
+Issues que pertencem ao mesmo objetivo são agrupadas sob uma **épica**. A épica é o pai; as issues são os filhos.
+
+<CardGroup cols={2}>
+  <Card title="Visão de alto nível" icon="folder-tree">
+    A épica representa o objetivo maior, por exemplo, "Adicionar autenticação".
+  </Card>
+  <Card title="Vínculos pai/filho" icon="code-branch">
+    Cada issue conhece sua épica e suas dependências, mantendo o trabalho conectado.
+  </Card>
+</CardGroup>
+
+<Tip>
+Use as épicas para acompanhar entregas inteiras de uma vez, sem perder a granularidade de cada issue individual.
+</Tip>
+
+## Status do trabalho
+
+Toda issue percorre um fluxo claro. O status mostra exatamente onde o trabalho está.
+
+<CardGroup cols={5}>
+  <Card title="Backlog" icon="inbox" />
+  <Card title="A fazer" icon="list-check" />
+  <Card title="Em progresso" icon="bolt" />
+  <Card title="Em revisão" icon="magnifying-glass" />
+  <Card title="Concluído" icon="circle-check" />
+</CardGroup>
+
+| Status | O que significa |
+| --- | --- |
+| **Backlog** | Capturado, mas ainda não priorizado para execução. |
+| **A fazer** | Pronto para começar. |
+| **Em progresso** | Um agente está trabalhando ativamente. |
+| **Em revisão** | Mudança feita, aguardando avaliação do Code Reviewer. |
+| **Concluído** | Trabalho finalizado e validado. |
+
+## Prioridade e responsável
+
+Cada issue carrega informações que ajudam a equipe a se organizar.
+
+<AccordionGroup>
+  <Accordion title="Prioridade" icon="bullseye">
+    Indica a urgência relativa da issue, ajudando o orquestrador a decidir o que atacar primeiro.
+  </Accordion>
+  <Accordion title="Responsável" icon="robot">
+    A issue é atribuída ao especialista certo da equipe, Tech Lead, Frontend, Backend, DevOps, QA ou Designer, conforme a natureza do trabalho.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: detalhe de uma issue mostrando status, prioridade e responsável */}
+
+## A aprovação antes da execução
+
+Existe um **portão de aprovação** antes de qualquer linha de código ser tocada. O plano é montado, as issues são criadas, mas a execução só começa com o seu aval.
+
+<Steps>
+  <Step title="O plano é apresentado" icon="list-check">
+    Você revisa as issues, os vínculos e o que será alterado.
+  </Step>
+  <Step title="Você aprova" icon="circle-check">
+    Nada é executado sem essa confirmação explícita.
+  </Step>
+  <Step title="A Forge executa" icon="bolt">
+    Só então o modelo local aplica as mudanças no seu código, a custo zero de API.
+  </Step>
+</Steps>
+
+<Warning>
+Sem aprovação, nenhum arquivo é modificado. Você mantém controle total sobre o que entra no seu repositório.
+</Warning>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Como a equipe orquestra" icon="users" href="/pt/orchestration">
+    Entenda como o CEO delega para os especialistas.
+  </Card>
+  <Card title="A Forge executa local" icon="bolt" href="/pt/forge">
+    Veja como o modelo local aplica o código sem custo de API.
+  </Card>
+</CardGroup>

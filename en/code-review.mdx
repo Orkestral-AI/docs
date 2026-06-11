@@ -1,0 +1,109 @@
+---
+title: "Code review"
+description: "Senior-level reviews on your GitHub PRs, with the verdict in chat."
+---
+
+The **Code Reviewer** agent reads your pull requests like a senior engineer. It returns structured findings, leaves inline comments on the exact lines, and reports a clear verdict back to your chat, so nothing is ever marked "done but unverified".
+
+{/* PRINT: Code Reviewer verdict appearing back in the chat */}
+
+## How it works
+
+<CardGroup cols={2}>
+  <Card title="Triggered automatically" icon="bolt">
+    When a specialist finishes a code change, the orchestrator hands it to the Code Reviewer before reporting back.
+  </Card>
+  <Card title="Reviews real PRs" icon="code-branch">
+    The agent reviews the GitHub pull request, the same diff your teammates would see.
+  </Card>
+  <Card title="Structured findings" icon="list-check">
+    Each issue is categorized and tied to a file and line, with inline comments on the PR.
+  </Card>
+  <Card title="Verdict in chat" icon="comments">
+    Approved or changes requested flows back to your chat, closing the loop.
+  </Card>
+</CardGroup>
+
+## Triggering a review
+
+A review starts in one of two ways.
+
+<Steps>
+  <Step title="As part of a delegated task">
+    When you ask the team to build or fix something, the orchestrator routes the resulting code change to the Code Reviewer as a validation step. You don't have to ask for it, review is built into how work is delivered.
+  </Step>
+  <Step title="On demand">
+    Point the team at an existing pull request and ask for a review. The Code Reviewer pulls the PR and evaluates it directly.
+  </Step>
+</Steps>
+
+<Note>
+Review is the verification step that turns a code change into trusted work. The agent validates the change before the orchestrator tells you it's complete.
+</Note>
+
+## Reviewing GitHub PRs
+
+The Code Reviewer works against the pull request itself, title, description, and the full diff across changed files.
+
+<AccordionGroup>
+  <Accordion title="Reads the full diff" icon="folder-tree">
+    The agent loads every changed file in the PR and reviews additions, deletions, and context, not just the lines that changed in isolation.
+  </Accordion>
+  <Accordion title="Reviews against the repo" icon="magnifying-glass">
+    Because the team has full context on your repository, findings reflect your actual conventions and surrounding code, not generic advice.
+  </Accordion>
+  <Accordion title="Senior-level lens" icon="brain">
+    Correctness, edge cases, security, readability, and maintainability, the things a senior reviewer flags before approving.
+  </Accordion>
+</AccordionGroup>
+
+{/* PRINT: A GitHub pull request with inline review comments from Orkestral */}
+
+## Structured findings and inline comments
+
+The review is not a wall of prose. Each finding is structured and placed where it matters.
+
+<CardGroup cols={2}>
+  <Card title="Categorized findings" icon="bullseye">
+    Every finding has a category and severity, so you can tell a blocking bug from a nice-to-have at a glance.
+  </Card>
+  <Card title="Inline comments" icon="code-branch">
+    Comments land on the exact file and line in the PR, next to the code they're about.
+  </Card>
+</CardGroup>
+
+<Tip>
+Inline comments keep the conversation anchored to the code. You can resolve them in GitHub like any other review thread.
+</Tip>
+
+## The verdict flows back to chat
+
+When the review finishes, its conclusion returns to the chat where the work began.
+
+<Tabs>
+  <Tab title="Approved">
+    The change passed review. The orchestrator reports it back as verified, and the loop is closed, the work is genuinely done.
+  </Tab>
+  <Tab title="Changes requested">
+    The Code Reviewer found issues worth fixing. The verdict and findings return to chat, and the team can act on them, sending the change back to a specialist for revision.
+  </Tab>
+</Tabs>
+
+<Warning>
+A change requested verdict means the work is **not** done yet. Orkestral surfaces this in chat so a flawed change never silently passes as complete.
+</Warning>
+
+{/* PRINT: Chat showing an "approved" verdict closing the loop on a task */}
+
+## Where this fits
+
+Code review is the closing step of the team workflow: a specialist makes the change, the Code Reviewer validates it, and the verdict comes home to chat.
+
+<CardGroup cols={2}>
+  <Card title="Meet the team" icon="users" href="/en/agents">
+    See every specialist and how the reporting hierarchy works.
+  </Card>
+  <Card title="Code changes" icon="code-branch" href="/en/code-changes">
+    How the team turns a request into a reviewable pull request.
+  </Card>
+</CardGroup>

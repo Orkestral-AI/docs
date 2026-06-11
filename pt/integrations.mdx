@@ -1,0 +1,98 @@
+---
+title: "Integrações & MCP"
+description: "Conecte servidores MCP e provedores de agentes pra estender o time."
+---
+
+O Orkestral não é um sistema fechado. Você conecta **servidores MCP** pra dar novas habilidades aos agentes e escolhe quais **provedores de agentes** atuam como os cérebros premium de planejamento. A Forge local continua executando o código, de graça, na sua máquina.
+
+<CardGroup cols={2}>
+  <Card title="Servidores MCP" icon="plug">
+    Ferramentas externas (navegador, APIs, dados) que os agentes podem usar durante o trabalho.
+  </Card>
+  <Card title="Provedores de agentes" icon="brain">
+    Os modelos premium que planejam a mudança: Claude Code, Codex e outros.
+  </Card>
+</CardGroup>
+
+## O que é um servidor MCP
+
+MCP (Model Context Protocol) é um padrão aberto que conecta agentes a ferramentas externas. Cada servidor MCP expõe um conjunto de capacidades, por exemplo, controlar um navegador, consultar um banco de dados ou chamar uma API.
+
+Quando você conecta um servidor, suas ferramentas ficam disponíveis pro time. Os agentes passam a poder executar essas ações como parte do plano, sem você sair do Orkestral.
+
+<Note>
+Um exemplo comum é o **Playwright**, que dá aos agentes ferramentas de navegador, abrir páginas, clicar, preencher formulários e validar fluxos de ponta a ponta.
+</Note>
+
+## Conectar um servidor MCP
+
+<Steps>
+  <Step title="Abra Integrações">
+    Vá em **Recursos** e abra a aba **Integrações & MCP**.
+  </Step>
+  <Step title="Adicione o servidor">
+    Clique em **Adicionar servidor MCP** e informe o comando ou endpoint do servidor (e variáveis de ambiente, se necessário).
+  </Step>
+  <Step title="Conecte e verifique">
+    Salve. O Orkestral inicia o servidor e lista as ferramentas detectadas. Um indicador verde confirma a conexão.
+  </Step>
+  <Step title="Use no fluxo">
+    Pronto. Os agentes passam a usar essas ferramentas automaticamente quando o plano exigir.
+  </Step>
+</Steps>
+
+{/* PRINT: aba Integrações & MCP com um servidor Playwright conectado e suas ferramentas listadas */}
+
+<Tip>
+Conecte só os servidores que você confia. As ferramentas MCP rodam com as permissões do servidor, revise o que cada um expõe antes de usar.
+</Tip>
+
+## Provedores de agentes
+
+O Orkestral separa **planejar** de **executar**. Modelos premium planejam a mudança; a Forge local aplica o código com a engine de Fast Apply, a custo zero de API.
+
+Você escolhe qual provedor atua como o cérebro de planejamento do time:
+
+<CardGroup cols={2}>
+  <Card title="Claude Code" icon="robot">
+    O orquestrador raciocina, lê seus repositórios e delega aos especialistas.
+  </Card>
+  <Card title="Codex" icon="code-branch">
+    Provedor alternativo de planejamento, com o mesmo fluxo de delegação.
+  </Card>
+</CardGroup>
+
+<Note>
+Outros provedores podem ser adicionados ao longo do tempo. Em todos os casos, a **Forge** continua executando localmente, o provedor premium só planeja.
+</Note>
+
+## Como as integrações ampliam o time
+
+Cada integração soma uma capacidade nova ao time, sem trocar o fluxo de trabalho.
+
+<AccordionGroup>
+  <Accordion title="QA com navegador real" icon="list-check">
+    Com o Playwright conectado, o agente de QA navega na sua aplicação, reproduz fluxos e valida a mudança de verdade, não só em testes unitários.
+  </Accordion>
+  <Accordion title="Acesso a dados e APIs" icon="magnifying-glass">
+    Servidores MCP que expõem bancos ou APIs deixam os agentes consultarem contexto real ao planejar uma mudança.
+  </Accordion>
+  <Accordion title="Planejamento mais forte" icon="brain">
+    Trocar o provedor de agentes ajusta a qualidade e o estilo do planejamento, mantendo a execução local intacta.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Servidores MCP podem acessar recursos externos (rede, arquivos, credenciais). Adicione apenas servidores de origem confiável e gerencie segredos pelo cofre de [Ferramentas](/pt/tools).
+</Warning>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Conheça o time" icon="users" href="/pt/team">
+    Veja quais especialistas usam essas ferramentas.
+  </Card>
+  <Card title="Ferramentas & segredos" icon="gear" href="/pt/tools">
+    Gerencie chaves e configurações das integrações com segurança.
+  </Card>
+</CardGroup>

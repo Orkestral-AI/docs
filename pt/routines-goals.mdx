@@ -1,0 +1,94 @@
+---
+title: "Rotinas & metas"
+description: "Automações recorrentes e objetivos que os agentes perseguem."
+---
+
+Rotinas e metas dão **direção contínua** à sua equipe de agentes. Rotinas são automações recorrentes que rodam sozinhas; metas são objetivos do workspace que os agentes mantêm em mente em todo trabalho que executam.
+
+<CardGroup cols={2}>
+  <Card title="Rotinas" icon="clock">
+    Automações que se repetem em um horário ou gatilho, o CEO orquestrador acorda, planeja e delega sem você pedir.
+  </Card>
+  <Card title="Metas" icon="bullseye">
+    Objetivos de longo prazo do workspace que orientam as decisões dos agentes em cada issue e mudança de código.
+  </Card>
+</CardGroup>
+
+## O que é uma rotina
+
+Uma rotina é uma tarefa recorrente que você descreve uma vez e a equipe executa repetidamente. Pense em uma instrução permanente: "toda segunda de manhã, revise as dependências e abra issues para o que estiver desatualizado".
+
+Quando uma rotina dispara, o CEO orquestrador lê seus repositórios, monta um plano e delega aos especialistas certos (Tech Lead, Code Reviewer, Backend, QA). Cada execução vira trabalho rastreável, issues, mudanças de código e relatórios, exatamente como um pedido feito no chat.
+
+<Note>
+Como toda a execução é local, rodar rotinas não tem custo de API. Modelos premium planejam; o FORGE local executa as mudanças de código no seu computador.
+</Note>
+
+## Como configurar uma rotina
+
+{/* PRINT: tela de criação de rotina com agendamento e descrição da tarefa */}
+
+<Steps>
+  <Step title="Abra Rotinas">
+    No workspace, vá até a seção **Rotinas**.
+  </Step>
+  <Step title="Crie uma nova rotina">
+    Clique em **Nova rotina** e dê um nome claro, como `Auditoria semanal de dependências`.
+  </Step>
+  <Step title="Descreva a tarefa">
+    Escreva, em linguagem natural, o que a equipe deve fazer a cada execução. Seja específico sobre o resultado esperado, por exemplo, "abra uma issue por pacote desatualizado".
+  </Step>
+  <Step title="Defina o agendamento">
+    Escolha quando a rotina roda: diária, semanal ou em um horário fixo. O CEO orquestrador acorda nesse momento e começa a planejar.
+  </Step>
+  <Step title="Escolha o escopo">
+    Aponte a rotina para os repositórios e a área relevante para que os agentes tenham o contexto certo.
+  </Step>
+  <Step title="Ative">
+    Salve e ative. A rotina passa a rodar sozinha no horário definido.
+  </Step>
+</Steps>
+
+<Tip>
+Comece com rotinas pequenas e bem delimitadas. Uma tarefa nítida produz planos melhores do que um pedido amplo e vago.
+</Tip>
+
+## O que é uma meta do workspace
+
+Uma meta é um objetivo de alto nível para todo o workspace, algo que a equipe persegue ao longo do tempo, não em uma única execução. Exemplos: "manter a cobertura de testes acima de 80%", "reduzir a dívida técnica no módulo de pagamentos" ou "manter a documentação em sincronia com o código".
+
+Metas não disparam trabalho sozinhas. Elas funcionam como um **norte compartilhado**: quando os agentes planejam qualquer issue, levam as metas ativas em conta e ajustam suas decisões para avançar nessa direção.
+
+{/* PRINT: painel de metas do workspace com progresso de cada objetivo */}
+
+## Como os agentes agem ao longo do tempo
+
+<AccordionGroup>
+  <Accordion title="Rotinas: executar em ciclos" icon="clock">
+    Cada vez que uma rotina dispara, o CEO orquestrador planeja do zero com o estado atual do repositório, delega aos especialistas e registra o resultado. Você revê e aprova as mudanças como em qualquer outro trabalho.
+  </Accordion>
+  <Accordion title="Metas: orientar cada decisão" icon="bullseye">
+    Os agentes consultam as metas ativas ao decompor o trabalho. Uma meta de qualidade, por exemplo, leva o Code Reviewer a ser mais rigoroso e o QA a exigir mais cobertura.
+  </Accordion>
+  <Accordion title="Combinando os dois" icon="bolt">
+    Uma rotina pode existir para empurrar uma meta. Uma rotina semanal de testes mantém viva a meta "cobertura acima de 80%", transformando um objetivo em ação concreta e repetida.
+  </Accordion>
+  <Accordion title="Tudo vira trabalho rastreável" icon="list-check">
+    Cada execução de rotina e cada decisão guiada por meta deixa rastro em issues, mudanças de código e na base de conhecimento, para que você sempre veja por que algo foi feito.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Rotinas executam mudanças de código de verdade nos seus repositórios. Revise o escopo e a descrição antes de ativar, e acompanhe as primeiras execuções para confirmar que o comportamento é o esperado.
+</Warning>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Conheça a equipe" icon="users" href="/pt/team">
+    Veja quais especialistas o CEO orquestrador delega ao executar rotinas.
+  </Card>
+  <Card title="Acompanhe o trabalho em issues" icon="list-check" href="/pt/issues">
+    Veja como cada execução de rotina vira trabalho rastreável.
+  </Card>
+</CardGroup>

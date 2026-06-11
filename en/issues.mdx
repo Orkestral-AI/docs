@@ -1,0 +1,105 @@
+---
+title: "Issues & epics"
+description: "Every request becomes trackable work, grouped under epics."
+---
+
+In Orkestral, you never lose track of what the team is doing. Every meaningful request you make turns into **issues**, discrete, trackable units of work, that are automatically grouped under **epics**. Nothing reaches your code until you approve it.
+
+{/* PRINT: Issues board showing epics with child issues across status columns */}
+
+## From chat to issues
+
+When you ask the team for something in chat, the CEO orchestrator reads your repos, plans the change, and breaks it into issues. You don't file tickets by hand, the work items are created for you.
+
+<Steps>
+  <Step title="You make a request">
+    Describe what you want in plain language in the chat.
+  </Step>
+  <Step title="The orchestrator plans">
+    The CEO analyzes your codebase and decomposes the request into concrete work.
+  </Step>
+  <Step title="Issues are created">
+    Each piece of work becomes an issue with a status, priority, and assignee.
+  </Step>
+  <Step title="Related issues group into an epic">
+    Issues that belong to the same goal are linked under a parent epic.
+  </Step>
+</Steps>
+
+<Note>
+Issue creation is deduplicated server-side. If a request maps to work that already exists, Orkestral reuses the existing issue instead of creating a duplicate.
+</Note>
+
+## Epics group related work
+
+An **epic** is a parent that holds related issues together. When a request spans multiple areas, say a backend change plus a frontend update, Orkestral creates one epic and attaches each issue as a child. Parent and child links keep the hierarchy clear, so you always see how a small task ladders up to the larger goal.
+
+<CardGroup cols={2}>
+  <Card title="Epic" icon="folder-tree">
+    The high-level goal. Groups every issue created for one request.
+  </Card>
+  <Card title="Issue" icon="list-check">
+    A single trackable unit of work, linked to its parent epic.
+  </Card>
+</CardGroup>
+
+## Statuses
+
+Each issue moves through a clear lifecycle. You can see at a glance where every piece of work stands.
+
+<CardGroup cols={5}>
+  <Card title="Backlog" icon="inbox">
+    Captured, not yet scheduled.
+  </Card>
+  <Card title="Todo" icon="list">
+    Queued and ready to start.
+  </Card>
+  <Card title="In progress" icon="bolt">
+    Being worked on by an agent.
+  </Card>
+  <Card title="In review" icon="magnifying-glass">
+    Awaiting review of the result.
+  </Card>
+  <Card title="Done" icon="circle-check">
+    Completed and closed.
+  </Card>
+</CardGroup>
+
+## Priority and assignee
+
+Every issue carries a **priority** and an **assignee**, so the team works on the right things in the right order.
+
+<AccordionGroup>
+  <Accordion title="Priority" icon="bullseye">
+    Priority signals urgency and ordering. Higher-priority issues are picked up first, helping the team focus on what matters most.
+  </Accordion>
+  <Accordion title="Assignee" icon="robot">
+    Each issue is assigned to a specialist, Tech Lead, Frontend, Backend, DevOps, QA, Designer, or Code Reviewer, based on the kind of work involved. The assignee owns the issue through its lifecycle.
+  </Accordion>
+</AccordionGroup>
+
+## The approval gate
+
+No code is touched until you say so. Before any agent runs the FORGE to apply changes, Orkestral pauses at an **approval gate**.
+
+<Warning>
+Execution is blocked until you approve. You stay in control of every change that reaches your codebase.
+</Warning>
+
+{/* PRINT: Approval prompt before code changes are applied */}
+
+<Steps>
+  <Step title="Plan is ready">
+    The orchestrator has created the issues and prepared the change.
+  </Step>
+  <Step title="You review">
+    Inspect the plan and the issues it produced.
+  </Step>
+  <Step title="You approve">
+    Only then does the FORGE execute the code changes locally, at $0 API cost.
+  </Step>
+</Steps>
+
+<Tip>
+Approved work flows straight into [Code changes & review](/en/code-changes), where you see exactly what the FORGE did.
+</Tip>

@@ -1,0 +1,102 @@
+---
+title: "Chat"
+description: "Talk to the CEO and direct the team in natural language."
+---
+
+Chat is the main surface of Orkestral. You don't operate one assistant, you direct a team. You talk to the **CEO** agent in plain language, and it reads your code, plans the change, and delegates to the right specialists.
+
+<Note>
+Describe **what** you want, not **how** to build it. Say "users should be able to reset their password by email", the CEO figures out the files, the approach, and who does the work.
+</Note>
+
+{/* PRINT: The Chat surface with the CEO mid-conversation */}
+
+## How to chat
+
+<Steps>
+  <Step title="Open a chat" icon="comments">
+    Pick the repo you want to work in, then start typing in the message box. The CEO already has full context on the connected codebase.
+  </Step>
+  <Step title="Describe the outcome" icon="bullseye">
+    Write a feature, a fix, or a refactor in natural language. Be as specific about the goal as you like, leave the implementation to the team.
+  </Step>
+  <Step title="Send and watch" icon="bolt">
+    Press send. The CEO replies with a friendly plan, then the team gets to work. You stay in the loop the whole time.
+  </Step>
+</Steps>
+
+<Tip>
+Vague is fine to start. "The login page feels slow" is a valid turn, the CEO will investigate the code before proposing anything.
+</Tip>
+
+## What happens after you send
+
+Every message turns your request into trackable work. The flow runs end to end:
+
+<CardGroup cols={4}>
+  <Card title="Plan" icon="brain">
+    The CEO reads the relevant code and writes a clear plan for the change.
+  </Card>
+  <Card title="Delegate" icon="users">
+    It routes the work to the right specialists in the reporting hierarchy.
+  </Card>
+  <Card title="Execute" icon="code-branch">
+    The local Forge applies the code changes on your machine at $0 API cost.
+  </Card>
+  <Card title="Review" icon="list-check">
+    The Code Reviewer checks the result before it comes back to you.
+  </Card>
+</CardGroup>
+
+The conversation feeds **issues** and the **knowledge base** automatically, so the work is tracked and remembered without extra effort.
+
+{/* PRINT: A plan report with delegated specialists */}
+
+## Route a turn with @mentions
+
+To hand a turn straight to a specialist, **@mention** them. The specialist picks up the full chat context and does the work, no need to re-explain.
+
+```text
+@Code Reviewer take another pass at the auth changes and flag anything risky.
+```
+
+<AccordionGroup>
+  <Accordion title="When to use the CEO (default)" icon="users">
+    Leave the message unaddressed when you want planning and delegation. The CEO decides who should handle each part.
+  </Accordion>
+  <Accordion title="When to @mention a specialist" icon="robot">
+    Use it when you already know who you need, for example `@Frontend`, `@Backend`, `@DevOps`, `@QA`, `@Designer`, or `@Tech Lead`. The turn routes directly to them with the conversation context intact.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+@mentions are great for follow-ups: ask the **Code Reviewer** to double-check a change, or the **Frontend** to polish the UI of something the CEO just shipped.
+</Tip>
+
+## The reports you get back
+
+Orkestral talks back to you in friendly, readable language, not raw diffs or logs.
+
+<CardGroup cols={2}>
+  <Card title="Plan reports" icon="list-check">
+    Before work starts, you see what the team intends to do and who will do it, so you can confirm or redirect.
+  </Card>
+  <Card title="Summary reports" icon="comments">
+    After work completes, you get a plain-language summary of what changed and why, with the issues and knowledge base updated behind the scenes.
+  </Card>
+</CardGroup>
+
+<Note>
+Everything stays local in `~/.orkestral`. No server, no telemetry, your chat and your code never leave your machine.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Meet the team" icon="users" href="/en/team">
+    See each specialist and how the reporting hierarchy works.
+  </Card>
+  <Card title="The Forge" icon="bolt" href="/en/forge">
+    Learn how the local model executes changes at $0 API cost.
+  </Card>
+</CardGroup>
