@@ -1,55 +1,61 @@
-# Mintlify Starter Kit
+<div align="center">
 
-Use the starter kit to get your docs deployed and ready to customize.
+<img src="logo/dark.svg" width="72" alt="Orkestral" />
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+# Orkestral Documentation
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+Official documentation for **Orkestral**, the local-first desktop app where a team of AI agents plans, executes and reviews your code.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+**Live:** [docs.orkestral.pro](https://docs.orkestral.pro) · **Product:** [orkestral.pro](https://orkestral.pro)
 
-## AI-assisted writing
+</div>
 
-Set up your AI coding tool to work with Mintlify:
+---
+
+## About
+
+This is the [Mintlify](https://mintlify.com) project that powers `docs.orkestral.pro`. It is **bilingual** (English + Brazilian Portuguese) and documents the Orkestral desktop app: getting started, the agent team, the Forge, day-to-day work, power features, how-to guides and a reference section.
+
+## Structure
+
+```
+docs/
+├─ docs.json        Navigation, theme, languages (en + pt)
+├─ style.css        Custom CSS (scrollbar)
+├─ logo/            Orkestral logos (light + dark)
+├─ en/              English pages (.mdx)
+└─ pt/              Portuguese pages (.mdx)
+```
+
+Navigation is split into **Get started**, **Learn** (Day to day, Your org & agents, Projects & workflow, Power features, How-to guides, Administration) and **Reference** (Adapters, MCP server, Integrations).
+
+## Writing conventions
+
+- **Bilingual:** every page exists in both `en/` and `pt/` with the same slug. When you add or change a page, update both languages.
+- **No em-dashes:** never use the `—` / `–` characters. Use commas, parentheses or colons.
+- **Accurate to the app:** document the real behavior of the desktop app (the code lives in the `orkestral` repo). Do not invent features.
+- **Components:** use Mintlify components (`Steps`, `Tabs`, `Accordion`, `Card`, `Note`, `Tip`, `Warning`) to stay visual and instructive.
+- **Screenshots:** `{/* PRINT: ... */}` markers indicate where a screenshot of the app should go.
+
+## Develop locally
+
+Install the Mintlify CLI and run the dev server from this folder (where `docs.json` is):
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
 npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Preview at `http://localhost:3000`, with the EN/PT switcher in the top bar.
 
-## Publishing changes
+## Publishing
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Changes pushed to the default branch (`main`) are deployed automatically to `docs.orkestral.pro` by the Mintlify GitHub app. No manual build step.
 
-## Need help?
+---
 
-### Troubleshooting
+<div align="center">
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+Built for the [Orkestral](https://orkestral.pro) desktop app.
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+</div>
