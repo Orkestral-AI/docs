@@ -5,15 +5,15 @@
 /* ----- Conteúdo: cinza-escuro (mais escuro que a sidebar) + campo de estrelas ----- */
 html.dark #content-area,
 html.dark #content-container {
-  background-color: #18181e !important;
+  background-color: #08080b !important;
   background-image:
-    radial-gradient(1px 1px at 25px 35px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 60px 150px, rgba(206, 198, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 175px 55px, rgba(255, 255, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 90px 195px, rgba(255, 255, 255, 0.42), transparent),
-    radial-gradient(1.5px 1.5px at 30px 110px, rgba(220, 220, 255, 0.55), transparent),
-    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.5), transparent);
+    radial-gradient(1px 1px at 25px 35px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, 0.42), transparent),
+    radial-gradient(1.5px 1.5px at 60px 150px, rgba(206, 198, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 175px 55px, rgba(255, 255, 255, 0.38), transparent),
+    radial-gradient(1px 1px at 90px 195px, rgba(255, 255, 255, 0.34), transparent),
+    radial-gradient(1.5px 1.5px at 30px 110px, rgba(220, 220, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.42), transparent);
   background-size: 240px 240px;
   background-repeat: repeat;
   background-attachment: fixed;
