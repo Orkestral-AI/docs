@@ -11,10 +11,9 @@
     "default": "dark"
   },
   "background": {
-    "decoration": "gradient",
     "color": {
       "light": "#faf9fe",
-      "dark": "#0c0a18"
+      "dark": "#050509"
     }
   },
   "favicon": {

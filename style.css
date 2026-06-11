@@ -1,0 +1,67 @@
+/* Orkestral docs — fundo espacial (preto com estrelas) + scrollbar refinada.
+   O Mintlify carrega este arquivo automaticamente (convenção style.css). */
+
+/* ----- Fundo bem escuro, padrão do app (menos roxo) ----- */
+html.dark,
+html.dark body {
+  background-color: #050509 !important;
+}
+
+/* ----- Campo de estrelas atrás do conteúdo (só no modo escuro) ----- */
+html.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 25px 35px, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 60px 150px, rgba(206, 198, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 175px 55px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 90px 195px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 30px 110px, rgba(220, 220, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 150px 170px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 200px 30px, rgba(255, 255, 255, 0.5), transparent);
+  background-size: 230px 230px;
+  background-repeat: repeat;
+  opacity: 0.7;
+}
+
+/* leve brilho roxo no topo, sutil (em vez do gradiente roxo forte) */
+html.dark body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% -20%, rgba(124, 108, 240, 0.16), transparent 70%);
+}
+
+/* ----- Scrollbar fina e roxa (Webkit/Chrome/Safari) ----- */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(124, 108, 240, 0.32);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(124, 108, 240, 0.55);
+  background-clip: padding-box;
+}
+
+/* ----- Scrollbar (Firefox) ----- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 108, 240, 0.4) transparent;
+}
