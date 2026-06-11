@@ -1,0 +1,210 @@
+---
+title: "Onboarding"
+description: "Seu primeiro uso: conecte um repositório e deixe o time se configurar."
+---
+
+Na primeira vez que você abre o Orkestral, você não cai em um app vazio. Um assistente de onboarding em tela cheia toma conta da janela e conduz você por tudo que o time precisa para começar a trabalhar: quem você é, onde seu código vive, quem é o seu primeiro agente, o que você quer que seja feito e em qual plano rodar. Quando o assistente fecha, você já tem um workspace, uma fonte primária, um agente contratado e (opcionalmente) um repositório recém-clonado, tudo pronto para usar.
+
+Esta página explica o assistente de ponta a ponta, tela por tela, incluindo como cada tipo de fonte se conecta e o que acontece depois que você termina.
+
+## O que é o assistente
+
+O assistente é uma barreira. A cada abertura, o Orkestral verifica duas coisas: se o onboarding foi concluído e se algum workspace existe. Se qualquer um dos dois estiver faltando, o assistente aparece no lugar do dashboard. É por isso que o assistente reaparece se você escolher **Refazer onboarding** nas Configurações (isso reseta a flag de concluído sem apagar seus workspaces existentes).
+
+<Note>
+O assistente é um overlay fixo em tela cheia. Não há barra de progresso no topo: cada etapa tem seus próprios botões Continuar e Voltar, e a janela continua arrastável pela área da barra de título enquanto você preenche as informações.
+</Note>
+
+O fluxo tem cinco telas, nesta ordem:
+
+1. **Boas-vindas** (login opcional no Orkestral Cloud)
+2. **Você e seu workspace** (seu nome, nome do workspace, onde o código vive, missão)
+3. **Seu primeiro agente** (nome, adapter, modelo, verificação de ambiente)
+4. **O que você quer que seja feito** (objetivos)
+5. **Plano** (Free Local ou Team Cloud, mais o toggle do plano de contratação inicial)
+
+## Passo a passo
+
+<Steps>
+  <Step title="Boas-vindas">
+    A primeira tela é uma boas-vindas com a marca sobre um fundo animado de galáxia. Você tem dois caminhos:
+
+    - **Entrar no Orkestral Cloud.** Isso abre seu navegador para autenticar. O login é concluído na web, depois um deep link reabre o app desktop e devolve a conta (parecido com um handoff de 2FA). Assim que a conta chega, o assistente avança automaticamente e mostra com qual e-mail você está conectado.
+    - **Pular login.** Um link mais discreto de "pular" inicia o assistente sem uma conta. Tudo que é local continua funcionando.
+
+    Os links para os Termos e a política de Privacidade ficam na parte de baixo da tela.
+
+    {/* PRINT: a tela de boas-vindas com o fundo de galáxia e os botões Entrar / Pular */}
+
+    <Tip>
+    Se o navegador não abrir durante o login, o assistente mostra um erro de login e limpa o estado de carregamento para você tentar de novo. O deep link ainda concluirá o login se você terminar de autenticar no navegador.
+    </Tip>
+  </Step>
+
+  <Step title="Você e seu workspace">
+    Esta é a tela central de configuração. Ela coleta quatro coisas:
+
+    - **Seu nome.** Obrigatório.
+    - **Nome do workspace.** Obrigatório. Isso nomeia o workspace em que o time trabalha.
+    - **Onde seu código vive.** Escolha um de três provedores: Pasta local, GitHub ou Azure DevOps. Veja [Conectando uma fonte](#conectando-uma-fonte) abaixo para cada um.
+    - **Missão.** Uma descrição curta e opcional do que é este workspace. Ela dá contexto aos seus agentes.
+
+    Você não pode continuar até que seu nome e o nome do workspace estejam preenchidos. O botão Continuar fica desabilitado até lá.
+
+    {/* PRINT: a tela "você e seu workspace" com nome, workspace, cards de provedor e missão */}
+
+    <Note>
+    Escolher uma pasta local ou selecionar um repo preenche automaticamente o nome do workspace a partir do nome da pasta ou do repo se você o deixou em branco, então raramente é preciso digitar duas vezes.
+    </Note>
+  </Step>
+
+  <Step title="Seu primeiro agente">
+    Aqui você cria o agente que lidera o time (pense nele como o CEO ou orquestrador). Você define:
+
+    - **Nome do agente.** Vem com um placeholder padrão como "CEO".
+    - **Adapter.** O provedor de IA que move o agente. Os adapters recomendados aparecem primeiro com um selo verde "Recomendado"; clique em **Mais tipos de adapter** para revelar o restante. Adapters marcados como "Em breve" ficam desabilitados.
+    - **Modelo.** A lista de modelos recarrega sempre que você muda o adapter. Se o seu modelo atual não estiver disponível para o novo adapter, ele cai para o padrão daquele adapter.
+    - **Config do provedor.** Alguns adapters expõem campos extras de configuração (como uma chave de API). Eles aparecem apenas quando o adapter selecionado precisa deles.
+    - **Nível de autonomia.** Um slider que vale para todo o workspace e define quanto o time pode fazer por conta própria.
+
+    {/* PRINT: a tela do primeiro agente com nome, cards de adapter, seletor de modelo e slider de autonomia */}
+
+    <Warning>
+    O agente líder precisa ser capaz de planejar, então o modelo local apenas-executor não pode ser escolhido aqui. Esse modelo é reservado para os agentes executores que você contrata depois.
+    </Warning>
+
+    Use **Rodar verificação de ambiente** para confirmar que o adapter selecionado funciona na sua máquina antes de fechar. O resultado mostra um status geral de aprovado, aviso ou falha, além de uma lista de verificações individuais com detalhes. Se a verificação lançar um erro, a mensagem aparece inline para você saber exatamente o que corrigir.
+  </Step>
+
+  <Step title="O que você quer que seja feito">
+    Escolha os tipos de trabalho em que você quer que o time se concentre. As opções são uma grade de seleção múltipla: revisão de código, build, correção de bugs, arquitetura, refatoração, performance, docs, testes, segurança e CI/CD. Os cards selecionados ganham uma marca de check e uma borda destacada. Esses objetivos moldam o time que o Orkestral propõe para você.
+
+    {/* PRINT: a grade de objetivos com vários cards selecionados */}
+  </Step>
+
+  <Step title="Escolha um plano">
+    A última tela oferece dois planos:
+
+    - **Free Local.** Roda inteiramente na sua máquina. Este é o plano selecionável hoje.
+    - **Team Cloud.** Marcado como "Em breve" e desabilitado por enquanto.
+
+    Abaixo dos planos há uma caixa de seleção: **Rodar o plano de contratação inicial**. Deixe-a ligada para que o Orkestral proponha e monte um time inicial logo após o onboarding terminar.
+
+    O botão Continuar nesta etapa final mostra "Concluir e abrir" em vez de "Continuar". Pressioná-lo envia tudo.
+
+    {/* PRINT: a tela de plano com Free Local selecionado e a caixa do plano de contratação inicial */}
+  </Step>
+</Steps>
+
+## Conectando uma fonte
+
+O seletor "onde seu código vive" na segunda etapa é onde você anexa sua base de código. Os três provedores se comportam de formas diferentes.
+
+<Tabs>
+  <Tab title="Pasta local">
+    Escolha **Pasta local**, depois digite um caminho ou clique em **Escolher** para abrir um seletor de pastas nativo. O último segmento do caminho vira o rótulo da fonte (e preenche o nome do workspace se ele estiver vazio).
+
+    Uma pasta local é registrada imediatamente como uma fonte na sua máquina. Nada é clonado, porque os arquivos já estão no disco, então o onboarding termina sem uma etapa de clonagem para este provedor.
+
+    {/* PRINT: a opção de pasta local com um caminho escolhido e o botão Escolher */}
+  </Tab>
+
+  <Tab title="GitHub">
+    Escolha **GitHub**. Se nenhuma conta estiver conectada ainda, clique em **Conectar GitHub** para iniciar o GitHub Device Flow:
+
+    1. O Orkestral gera um código de usuário curto e o mostra em um diálogo.
+    2. Clique no código para copiá-lo, depois abra o GitHub no navegador para inseri-lo.
+    3. O diálogo consulta o GitHub enquanto você autoriza. Quando você aprova, a conta conecta automaticamente.
+
+    O diálogo trata os casos extremos: um código expirado, uma autorização negada ou um erro de rede mostram, cada um, uma mensagem clara para você tentar de novo.
+
+    Uma vez conectado, você vê sua conta (com avatar) e um seletor de repos com busca local. Você pode selecionar um ou mais repositórios; o primeiro vira a fonte primária. Você também pode conectar outra conta ou alternar entre contas a partir do dropdown de conta.
+
+    {/* PRINT: o diálogo do device flow do GitHub mostrando o código de usuário */}
+    {/* PRINT: a barra da conta conectada do GitHub com o seletor de repos aberto */}
+
+    <Note>
+    Se a lista de repos voltar vazia, o Orkestral mostra um card de "acesso necessário" com um botão **Conceder acesso**. Isso abre as configurações de acesso de apps do GitHub para você dar ao Orkestral permissão de ver seus repositórios, depois tente listar de novo.
+    </Note>
+  </Tab>
+
+  <Tab title="Azure DevOps">
+    Escolha **Azure DevOps**, depois **Conectar**. Isso executa um device flow da Microsoft bem parecido com o do GitHub:
+
+    1. O Orkestral gera um código de usuário e abre a página de verificação da Microsoft para você.
+    2. Copie o código, insira-o na página da Microsoft e autorize.
+    3. O painel consulta enquanto você autoriza e conecta na aprovação.
+
+    Os mesmos estados de expirado, negado e erro são tratados inline. Depois de conectar, você vê sua conta Azure e as organizações que ela alcança, além de um seletor de repos (buscável por nome do repo, projeto ou URL remota). Selecionar um repo o define como a fonte via sua URL remota; o primeiro repo selecionado é a fonte primária.
+
+    {/* PRINT: o painel de conexão do Azure DevOps com o código de usuário */}
+    {/* PRINT: a barra da conta conectada do Azure com o seletor de repos aberto */}
+  </Tab>
+</Tabs>
+
+<Note>
+Tanto os repos do GitHub quanto os do Azure são armazenados como "fontes remotas" no rascunho. Você pode selecionar vários de uma vez. Desconectar uma conta limpa os repos selecionados dela do rascunho, para que você nunca termine o onboarding apontando para um repo ao qual não tem mais acesso.
+</Note>
+
+## A etapa de clonagem
+
+Quando você pressiona **Concluir e abrir**, o Orkestral primeiro salva suas respostas de onboarding (criando o workspace e o agente líder). Depois, se você escolheu um ou mais repositórios remotos, ele os clona.
+
+Um overlay de clonagem em tela cheia aparece com uma marca do GitHub girando e o nome do repo que está sendo clonado no momento. Não há barra de porcentagem de propósito: um `git clone --depth 1` raso não reporta progresso confiável, então você recebe um sinal claro de "isto está acontecendo" e o nome do repo no lugar.
+
+{/* PRINT: o overlay de clonagem em tela cheia com o nome do repo */}
+
+Nos bastidores, para cada fonte remota o Orkestral:
+
+- Cria a fonte no novo workspace e espera a clonagem terminar.
+- Marca o primeiro repo como a fonte primária.
+- Dispara a análise de conhecimento sobre o código clonado para que os agentes comecem com contexto real.
+
+Depois que o primeiro repo é clonado, o Orkestral finaliza o workspace contra aquele caminho clonado e, se você deixou o toggle ligado, enfileira o plano de contratação inicial.
+
+<Warning>
+Se o onboarding falhar (um erro de clonagem, um erro de criação), o overlay de clonagem fecha e um banner de erro amigável aparece no topo do assistente. O detalhe técnico é registrado no console para depuração. Suas respostas são mantidas, então você pode corrigir o problema e terminar de novo.
+</Warning>
+
+## Quando o onboarding termina
+
+Em caso de sucesso, o Orkestral define o novo workspace e projeto como ativos, reseta o estado do assistente e reproduz uma transição curta de abertura (cerca de 2,6 segundos) antes de revelar o dashboard. A transição mantém um handoff suave sem flash entre o assistente e o app: os dados do dashboard carregam por baixo, depois o overlay some para mostrá-lo.
+
+A partir daqui você está no app normal, com um workspace, uma fonte primária e seu agente líder. Bons próximos passos:
+
+<CardGroup cols={2}>
+  <Card title="Contratar um time" icon="users" href="/pt/hire-a-team">
+    Se você desligou o plano de contratação inicial, monte seu time agora.
+  </Card>
+  <Card title="Rodar sua primeira tarefa" icon="play" href="/pt/run-your-first-task">
+    Dê algo ao time para fazer e veja-o trabalhar.
+  </Card>
+  <Card title="Conectar mais fontes" icon="git-branch" href="/pt/connect-a-repository">
+    Adicione mais repos ou pastas ao mesmo workspace.
+  </Card>
+  <Card title="Configurações" icon="gear" href="/pt/settings">
+    Ajuste adapters, autonomia e mais. Refaça o onboarding a partir daqui se precisar.
+  </Card>
+</CardGroup>
+
+## FAQ
+
+<Accordion title="Posso pular o login do Cloud?">
+Sim. A tela de boas-vindas tem um link de pular, e tudo que é local (workspaces, fontes, agentes, o plano Free Local) funciona sem uma conta.
+</Accordion>
+
+<Accordion title="E se eu escolher o repo ou provedor errado?">
+Trocar o provedor na segunda etapa limpa as seleções ligadas aos outros provedores, então você pode mudar de ideia livremente antes de terminar. Depois do onboarding, adicione ou remova fontes do workspace a qualquer momento.
+</Accordion>
+
+<Accordion title="Por que o assistente apareceu de novo?">
+A barreira mostra o assistente sempre que o onboarding não está marcado como concluído ou não há workspaces. Escolher **Refazer onboarding** nas Configurações reseta a flag de concluído (sem apagar workspaces), o que traz o assistente de volta.
+</Accordion>
+
+<Accordion title="Preciso clonar algo para uma pasta local?">
+Não. Uma pasta local já está no disco, então não há etapa de clonagem para esse provedor. O overlay de clonagem só aparece para repositórios do GitHub ou Azure.
+</Accordion>
+
+<Accordion title="O que a verificação de ambiente faz?">
+Ela confirma que o adapter selecionado consegue de fato rodar na sua máquina (por exemplo, que uma CLI está instalada ou que uma chave de API funciona) e reporta aprovado, aviso ou falha com detalhes por verificação, para você pegar problemas antes de terminar.
+</Accordion>

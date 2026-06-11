@@ -22,7 +22,7 @@
           {
             "group": "Get started",
             "icon": "rocket",
-            "pages": ["en/introduction", "en/key-concepts", "en/glossary", "en/installation", "en/quickstart", "en/first-workspace", "en/first-agent", "en/watching-agents"]
+            "pages": ["en/introduction", "en/key-concepts", "en/glossary", "en/installation", "en/onboarding", "en/quickstart", "en/first-workspace", "en/first-agent", "en/watching-agents"]
           },
           {
             "group": "Learn",
@@ -31,19 +31,19 @@
                 "group": "Day to day",
                 "icon": "gauge",
                 "expanded": false,
-                "pages": ["en/dashboard", "en/chat", "en/issues", "en/code-changes", "en/code-review", "en/inbox", "en/approvals", "en/costs", "en/activity"]
+                "pages": ["en/chat", "en/issues", "en/code-review", "en/inbox", "en/approvals"]
               },
               {
                 "group": "Your org & agents",
                 "icon": "sitemap",
                 "expanded": false,
-                "pages": ["en/agents", "en/skills", "en/team-catalog", "en/org-structure", "en/delegation", "en/agent-adapters", "en/adapter-manager"]
+                "pages": ["en/agents", "en/skills", "en/delegation", "en/agent-adapters", "en/adapter-manager"]
               },
               {
                 "group": "Projects & workflow",
                 "icon": "folder-tree",
                 "expanded": false,
-                "pages": ["en/projects", "en/workspaces", "en/sources", "en/routines-goals"]
+                "pages": ["en/workspaces", "en/sources", "en/routines-goals"]
               },
               {
                 "group": "Power features",
@@ -96,7 +96,7 @@
           {
             "group": "Começar",
             "icon": "rocket",
-            "pages": ["pt/introduction", "pt/key-concepts", "pt/glossary", "pt/installation", "pt/quickstart", "pt/first-workspace", "pt/first-agent", "pt/watching-agents"]
+            "pages": ["pt/introduction", "pt/key-concepts", "pt/glossary", "pt/installation", "pt/onboarding", "pt/quickstart", "pt/first-workspace", "pt/first-agent", "pt/watching-agents"]
           },
           {
             "group": "Aprender",
@@ -105,19 +105,19 @@
                 "group": "No dia a dia",
                 "icon": "gauge",
                 "expanded": false,
-                "pages": ["pt/dashboard", "pt/chat", "pt/issues", "pt/code-changes", "pt/code-review", "pt/inbox", "pt/approvals", "pt/costs", "pt/activity"]
+                "pages": ["pt/chat", "pt/issues", "pt/code-review", "pt/inbox", "pt/approvals"]
               },
               {
                 "group": "Sua org & agentes",
                 "icon": "sitemap",
                 "expanded": false,
-                "pages": ["pt/agents", "pt/skills", "pt/team-catalog", "pt/org-structure", "pt/delegation", "pt/agent-adapters", "pt/adapter-manager"]
+                "pages": ["pt/agents", "pt/skills", "pt/delegation", "pt/agent-adapters", "pt/adapter-manager"]
               },
               {
                 "group": "Projetos & fluxo",
                 "icon": "folder-tree",
                 "expanded": false,
-                "pages": ["pt/projects", "pt/workspaces", "pt/sources", "pt/routines-goals"]
+                "pages": ["pt/workspaces", "pt/sources", "pt/routines-goals"]
               },
               {
                 "group": "Recursos avançados",

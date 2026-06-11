@@ -1,0 +1,210 @@
+---
+title: "Onboarding"
+description: "Your first run: connect a repository and let the team set itself up."
+---
+
+The first time you launch Orkestral, you do not land in an empty app. A full-screen onboarding wizard takes over the window and walks you through everything the team needs to start working: who you are, where your code lives, who your first agent is, what you want done, and which plan to run on. By the time the wizard closes, you have a workspace, a primary source, a hired agent, and (optionally) a freshly cloned repository, all ready to go.
+
+This page explains the wizard end to end, screen by screen, including how each source type connects and what happens after you finish.
+
+## What the wizard is
+
+The wizard is a gate. On every launch, Orkestral checks two things: whether onboarding was completed and whether any workspaces exist. If either is missing, the wizard shows instead of the dashboard. This is why the wizard reappears if you choose **Redo onboarding** from Settings (it resets the completed flag without deleting your existing workspaces).
+
+<Note>
+The wizard is a fixed full-screen overlay. There is no progress bar at the top: each step owns its own Continue and Back buttons, and the window is still draggable from the title bar area while you fill things in.
+</Note>
+
+The flow has five screens in order:
+
+1. **Welcome** (optional Orkestral Cloud login)
+2. **You and your workspace** (your name, workspace name, where the code lives, mission)
+3. **Your first agent** (name, adapter, model, environment check)
+4. **What you want done** (objectives)
+5. **Plan** (Free Local or Team Cloud, plus the initial hiring plan toggle)
+
+## Step by step
+
+<Steps>
+  <Step title="Welcome">
+    The first screen is a branded welcome over an animated galaxy background. You have two paths:
+
+    - **Log in to Orkestral Cloud.** This opens your browser to authenticate. The login completes on the web, then a deep link reopens the desktop app and hands the account back (similar to a 2FA handoff). Once the account arrives, the wizard advances automatically and shows you which email you are connected as.
+    - **Skip login.** A quieter "skip" link starts the wizard without an account. Everything local still works.
+
+    Links to the Terms and Privacy policy sit at the bottom of the screen.
+
+    {/* PRINT: the welcome screen with the galaxy background and the Log in / Skip buttons */}
+
+    <Tip>
+    If the browser fails to open during login, the wizard shows a login error and clears the loading state so you can try again. The deep link will still complete the login if you finish authenticating in the browser.
+    </Tip>
+  </Step>
+
+  <Step title="You and your workspace">
+    This is the core setup screen. It collects four things:
+
+    - **Your name.** Required.
+    - **Workspace name.** Required. This names the workspace the team works in.
+    - **Where your code lives.** Choose one of three providers: Local folder, GitHub, or Azure DevOps. See [Connecting a source](#connecting-a-source) below for each.
+    - **Mission.** An optional short description of what this workspace is about. It gives your agents context.
+
+    You cannot continue until both your name and the workspace name are filled in. The Continue button stays disabled until then.
+
+    {/* PRINT: the "you and your workspace" screen with name, workspace, provider cards, and mission */}
+
+    <Note>
+    Picking a local folder or selecting a repo auto-fills the workspace name from the folder or repo name if you left it blank, so you rarely have to type it twice.
+    </Note>
+  </Step>
+
+  <Step title="Your first agent">
+    Here you create the agent that leads the team (think of it as the CEO or orchestrator). You set:
+
+    - **Agent name.** Defaults to a placeholder like "CEO".
+    - **Adapter.** The AI provider that powers the agent. Recommended adapters show first with a green "Recommended" badge; click **More adapter types** to reveal the rest. Adapters marked "Coming soon" are disabled.
+    - **Model.** The model list reloads whenever you change the adapter. If your current model is not available for the new adapter, it falls back to that adapter's default.
+    - **Provider config.** Some adapters expose extra configuration fields (such as an API key). These appear only when the selected adapter needs them.
+    - **Autonomy level.** A workspace-wide slider that sets how much the team can do on its own.
+
+    {/* PRINT: the first-agent screen with name, adapter cards, model select, and autonomy slider */}
+
+    <Warning>
+    The lead agent must be able to plan, so the local executor-only model cannot be chosen here. That model is reserved for the executor agents you hire later.
+    </Warning>
+
+    Use **Run environment check** to verify the selected adapter works on your machine before you commit. The result shows an overall pass, warning, or fail status plus a list of individual checks with details. If the check throws, the error message is shown inline so you know exactly what to fix.
+  </Step>
+
+  <Step title="What you want done">
+    Pick the kinds of work you want the team focused on. The options are a grid you can multi-select: code review, build, bug fixing, architecture, refactoring, performance, docs, tests, security, and CI/CD. Selected cards get a check mark and a highlighted border. These objectives shape the team Orkestral proposes for you.
+
+    {/* PRINT: the objectives grid with several cards selected */}
+  </Step>
+
+  <Step title="Choose a plan">
+    The last screen offers two plans:
+
+    - **Free Local.** Runs entirely on your machine. This is the selectable plan today.
+    - **Team Cloud.** Marked "Coming soon" and disabled for now.
+
+    Below the plans is a checkbox: **Run the initial hiring plan**. Leave it on to have Orkestral propose and assemble a starting team right after onboarding finishes.
+
+    The Continue button on this final step reads "Finish and open" instead of "Continue". Pressing it submits everything.
+
+    {/* PRINT: the plan screen with Free Local selected and the initial hiring plan checkbox */}
+  </Step>
+</Steps>
+
+## Connecting a source
+
+The "where your code lives" picker on the second step is where you attach your codebase. The three providers behave differently.
+
+<Tabs>
+  <Tab title="Local folder">
+    Choose **Local folder**, then either type a path or click **Choose** to open a native folder picker. The last segment of the path becomes the source label (and fills the workspace name if it was empty).
+
+    A local folder is registered immediately as a source on your machine. Nothing is cloned, because the files are already on disk, so onboarding finishes without a cloning step for this provider.
+
+    {/* PRINT: the local folder option with a chosen path and the Choose button */}
+  </Tab>
+
+  <Tab title="GitHub">
+    Choose **GitHub**. If no account is connected yet, click **Connect GitHub** to start the GitHub Device Flow:
+
+    1. Orkestral generates a short user code and shows it in a dialog.
+    2. Click the code to copy it, then open GitHub in your browser to enter it.
+    3. The dialog polls GitHub while you authorize. When you approve, the account connects automatically.
+
+    The dialog handles the edge cases: an expired code, a denied authorization, or a network error each show a clear message so you can retry.
+
+    Once connected, you see your account (with avatar) and a repo picker with local search. You can select one or more repositories; the first one becomes the primary source. You can also connect another account or switch between accounts from the account dropdown.
+
+    {/* PRINT: the GitHub device-flow dialog showing the user code */}
+    {/* PRINT: the connected GitHub account bar with the repo picker open */}
+
+    <Note>
+    If the repo list comes back empty, Orkestral shows an "access needed" card with a **Grant access** button. That opens GitHub's app access settings so you can give Orkestral permission to see your repositories, then retry the list.
+    </Note>
+  </Tab>
+
+  <Tab title="Azure DevOps">
+    Choose **Azure DevOps**, then **Connect**. This runs a Microsoft device flow much like GitHub's:
+
+    1. Orkestral generates a user code and opens the Microsoft verification page for you.
+    2. Copy the code, enter it on Microsoft's page, and authorize.
+    3. The panel polls while you authorize and connects on approval.
+
+    The same expired, denied, and error states are handled inline. After connecting, you see your Azure account and the organizations it can reach, plus a repo picker (searchable by repo name, project, or remote URL). Selecting a repo sets it as the source via its remote URL; the first selected repo is the primary source.
+
+    {/* PRINT: the Azure DevOps connect panel with the user code */}
+    {/* PRINT: the connected Azure account bar with the repo picker open */}
+  </Tab>
+</Tabs>
+
+<Note>
+Both GitHub and Azure repos are stored as "remote sources" on the draft. You can select several at once. Disconnecting an account clears its selected repos from the draft so you never finish onboarding pointing at a repo you no longer have access to.
+</Note>
+
+## The cloning step
+
+When you press **Finish and open**, Orkestral first saves your onboarding answers (creating the workspace and the lead agent). Then, if you picked one or more remote repositories, it clones them.
+
+A full-screen cloning overlay appears with a spinning GitHub mark and the name of the repo currently being cloned. There is no percentage bar on purpose: a shallow `git clone --depth 1` does not report reliable progress, so you get a clear "this is happening" signal and the repo name instead.
+
+{/* PRINT: the full-screen cloning overlay with the repo name */}
+
+Behind the scenes, for each remote source Orkestral:
+
+- Creates the source on the new workspace and waits for the clone to finish.
+- Marks the first repo as the primary source.
+- Kicks off knowledge analysis on the cloned code so agents start with real context.
+
+After the first repo is cloned, Orkestral finalizes the workspace against that cloned path and, if you left the toggle on, queues the initial hiring plan.
+
+<Warning>
+If onboarding fails (a clone error, a creation error), the cloning overlay closes and a friendly error banner appears at the top of the wizard. The technical detail is logged to the console for debugging. Your answers are kept, so you can fix the issue and finish again.
+</Warning>
+
+## When onboarding finishes
+
+On success, Orkestral sets the new workspace and project as active, resets the wizard state, and plays a short launch transition (about 2.6 seconds) before revealing the dashboard. The transition keeps a smooth handoff with no flash between the wizard and the app: the dashboard data loads underneath, then the overlay fades out to show it.
+
+From here you are in the normal app with a workspace, a primary source, and your lead agent. Good next steps:
+
+<CardGroup cols={2}>
+  <Card title="Hire a team" icon="users" href="/en/hire-a-team">
+    If you turned off the initial hiring plan, assemble your team now.
+  </Card>
+  <Card title="Run your first task" icon="play" href="/en/run-your-first-task">
+    Give the team something to do and watch it work.
+  </Card>
+  <Card title="Connect more sources" icon="git-branch" href="/en/connect-a-repository">
+    Add more repos or folders to the same workspace.
+  </Card>
+  <Card title="Settings" icon="gear" href="/en/settings">
+    Adjust adapters, autonomy, and more. Redo onboarding from here if you need to.
+  </Card>
+</CardGroup>
+
+## FAQ
+
+<Accordion title="Can I skip the Cloud login?">
+Yes. The welcome screen has a skip link, and everything local (workspaces, sources, agents, the Free Local plan) works without an account.
+</Accordion>
+
+<Accordion title="What if I picked the wrong repo or provider?">
+Switching the provider on the second step clears the selections tied to the other providers, so you can change your mind freely before finishing. After onboarding, add or remove sources from the workspace at any time.
+</Accordion>
+
+<Accordion title="Why did the wizard show up again?">
+The gate shows the wizard whenever onboarding is not marked complete or there are no workspaces. Choosing **Redo onboarding** in Settings resets the completed flag (without deleting workspaces), which brings the wizard back.
+</Accordion>
+
+<Accordion title="Do I have to clone anything for a local folder?">
+No. A local folder is already on disk, so there is no cloning step for that provider. The cloning overlay only appears for GitHub or Azure repositories.
+</Accordion>
+
+<Accordion title="What does the environment check do?">
+It verifies the selected adapter can actually run on your machine (for example, that a CLI is installed or an API key works) and reports a pass, warning, or fail with per-check details, so you catch problems before finishing.
+</Accordion>
